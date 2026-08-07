@@ -45,7 +45,7 @@ public class RobotContainer {
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         switch (Constants.currentMode) {
-            case REAL:
+            case REAL -> {
                 // Real robot, instantiate hardware IO implementations
                 // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
                 // a CANcoder
@@ -66,17 +66,9 @@ public class RobotContainer {
                 // arrangements.
                 // Please see the AdvantageKit template documentation for more information:
                 // https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template#custom-module-implementations
-                //
-                // drive =
-                // new Drive(
-                // new GyroIOPigeon2(),
-                // new ModuleIOTalonFXS(TunerConstants.FrontLeft),
-                // new ModuleIOTalonFXS(TunerConstants.FrontRight),
-                // new ModuleIOTalonFXS(TunerConstants.BackLeft),
-                // new ModuleIOTalonFXS(TunerConstants.BackRight));
-                break;
+            }
 
-            case SIM:
+            case SIM -> {
                 // Sim robot, instantiate physics sim IO implementations
                 drive =
                         new Drive(
@@ -85,9 +77,9 @@ public class RobotContainer {
                                 new ModuleIOSim(TunerConstants.FrontRight),
                                 new ModuleIOSim(TunerConstants.BackLeft),
                                 new ModuleIOSim(TunerConstants.BackRight));
-                break;
+            }
 
-            default:
+            default -> {
                 // Replayed robot, disable IO implementations
                 drive =
                         new Drive(
@@ -96,13 +88,32 @@ public class RobotContainer {
                                 new ModuleIO() {},
                                 new ModuleIO() {},
                                 new ModuleIO() {});
-                break;
+            }
         }
 
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-        // Set up SysId routines
+        configureButtonBindings();
+        configureDefaultCommands();
+        configureAutons();
+        
+        // COMMENT OUT THIS METHOD BEFORE RUNNING MATCHES
+        configureSysid();
+    }
+
+    private void configureDefaultCommands() {
+        drive.setDefaultCommand(
+                DriveCommands.joystickDrive(
+                        drive,
+                        () -> -controller.getLeftY(),
+                        () -> -controller.getLeftX(),
+                        () -> -controller.getRightX()));
+    }
+
+    private void configureAutons() {}
+
+    private void configureSysid() {
         autoChooser.addOption(
                 "Drive Wheel Radius Characterization",
                 DriveCommands.wheelRadiusCharacterization(drive));
@@ -121,9 +132,6 @@ public class RobotContainer {
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)",
                 drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-        // Configure the button bindings
-        configureButtonBindings();
     }
 
     /**
@@ -133,24 +141,6 @@ public class RobotContainer {
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        // Default command, normal field-relative drive
-        drive.setDefaultCommand(
-                DriveCommands.joystickDrive(
-                        drive,
-                        () -> -controller.getLeftY(),
-                        () -> -controller.getLeftX(),
-                        () -> -controller.getRightX()));
-
-        // Lock to 0 degrees when A button is held
-        controller
-                .a()
-                .whileTrue(
-                        DriveCommands.joystickDriveAtAngle(
-                                drive,
-                                () -> -controller.getLeftY(),
-                                () -> -controller.getLeftX(),
-                                () -> Rotation2d.kZero));
-
         // Switch to X pattern when X button is pressed
         controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
@@ -176,4 +166,7 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return autoChooser.get();
     }
+
+    // Add all subsystem periodic after scheduler methods here
+    public void periodicAfterScheduler() {}
 }
