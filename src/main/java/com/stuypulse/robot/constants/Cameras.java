@@ -7,6 +7,6 @@ package com.stuypulse.robot.constants;
 import edu.wpi.first.math.geometry.Pose3d;
 
 public interface Cameras {
-    public static record Camera(String name, Pose3d location) {}
-    ;
+  public static record Camera(String name, Pose3d location) {}
+  ;
 }

@@ -170,27 +170,40 @@ task(eventDeploy) {
 project.compileJava.dependsOn(spotlessApply)
 spotless {
     java {
-        targetExclude("src/main/java/com/stuypulse/robot/commands/autons/*.java")
-        licenseHeader("""/************************ PROJECT PHIL ************************/
-/* Copyright (c) 2026 StuyPulse Robotics. All rights reserved.*/
-/* This work is licensed under the terms of the MIT license.  */
-/**************************************************************/
-""").updateYearWithLatest(false)
-        googleJavaFormat().aosp()
-
+        target fileTree(".") {
+            include "**/*.java"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        toggleOffOn()
+        googleJavaFormat()
+        removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()
-
-        importOrder(
-                'com.stuypulse.constants',
-                'com.stuypulse.subsystems',
-                'com.stuypulse.commands',
-                'com.stuypulse.commands.auton',
-                'com.stuypulse.util',
-                'com.stuypulse',
-                'edu.wpi',
-                'com.revrobotics'
-                )
-        removeUnusedImports()
+    }
+    groovyGradle {
+        target fileTree(".") {
+            include "**/*.gradle"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        greclipse()
+        indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    json {
+        target fileTree(".") {
+            include "**/*.json"
+            exclude "**/build/**", "**/build-*/**", ".wpilib/**"
+        }
+        gson().indentWithSpaces(2)
+    }
+    format "misc", {
+        target fileTree(".") {
+            include "**/*.md", "**/.gitignore"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        trimTrailingWhitespace()
+        indentWithSpaces(2)
+        endWithNewline()
     }
 }
