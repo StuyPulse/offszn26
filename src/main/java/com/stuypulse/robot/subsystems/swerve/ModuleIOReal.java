@@ -2,7 +2,7 @@
 /* Copyright (c) 2026 StuyPulse Robotics. All rights reserved.*/
 /* This work is licensed under the terms of the MIT license.  */
 /**************************************************************/
-package com.stuypulse.robot.subsystems.drive;
+package com.stuypulse.robot.subsystems.swerve;
 
 import static com.stuypulse.robot.util.PhoenixUtil.*;
 
@@ -166,7 +166,7 @@ public class ModuleIOReal implements ModuleIO {
 
     // Configure periodic frames
     BaseStatusSignal.setUpdateFrequencyForAll(
-        Drive.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
+        Swerve.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
         driveVelocity,

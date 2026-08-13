@@ -7,7 +7,8 @@ package com.stuypulse.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.constants.DriverConstants;
-import com.stuypulse.robot.subsystems.drive.Drive;
+import com.stuypulse.robot.subsystems.swerve.Swerve;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -26,7 +27,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final Drive drive;
+  private final Swerve drive;
 
   // Controller
   private final CommandXboxController controller;
@@ -38,7 +39,7 @@ public class RobotContainer {
   public RobotContainer() {
     this.controller = new CommandXboxController(DriverConstants.Driver.DRIVER_INDEX);
 
-    this.drive = Drive.getInstance();
+    this.drive = Swerve.getInstance();
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());

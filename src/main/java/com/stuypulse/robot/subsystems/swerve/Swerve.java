@@ -2,7 +2,7 @@
 /* Copyright (c) 2026 StuyPulse Robotics. All rights reserved.*/
 /* This work is licensed under the terms of the MIT license.  */
 /**************************************************************/
-package com.stuypulse.robot.subsystems.drive;
+package com.stuypulse.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -44,14 +44,14 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class Drive extends FullSubsystem {
-  private static final Drive instance;
+public class Swerve extends FullSubsystem {
+  private static final Swerve instance;
 
   static {
     switch (GlobalSettings.currentMode) {
       case REAL -> {
         instance =
-            new Drive(
+            new Swerve(
                 new GyroIOReal(),
                 new ModuleIOReal(TunerConstants.FrontLeft),
                 new ModuleIOReal(TunerConstants.FrontRight),
@@ -61,7 +61,7 @@ public class Drive extends FullSubsystem {
 
       case SIM -> {
         instance =
-            new Drive(
+            new Swerve(
                 new GyroIO() {},
                 new ModuleIOSim(TunerConstants.FrontLeft),
                 new ModuleIOSim(TunerConstants.FrontRight),
@@ -72,7 +72,7 @@ public class Drive extends FullSubsystem {
         // For replay mode
       default -> {
         instance =
-            new Drive(
+            new Swerve(
                 new GyroIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
@@ -82,7 +82,7 @@ public class Drive extends FullSubsystem {
     }
   }
 
-  public static final Drive getInstance() {
+  public static final Swerve getInstance() {
     return instance;
   }
 
@@ -135,7 +135,7 @@ public class Drive extends FullSubsystem {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
-  private Drive(
+  private Swerve(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
       ModuleIO frModuleIO,
