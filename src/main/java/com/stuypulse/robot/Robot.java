@@ -4,7 +4,8 @@
 /**************************************************************/
 package com.stuypulse.robot;
 
-import com.stuypulse.robot.constants.Constants;
+import com.stuypulse.robot.constants.GlobalSettings;
+import com.stuypulse.robot.util.FullSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -40,7 +41,7 @@ public class Robot extends LoggedRobot {
     //         });
 
     // Set up data receivers & replay source
-    switch (Constants.currentMode) {
+    switch (GlobalSettings.currentMode) {
       case REAL:
         // Running on a real robot, log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new WPILOGWriter());
@@ -86,7 +87,7 @@ public class Robot extends LoggedRobot {
     // Return to non-RT thread priority (do not modify the first argument)
     // Threads.setCurrentThreadPriority(false, 10);
 
-    robotContainer.periodicAfterScheduler();
+    FullSubsystem.runAllPeriodicAfterScheduler();
   }
 
   /** This function is called once when the robot is disabled. */
