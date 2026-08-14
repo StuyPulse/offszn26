@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import com.stuypulse.robot.constants.Field;
+
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
-
-import com.stuypulse.robot.subsystems.vision.VisionConstants.VisionSettings;
 
 /* Simulated IO implementation of vision using PhotonVision to simulate Limelight Vision cameras. */
 public class VisionIOSim implements VisionIO {
@@ -57,7 +57,7 @@ public class VisionIOSim implements VisionIO {
         // Initialize vision sim
         if (visionSim == null) {
             visionSim = new VisionSystemSim("main");
-            visionSim.addAprilTags(VisionSettings.APRIL_TAG_LAYOUT);
+            visionSim.addAprilTags(Field.APRIL_TAG_LAYOUT);
         }
 
         // Add sim camera
@@ -117,7 +117,7 @@ public class VisionIOSim implements VisionIO {
                 var target = result.targets.get(0);
 
                 // Calculate robot pose
-                var tagPose = VisionSettings.APRIL_TAG_LAYOUT.getTagPose(target.fiducialId);
+                var tagPose = Field.APRIL_TAG_LAYOUT.getTagPose(target.fiducialId);
                 if (tagPose.isPresent()) {
                     Transform3d fieldToTarget = new Transform3d(tagPose.get().getTranslation(),
                             tagPose.get().getRotation());

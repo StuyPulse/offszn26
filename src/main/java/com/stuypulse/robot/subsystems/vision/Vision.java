@@ -13,7 +13,8 @@
 
 package com.stuypulse.robot.subsystems.vision;
 
-import static com.stuypulse.robot.subsystems.vision.VisionConstants.*;
+import com.stuypulse.robot.subsystems.vision.VisionConstants.*;
+import com.stuypulse.robot.constants.Field;
 
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
@@ -176,7 +177,7 @@ public class Vision extends FullSubsystem {
 
       // Add tag poses
       for (int tagId : inputs[cameraIndex].tagIds) {
-        var tagPose = VisionSettings.APRIL_TAG_LAYOUT.getTagPose(tagId);
+        var tagPose = Field.APRIL_TAG_LAYOUT.getTagPose(tagId);
         if (tagPose.isPresent()) {
           tagPoses.add(tagPose.get());
         }
@@ -196,9 +197,9 @@ public class Vision extends FullSubsystem {
 
                 // Must be within the field boundaries
                 || observation.pose().getX() < 0.0
-                || observation.pose().getX() > VisionSettings.APRIL_TAG_LAYOUT.getFieldLength()
+                || observation.pose().getX() > Field.APRIL_TAG_LAYOUT.getFieldLength()
                 || observation.pose().getY() < 0.0
-                || observation.pose().getY() > VisionSettings.APRIL_TAG_LAYOUT.getFieldWidth();
+                || observation.pose().getY() > Field.APRIL_TAG_LAYOUT.getFieldWidth();
 
         // Add pose to log
         robotPoses.add(observation.pose());
@@ -308,7 +309,7 @@ public class Vision extends FullSubsystem {
         .ignoringDisable(true);
   }
 
-  public Command setAprilTagWhitelist(double[] whitelist) {
+  public Command setAprilTagWhitelist(int[] whitelist) {
     return runOnce(
             () -> {
               for (VisionIOOutputs output : outputs) {

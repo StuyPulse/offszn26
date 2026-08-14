@@ -13,8 +13,6 @@
 
 package com.stuypulse.robot.subsystems.vision;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
@@ -22,10 +20,6 @@ import edu.wpi.first.math.util.Units;
 public interface VisionConstants {
   public interface VisionSettings {
     final int RESET_IMU_INDEX = 1;
-
-    // AprilTag layout
-    final AprilTagFieldLayout APRIL_TAG_LAYOUT =
-        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
     // Basic filtering thresholds
     final double MAX_AMBIGUITY = 0.3;

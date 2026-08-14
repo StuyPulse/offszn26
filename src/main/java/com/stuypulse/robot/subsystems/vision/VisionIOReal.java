@@ -22,6 +22,8 @@ import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
+
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -164,7 +166,7 @@ public class VisionIOReal implements VisionIO {
 
     pipelinePublisher.accept(outputs.pipeline);
 
-    aprilTagWhitelistPublisher.accept(outputs.aprilTagIDWhitelist);
+    aprilTagWhitelistPublisher.accept(Arrays.stream(outputs.aprilTagIDWhitelist).asDoubleStream().toArray());
 
     imuModePublisher.accept(outputs.imuMode);
   }
