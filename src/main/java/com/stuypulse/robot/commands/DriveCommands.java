@@ -144,11 +144,10 @@ public class DriveCommands {
         new Debouncer(Alignment.IS_ALIGNED_DEBOUNCE.in(Seconds), DebounceType.kBoth);
 
     Rotation2d targetHeading = AlignmentUtil.getTargetAlignmentAngle(swerve.getPose(), targetPose);
+    angleController.setSetpoint(targetHeading.getRadians());
 
     return Commands.runEnd(
             () -> {
-              angleController.setSetpoint(targetHeading.getRadians());
-
               ChassisSpeeds speeds =
                   new ChassisSpeeds(
                       0, 0, angleController.calculate(swerve.getRotation().getRadians()));
