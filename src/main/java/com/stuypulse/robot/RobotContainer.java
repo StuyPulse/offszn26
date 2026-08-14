@@ -7,10 +7,15 @@ package com.stuypulse.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.constants.DriverConstants;
+import com.stuypulse.robot.constants.GlobalSettings;
+import com.stuypulse.robot.constants.DriverConstants.Driver.Drive;
+import com.stuypulse.robot.subsystems.swerve.GyroIO;
+import com.stuypulse.robot.subsystems.swerve.GyroIOReal;
+import com.stuypulse.robot.subsystems.swerve.ModuleIO;
+import com.stuypulse.robot.subsystems.swerve.ModuleIOReal;
+import com.stuypulse.robot.subsystems.swerve.ModuleIOSim;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import com.stuypulse.robot.subsystems.swerve.TunerConstants;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,7 +32,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final Swerve drive;
+  private final Swerve swerve;
 
   // Controller
   private final CommandXboxController controller;
@@ -37,9 +42,41 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    this.controller = new CommandXboxController(DriverConstants.Driver.DRIVER_INDEX);
 
-    this.drive = Swerve.getInstance();
+    switch (GlobalSettings.currentMode) {
+      case REAL -> {
+        swerve =
+            new Swerve(
+                new GyroIOReal(),
+                new ModuleIOReal(TunerConstants.FrontLeft),
+                new ModuleIOReal(TunerConstants.FrontRight),
+                new ModuleIOReal(TunerConstants.BackLeft),
+                new ModuleIOReal(TunerConstants.BackRight));
+      }
+
+      case SIM -> {
+        swerve =
+            new Swerve(
+                new GyroIO() {},
+                new ModuleIOSim(TunerConstants.FrontLeft),
+                new ModuleIOSim(TunerConstants.FrontRight),
+                new ModuleIOSim(TunerConstants.BackLeft),
+                new ModuleIOSim(TunerConstants.BackRight));
+      }
+
+        // For replay mode
+      default -> {
+        swerve =
+            new Swerve(
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
+      }
+    }
+
+    this.controller = new CommandXboxController(DriverConstants.Driver.DRIVER_INDEX);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -53,26 +90,26 @@ public class RobotContainer {
   }
 
   private void configureDefaultCommands() {
-    drive.setDefaultCommand(DriveCommands.joystickDrive(controller));
+    swerve.setDefaultCommand(DriveCommands.joystickDrive(swerve, controller));
   }
 
   private void configureAutons() {}
 
   private void configureSysid() {
     autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(swerve));
     autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(swerve));
     autoChooser.addOption(
         "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        swerve.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        swerve.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        "Drive SysId (Dynamic Forward)", swerve.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        "Drive SysId (Dynamic Reverse)", swerve.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
   /**
@@ -83,18 +120,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // Reset gyro to 0 degrees when B button is pressed
-    controller
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                    drive)
-                .ignoringDisable(true));
+    controller.x().onTrue(DriveCommands.xMode(swerve));
   }
 
   /**
