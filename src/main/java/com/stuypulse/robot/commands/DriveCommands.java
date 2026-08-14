@@ -145,6 +145,7 @@ public class DriveCommands {
 
     Rotation2d targetHeading = AlignmentUtil.getTargetAlignmentAngle(swerve.getPose(), targetPose);
     angleController.setSetpoint(targetHeading.getRadians());
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     return Commands.runEnd(
             () -> {
