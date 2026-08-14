@@ -8,7 +8,10 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.constants.DriverConstants;
 import com.stuypulse.robot.constants.GlobalSettings;
-import com.stuypulse.robot.constants.DriverConstants.Driver.Drive;
+import com.stuypulse.robot.subsystems.intake.Intake;
+import com.stuypulse.robot.subsystems.intake.IntakeIO;
+import com.stuypulse.robot.subsystems.intake.IntakeIOReal;
+import com.stuypulse.robot.subsystems.intake.IntakeIOSim;
 import com.stuypulse.robot.subsystems.swerve.GyroIO;
 import com.stuypulse.robot.subsystems.swerve.GyroIOReal;
 import com.stuypulse.robot.subsystems.swerve.ModuleIO;
@@ -19,7 +22,6 @@ import com.stuypulse.robot.subsystems.swerve.TunerConstants;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -33,6 +35,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Swerve swerve;
+  private final Intake intake;
 
   // Controller
   private final CommandXboxController controller;
@@ -52,6 +55,7 @@ public class RobotContainer {
                 new ModuleIOReal(TunerConstants.FrontRight),
                 new ModuleIOReal(TunerConstants.BackLeft),
                 new ModuleIOReal(TunerConstants.BackRight));
+        intake = new Intake(new IntakeIOReal());
       }
 
       case SIM -> {
@@ -62,6 +66,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+        intake = new Intake(new IntakeIOSim());
       }
 
         // For replay mode
@@ -73,6 +78,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+        intake = new Intake(new IntakeIO() {});
       }
     }
 
