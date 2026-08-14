@@ -2,7 +2,7 @@
 /* Copyright (c) 2026 StuyPulse Robotics. All rights reserved.*/
 /* This work is licensed under the terms of the MIT license.  */
 /**************************************************************/
-package com.stuypulse.robot.subsystems.drive;
+package com.stuypulse.robot.subsystems.swerve;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
