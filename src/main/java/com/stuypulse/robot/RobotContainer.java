@@ -8,6 +8,10 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.constants.DriverConstants;
 import com.stuypulse.robot.constants.GlobalSettings;
+import com.stuypulse.robot.subsystems.hood.Hood;
+import com.stuypulse.robot.subsystems.hood.HoodIO;
+import com.stuypulse.robot.subsystems.hood.HoodIOReal;
+import com.stuypulse.robot.subsystems.hood.HoodIOSim;
 import com.stuypulse.robot.subsystems.swerve.GyroIO;
 import com.stuypulse.robot.subsystems.swerve.GyroIOReal;
 import com.stuypulse.robot.subsystems.swerve.ModuleIO;
@@ -31,6 +35,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Swerve swerve;
+  private final Hood hood;
 
   // Controller
   private final CommandXboxController controller;
@@ -50,6 +55,7 @@ public class RobotContainer {
                 new ModuleIOReal(TunerConstants.FrontRight),
                 new ModuleIOReal(TunerConstants.BackLeft),
                 new ModuleIOReal(TunerConstants.BackRight));
+        hood = new Hood(new HoodIOReal());
       }
 
       case SIM -> {
@@ -60,6 +66,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+        hood = new Hood(new HoodIOSim());
       }
 
         // For replay mode
@@ -71,6 +78,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+        hood = new Hood(new HoodIO() {});
       }
     }
 
