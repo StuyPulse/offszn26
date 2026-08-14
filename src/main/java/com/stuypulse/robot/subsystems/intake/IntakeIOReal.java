@@ -131,7 +131,9 @@ public class IntakeIOReal implements IntakeIO {
   public void applyOutputs(IntakeIOOutputs outputs) {
     switch (outputs.pivotMode) {
       case POSITION -> pivotMotor.setControl(
-          pivotPositionController.withPosition(outputs.pivotTargetPosition));
+          pivotPositionController
+              .withPosition(outputs.pivotTargetPosition)
+              .withSlot(outputs.pivotGainSlot));
       case TORQUE_CURRENT -> pivotMotor.setControl(
           pivotPushdownController.withOutput(outputs.pivotTargetTorqueCurrent));
       case STOP -> pivotMotor.stopMotor();

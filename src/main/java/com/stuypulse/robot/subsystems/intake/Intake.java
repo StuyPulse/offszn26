@@ -70,13 +70,13 @@ public class Intake extends FullSubsystem {
         if (isPivotBelowPushdownThreshold()) {
           runPivotTorqueCurrent(IntakeSettings.PIVOT_PUSHDOWN_CURRENT);
         } else {
-          runPivotPosition(IntakeSettings.PIVOT_DEPLOY_ANGLE);
+          runPivotPosition(IntakeSettings.PIVOT_DEPLOY_ANGLE, 0);
         }
       }
 
-      case STOW -> runPivotPosition(IntakeSettings.PIVOT_STOW_ANGLE);
+      case STOW -> runPivotPosition(IntakeSettings.PIVOT_STOW_ANGLE, 0);
 
-      case DIGEST -> runPivotPosition(IntakeSettings.PIVOT_DIGEST_ANGLE);
+      case DIGEST -> runPivotPosition(IntakeSettings.PIVOT_STOW_ANGLE, 1);
     }
 
     if (!canRunRollers()) {
@@ -108,8 +108,9 @@ public class Intake extends FullSubsystem {
         && pivotState == PivotState.DEPLOY;
   }
 
-  private void runPivotPosition(Angle position) {
+  private void runPivotPosition(Angle position, int gainSlot) {
     outputs.pivotMode = PivotIOOutputMode.POSITION;
+    outputs.pivotGainSlot = gainSlot;
     outputs.pivotTargetPosition = position;
   }
 
@@ -156,5 +157,14 @@ public class Intake extends FullSubsystem {
               setRollerState(RollerState.STOP);
             })
         .withName("Intake Stow");
+  }
+
+  public Command digest() {
+    return runOnce(
+            () -> {
+              setPivotState(PivotState.DIGEST);
+              setRollerState(RollerState.STOP);
+            })
+        .withName("Intake Digest");
   }
 }

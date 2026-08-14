@@ -52,6 +52,9 @@ public interface IntakeIO {
     @AutoLogOutput(key = "Intake/Pivot/Output Mode")
     public PivotIOOutputMode pivotMode = PivotIOOutputMode.POSITION;
 
+    @AutoLogOutput(key = "Intake/Pivot/Gain Slot")
+    public int pivotGainSlot = 0;
+
     @AutoLogOutput(key = "Intake/Pivot/Target Position")
     public Angle pivotTargetPosition = Degrees.zero();
 

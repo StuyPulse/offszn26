@@ -21,8 +21,6 @@ import com.stuypulse.robot.constants.DriverConstants.Driver.Turn;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
 import com.stuypulse.robot.util.swerve.DriveInputProcessor;
 import com.stuypulse.robot.util.swerve.DriveTurnInputProcessor;
-
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
