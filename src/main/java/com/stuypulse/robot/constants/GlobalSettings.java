@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.RobotBase;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public interface GlobalSettings {
   final CANBus RIO = new CANBus("rio");
@@ -12,8 +13,8 @@ public interface GlobalSettings {
 
   // Add subsystems as they're added.
   public interface EnabledSubsystems {
-    // final LoggedNetworkBoolean INTAKE =
-    //     new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Intake", true);
+    final LoggedNetworkBoolean INTAKE =
+        new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Intake", true);
   }
 
   final Time DT = Milliseconds.of(20);
