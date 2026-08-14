@@ -45,46 +45,6 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Swerve extends FullSubsystem {
-  private static final Swerve instance;
-
-  static {
-    switch (GlobalSettings.currentMode) {
-      case REAL -> {
-        instance =
-            new Swerve(
-                new GyroIOReal(),
-                new ModuleIOReal(TunerConstants.FrontLeft),
-                new ModuleIOReal(TunerConstants.FrontRight),
-                new ModuleIOReal(TunerConstants.BackLeft),
-                new ModuleIOReal(TunerConstants.BackRight));
-      }
-
-      case SIM -> {
-        instance =
-            new Swerve(
-                new GyroIO() {},
-                new ModuleIOSim(TunerConstants.FrontLeft),
-                new ModuleIOSim(TunerConstants.FrontRight),
-                new ModuleIOSim(TunerConstants.BackLeft),
-                new ModuleIOSim(TunerConstants.BackRight));
-      }
-
-        // For replay mode
-      default -> {
-        instance =
-            new Swerve(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
-      }
-    }
-  }
-
-  public static final Swerve getInstance() {
-    return instance;
-  }
 
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 250.0 : 100.0;
