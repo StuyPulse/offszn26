@@ -17,7 +17,7 @@ import com.stuypulse.robot.subsystems.vision.VisionConstants.*;
 import com.stuypulse.robot.constants.Field;
 
 import com.stuypulse.robot.constants.GlobalSettings;
-import com.stuypulse.robot.subsystems.swerve.Swerve;
+
 import com.stuypulse.robot.subsystems.vision.VisionConstants.Camera;
 import com.stuypulse.robot.subsystems.vision.VisionIO.MegaTagMode;
 import com.stuypulse.robot.subsystems.vision.VisionIO.PoseObservationType;
@@ -101,12 +101,15 @@ public class Vision extends FullSubsystem {
   @Override
   public void periodic() {
     maxTagCount = 0;
-
     hasData = false;
 
     for (int i = 0; i < io.length; i++) {
       io[i].updateInputs(inputs[i]);
       Logger.processInputs("Vision/" + CamerasList.CAMERAS[i].name(), inputs[i]);
+    }
+
+    if (!GlobalSettings.EnabledSubsystems.VISION.get()) {
+        return;
     }
 
     // Initialize logging values

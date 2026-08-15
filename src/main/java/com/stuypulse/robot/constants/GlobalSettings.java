@@ -2,6 +2,8 @@ package com.stuypulse.robot.constants;
 
 import static edu.wpi.first.units.Units.*;
 
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
+
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -12,8 +14,8 @@ public interface GlobalSettings {
 
   // Add subsystems as they're added.
   public interface EnabledSubsystems {
-    // final LoggedNetworkBoolean INTAKE =
-    //     new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Intake", true);
+    final LoggedNetworkBoolean VISION =
+        new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Vision", true);
   }
 
   final Time DT = Milliseconds.of(20);
