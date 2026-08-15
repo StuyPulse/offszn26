@@ -3,6 +3,7 @@ package com.stuypulse.robot.subsystems.hood;
 import static edu.wpi.first.units.Units.Degrees;
 
 import com.stuypulse.robot.constants.GlobalSettings;
+import com.stuypulse.robot.subsystems.hood.HoodConstants.*;
 import com.stuypulse.robot.subsystems.hood.HoodIO.HoodIOOutputMode;
 import com.stuypulse.robot.subsystems.hood.HoodIO.HoodIOOutputs;
 import com.stuypulse.robot.util.FullSubsystem;
@@ -27,7 +28,7 @@ public class Hood extends FullSubsystem {
   public enum HoodState {
     SHOOT,
     FERRY,
-    STOP
+    STOW
   }
 
   private void setState(HoodState state) {
@@ -51,7 +52,7 @@ public class Hood extends FullSubsystem {
 
       case FERRY -> runPosition(Degrees.zero());
 
-      case STOP -> stop();
+      case STOW -> runPosition(HoodSettings.STOW_ANGLE);
     }
   }
 
@@ -77,7 +78,7 @@ public class Hood extends FullSubsystem {
     return runOnce(() -> setState(HoodState.FERRY)).withName("Hood Ferry");
   }
 
-  public Command stopHood() {
-    return runOnce(() -> setState(HoodState.STOP)).withName("Hood Stop");
+  public Command stow() {
+    return runOnce(() -> setState(HoodState.STOW)).withName("Hood STOW");
   }
 }

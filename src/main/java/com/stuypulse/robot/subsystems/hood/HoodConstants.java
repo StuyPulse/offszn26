@@ -1,9 +1,12 @@
 package com.stuypulse.robot.subsystems.hood;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.stuypulse.robot.util.config.TalonFXConfig;
+import edu.wpi.first.units.measure.Angle;
 
 public interface HoodConstants {
 
@@ -11,6 +14,8 @@ public interface HoodConstants {
 
   public interface HoodSettings {
     double GEAR_RATIO = 5;
+
+    Angle STOW_ANGLE = Degrees.of(0);
   }
 
   public interface HoodGains {
