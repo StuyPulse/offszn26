@@ -43,7 +43,7 @@ public class Hood extends FullSubsystem {
     Logger.processInputs("Hood", inputs);
 
     if (!GlobalSettings.EnabledSubsystems.HOOD.get()) {
-      stop();
+      stopMotor();
 
       return;
     }
@@ -68,7 +68,7 @@ public class Hood extends FullSubsystem {
     outputs.hoodTargetPosition = position;
   }
 
-  private void stop() {
+  private void stopMotor() {
     outputs.hoodMode = HoodIOOutputMode.STOP;
   }
 
@@ -81,6 +81,6 @@ public class Hood extends FullSubsystem {
   }
 
   public Command stow() {
-    return runOnce(() -> setState(HoodState.STOW)).withName("Hood STOW");
+    return runOnce(() -> setState(HoodState.STOW)).withName("Hood Stow");
   }
 }
