@@ -8,6 +8,10 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.constants.DriverConstants;
 import com.stuypulse.robot.constants.GlobalSettings;
+import com.stuypulse.robot.subsystems.feeder.Feeder;
+import com.stuypulse.robot.subsystems.feeder.FeederIO;
+import com.stuypulse.robot.subsystems.feeder.FeederIOReal;
+import com.stuypulse.robot.subsystems.feeder.FeederIOSim;
 import com.stuypulse.robot.subsystems.swerve.GyroIO;
 import com.stuypulse.robot.subsystems.swerve.GyroIOReal;
 import com.stuypulse.robot.subsystems.swerve.ModuleIO;
@@ -31,6 +35,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Swerve swerve;
+  private final Feeder feeder;
 
   // Controller
   private final CommandXboxController controller;
@@ -50,6 +55,7 @@ public class RobotContainer {
                 new ModuleIOReal(TunerConstants.FrontRight),
                 new ModuleIOReal(TunerConstants.BackLeft),
                 new ModuleIOReal(TunerConstants.BackRight));
+        feeder = new Feeder(new FeederIOReal());
       }
 
       case SIM -> {
@@ -60,6 +66,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+        feeder = new Feeder(new FeederIOSim());
       }
 
         // For replay mode
@@ -71,6 +78,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+        feeder = new Feeder(new FeederIO() {});
       }
     }
 
