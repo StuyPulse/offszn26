@@ -144,8 +144,8 @@ public class DriveCommands {
         new Debouncer(Alignment.IS_ALIGNED_DEBOUNCE.in(Seconds), DebounceType.kBoth);
 
     Rotation2d targetHeading = AlignmentUtil.getTargetAlignmentAngle(swerve.getPose(), targetPose);
-    angleController.setSetpoint(targetHeading.getRadians());
     angleController.enableContinuousInput(-Math.PI, Math.PI);
+    angleController.setSetpoint(targetHeading.getRadians());
 
     return Commands.runEnd(
             () -> {
