@@ -139,20 +139,24 @@ public class DriveCommands {
   }
 
   public static Command alignToPose(Swerve swerve, Pose2d targetPose) {
-    PIDController angleController = new PIDController(Alignment.Gains.kP, Alignment.Gains.kI, Alignment.Gains.kD);
+    PIDController angleController =
+        new PIDController(Alignment.Gains.kP, Alignment.Gains.kI, Alignment.Gains.kD);
     Debouncer isAlignedDebouncer =
         new Debouncer(Alignment.IS_ALIGNED_DEBOUNCE.in(Seconds), DebounceType.kBoth);
 
-    Rotation2d targetHeading = AlignmentUtil.getTargetAlignmentAngle(swerve.getPose(), targetPose);
-
     angleController.enableContinuousInput(-Math.PI, Math.PI);
-    angleController.setSetpoint(targetHeading.getRadians());
 
     return Commands.runEnd(
             () -> {
+              Rotation2d targetHeading =
+                  AlignmentUtil.getTargetAlignmentAngle(swerve.getPose(), targetPose);
+
               ChassisSpeeds speeds =
                   new ChassisSpeeds(
-                      0, 0, angleController.calculate(swerve.getRotation().getRadians()));
+                      0,
+                      0,
+                      angleController.calculate(
+                          swerve.getRotation().getRadians(), targetHeading.getRadians()));
 
               boolean isFlipped =
                   DriverStation.getAlliance().isPresent()
@@ -169,8 +173,7 @@ public class DriveCommands {
         .until(
             () ->
                 isAlignedDebouncer.calculate(
-                    Math.abs(swerve.getRotation().minus(targetHeading).getRadians())
-                        < Alignment.THETA_TOLERANCE.getRadians()))
+                    Math.abs(angleController.getError()) < Alignment.THETA_TOLERANCE.getRadians()))
         .withName("Swerve Align To Pose");
   }
 

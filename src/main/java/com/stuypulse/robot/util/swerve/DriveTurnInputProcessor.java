@@ -88,7 +88,7 @@ public class DriveTurnInputProcessor {
    * @return This instance of the class
    */
   private DriveTurnInputProcessor getRightX() {
-    this.processedAngularVelocity = controller.getRightX();
+    this.processedAngularVelocity = -controller.getRightX();
     return this;
   }
 
