@@ -23,6 +23,8 @@ public class Hood extends FullSubsystem {
     this.io = io;
     inputs = new HoodIOInputsAutoLogged();
     outputs = new HoodIOOutputs();
+
+    setState(HoodState.STOW);
   }
 
   public enum HoodState {
