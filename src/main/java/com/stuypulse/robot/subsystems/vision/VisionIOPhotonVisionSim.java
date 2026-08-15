@@ -31,8 +31,8 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 
-/* Simulated IO implementation of vision using PhotonVision to simulate Limelight Vision cameras. */
-public class VisionIOSim implements VisionIO {
+/** IO implementation for physics sim using PhotonVision simulator. */
+public class VisionIOPhotonVisionSim implements VisionIO {
     private static VisionSystemSim visionSim;
 
     private final PhotonCamera camera;
@@ -48,7 +48,7 @@ public class VisionIOSim implements VisionIO {
      * @param robotToCamera The transform from the robot to the camera.
      * @param poseSupplier Supplier for the robot pose to use in simulation.
      */
-    public VisionIOSim(String name, Transform3d robotToCamera, Supplier<Pose2d> poseSupplier) {
+    public VisionIOPhotonVisionSim(String name, Transform3d robotToCamera, Supplier<Pose2d> poseSupplier) {
         // super(name, robotToCamera);
         this.camera = new PhotonCamera(name);
         this.robotToCamera = robotToCamera;

@@ -203,7 +203,7 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
     }
 
     // Update gyro alert
-    gyroDisconnectedAlert.set(!gyroInputs.connected && GlobalSettings.currentMode != Mode.SIM);
+    gyroDisconnectedAlert.set(!gyroInputs.connected && GlobalSettings.CURRENT_MODE != Mode.SIM);
   }
 
   /**

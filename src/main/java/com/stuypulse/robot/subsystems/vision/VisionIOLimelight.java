@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 /** IO implementation for real Limelight hardware. */
-public class VisionIOReal implements VisionIO {
+public class VisionIOLimelight implements VisionIO {
   private final Supplier<Rotation2d> rotationSupplier;
   private final DoubleArrayPublisher orientationPublisher;
   private final IntegerPublisher pipelinePublisher;
@@ -52,7 +52,7 @@ public class VisionIOReal implements VisionIO {
    * @param name The configured name of the Limelight.
    * @param rotationSupplier Supplier for the current estimated rotation, used for MegaTag 2.
    */
-  public VisionIOReal(String name, Supplier<Rotation2d> rotationSupplier) {
+  public VisionIOLimelight(String name, Supplier<Rotation2d> rotationSupplier) {
     megaTagMode = MegaTagMode.MEGATAG_1;
 
     var table = NetworkTableInstance.getDefault().getTable(name);
