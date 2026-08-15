@@ -88,6 +88,8 @@ public class Robot extends LoggedRobot {
     // Threads.setCurrentThreadPriority(false, 10);
 
     FullSubsystem.runAllPeriodicAfterScheduler();
+
+    robotContainer.clearMemoized();
   }
 
   /** This function is called once when the robot is disabled. */

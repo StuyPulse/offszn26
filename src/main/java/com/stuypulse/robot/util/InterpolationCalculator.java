@@ -43,6 +43,11 @@ public class InterpolationCalculator {
     }
   }
 
+  public void clearMemoized() {
+    cachedInterpolatedShotInfo = Optional.empty();
+    cachedInterpolatedFerryRPM = Optional.empty();
+  }
+
   public AngularVelocity getInterpolatedShotRPM() {
     if (cachedInterpolatedShotInfo.isEmpty()) {
       cachedInterpolatedShotInfo = Optional.of(interpolateShotInfo());
