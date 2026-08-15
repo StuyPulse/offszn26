@@ -9,6 +9,8 @@ import com.stuypulse.robot.subsystems.hood.HoodIO.HoodIOOutputs;
 import com.stuypulse.robot.util.FullSubsystem;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
+
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Hood extends FullSubsystem {
@@ -17,6 +19,7 @@ public class Hood extends FullSubsystem {
   private final HoodIOInputsAutoLogged inputs;
   private final HoodIOOutputs outputs;
 
+  @AutoLogOutput(key = "States/Hood")
   private HoodState state;
 
   public Hood(HoodIO io) {
