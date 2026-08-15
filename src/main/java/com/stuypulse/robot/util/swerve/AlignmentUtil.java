@@ -7,6 +7,8 @@ public class AlignmentUtil {
   public static Rotation2d getTargetAlignmentAngle(Pose2d currentPose, Pose2d targetPose) {
     double atan =
         Math.atan2(targetPose.getY() - currentPose.getY(), targetPose.getX() - currentPose.getX());
-    return new Rotation2d(atan);
+
+    // The shooter shoots out of the back of the robot
+    return new Rotation2d(atan - Math.PI);
   }
 }
