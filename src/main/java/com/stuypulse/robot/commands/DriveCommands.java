@@ -139,7 +139,7 @@ public class DriveCommands {
   }
 
   public static Command alignToPose(Swerve swerve, Pose2d targetPose) {
-    PIDController angleController = new PIDController(Alignment.kP, Alignment.kI, Alignment.kD);
+    PIDController angleController = new PIDController(Alignment.Gains.kP, Alignment.Gains.kI, Alignment.Gains.kD);
     Debouncer isAlignedDebouncer =
         new Debouncer(Alignment.IS_ALIGNED_DEBOUNCE.in(Seconds), DebounceType.kBoth);
 
