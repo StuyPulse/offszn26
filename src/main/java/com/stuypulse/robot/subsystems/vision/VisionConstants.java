@@ -19,23 +19,23 @@ import edu.wpi.first.math.util.Units;
 
 public interface VisionConstants {
   public interface VisionSettings {
-    final int RESET_IMU_INDEX = 1;
+    int RESET_IMU_INDEX = 1;
 
     // Basic filtering thresholds
-    final double MAX_AMBIGUITY = 0.3;
-    final double MAX_Z_ERROR = 0.75;
+    double MAX_AMBIGUITY = 0.3;
+    double MAX_Z_ERROR = 0.75;
 
     // Standard deviation baselines, for 1 meter distance and 1 tag
     // (Adjusted automatically based on distance and # of tags)
-    final double LINEAR_STD_DEV_BASELINE = 0.02; // Meters
-    final double ANGULAR_STD_DEV_BASELINE = 0.06; // Radians
+    double LINEAR_STD_DEV_BASELINE = 0.02; // Meters
+    double ANGULAR_STD_DEV_BASELINE = 0.06; // Radians
 
     // Multipliers to apply for MegaTag 2 observations
-    final double LINEAR_STD_DEV_MEGATAG_2_FACTOR = 0.5; // More stable than full 3D solve
-    final double ANGULAR_STD_DEV_MEGATAG_2_FACTOR =
+    double LINEAR_STD_DEV_MEGATAG_2_FACTOR = 0.5; // More stable than full 3D solve
+    double ANGULAR_STD_DEV_MEGATAG_2_FACTOR =
         Double.POSITIVE_INFINITY; // No rotation data available
 
-    final double BUZZ_DEBOUNCE = 0.25;
+    double BUZZ_DEBOUNCE = 0.25;
   }
 
   /**
