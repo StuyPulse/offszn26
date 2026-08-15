@@ -50,7 +50,7 @@ public class Hood extends FullSubsystem {
     switch (state) {
       case SHOOT -> runPosition(Degrees.zero());
 
-      case FERRY -> runPosition(Degrees.zero());
+      case FERRY -> runPosition(HoodSettings.FERRY_ANGLE);
 
       case STOW -> runPosition(HoodSettings.STOW_ANGLE);
     }
