@@ -13,15 +13,13 @@
 
 package com.stuypulse.robot.commands;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.*;
 
-import com.stuypulse.robot.constants.DriverConstants.DriveConstraints;
-import com.stuypulse.robot.constants.DriverConstants.Driver;
-import com.stuypulse.robot.constants.DriverConstants.Driver.Turn;
+import com.stuypulse.robot.constants.DriverConstants.*;
+import com.stuypulse.robot.subsystems.swerve.SwerveConstants.*;
+
 import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
-import com.stuypulse.robot.subsystems.swerve.SwerveConstants.SwerveSettings.Alignment;
 import com.stuypulse.robot.util.swerve.AlignmentUtil;
 import com.stuypulse.robot.util.swerve.DriveInputProcessor;
 import com.stuypulse.robot.util.swerve.DriveTurnInputProcessor;
@@ -106,7 +104,7 @@ public class DriveCommands {
             Driver.Turn.DEADBAND,
             Driver.Turn.POWER,
             DriveConstraints.MAX_ANGULAR_VEL,
-            Turn.RC);
+            Driver.Turn.RC);
 
     return Commands.run(
             () -> {
@@ -140,9 +138,9 @@ public class DriveCommands {
 
   public static Command alignToPose(Swerve swerve, Pose2d targetPose) {
     PIDController angleController =
-        new PIDController(Alignment.Gains.kP, Alignment.Gains.kI, Alignment.Gains.kD);
+        new PIDController(SwerveSettings.Alignment.Gains.kP, SwerveSettings.Alignment.Gains.kI, SwerveSettings.Alignment.Gains.kD);
     Debouncer isAlignedDebouncer =
-        new Debouncer(Alignment.IS_ALIGNED_DEBOUNCE.in(Seconds), DebounceType.kBoth);
+        new Debouncer(SwerveSettings.Alignment.IS_ALIGNED_DEBOUNCE.in(Seconds), DebounceType.kBoth);
 
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -173,7 +171,7 @@ public class DriveCommands {
         .until(
             () ->
                 isAlignedDebouncer.calculate(
-                    Math.abs(angleController.getError()) < Alignment.THETA_TOLERANCE.getRadians()))
+                    Math.abs(angleController.getError()) < SwerveSettings.Alignment.THETA_TOLERANCE.getRadians()))
         .withName("Swerve Align To Pose");
   }
 
