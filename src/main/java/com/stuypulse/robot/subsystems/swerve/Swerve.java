@@ -15,6 +15,7 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.constants.GlobalSettings.Mode;
+import com.stuypulse.robot.subsystems.vision.Vision.VisionConsumer;
 import com.stuypulse.robot.util.FullSubsystem;
 import com.stuypulse.robot.util.LocalADStarAK;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
@@ -44,7 +45,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class Swerve extends FullSubsystem {
+public class Swerve extends FullSubsystem implements VisionConsumer {
 
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 250.0 : 100.0;
@@ -335,7 +336,8 @@ public class Swerve extends FullSubsystem {
   }
 
   /** Adds a new timestamped vision measurement. */
-  public void addVisionMeasurement(
+  @Override
+  public void accept(
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {

@@ -35,60 +35,11 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.IntStream;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends FullSubsystem {
-  private static final Vision instance;
-
-  static {
-    Swerve swerve = Swerve.getInstance();
-
-    switch (GlobalSettings.currentMode) {
-      case REAL -> {
-          instance =
-              new Vision(
-                  swerve,
-                  Arrays.stream(CamerasList.CAMERAS)
-                      .map((camera) -> new VisionIOReal(camera.name(), swerve::getRotation))
-                      .toArray(VisionIO[]::new)
-              );
-      }
-
-      case SIM -> {
-        // Photon vision is used to simulate limelight cameras
-        instance =
-            new Vision(
-                swerve,
-                Arrays.stream(CamerasList.CAMERAS)
-                    .map(
-                        (camera) ->
-                            new VisionIOSim(
-                                camera.name(),
-                                camera.robotToCamera(),
-                                swerve::getPose))
-                    .toArray(VisionIO[]::new));
-      }
-
-        // For replay mode
-      default -> {
-        instance =
-            new Vision(
-                swerve,
-                IntStream.range(0, CamerasList.CAMERAS.length)
-                    .mapToObj((_i) -> (VisionIO) new VisionIO() {})
-                    .toArray(VisionIO[]::new));
-      }
-    }
-  }
-
-  public static Vision getInstance() {
-    return instance;
-  }
-
   private final VisionConsumer consumer;
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
