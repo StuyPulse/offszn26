@@ -13,7 +13,6 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends FullSubsystem {
-
   private final IntakeIO io;
   private final IntakeIOInputsAutoLogged inputs;
   private final IntakeIOOutputs outputs;
@@ -59,8 +58,8 @@ public class Intake extends FullSubsystem {
     Logger.processInputs("Intake", inputs);
 
     if (!GlobalSettings.EnabledSubsystems.INTAKE.get()) {
-      stopPivot();
-      stopRollers();
+      stopPivotMotor();
+      stopRollerMotors();
 
       return;
     }
@@ -80,7 +79,7 @@ public class Intake extends FullSubsystem {
     }
 
     if (!canRunRollers()) {
-      stopRollers();
+      stopRollerMotors();
 
       return;
     }
@@ -90,7 +89,7 @@ public class Intake extends FullSubsystem {
 
       case OUTTAKE -> runRollersDutyCycle(IntakeSettings.OUTTAKE_DUTY_CYCLE);
 
-      case STOP -> stopRollers();
+      case STOP -> stopRollerMotors();
     }
   }
 
@@ -124,11 +123,11 @@ public class Intake extends FullSubsystem {
     outputs.rollerTargetDutyCycle = dutyCycle;
   }
 
-  private void stopPivot() {
+  private void stopPivotMotor() {
     outputs.pivotMode = PivotIOOutputMode.STOP;
   }
 
-  private void stopRollers() {
+  private void stopRollerMotors() {
     outputs.rollerMode = RollerIOOutputMode.STOP;
   }
 
