@@ -56,9 +56,7 @@ public class DriveCommands {
         .withName("Buzz Controller");
   }
 
-  public static Command resetHeading() {
-    Swerve swerve = Swerve.getInstance();
-
+  public static Command resetHeading(Swerve swerve) {
     return Commands.runOnce(
             () -> {
               swerve.resetHeading(Rotation2d.kZero);
@@ -67,9 +65,7 @@ public class DriveCommands {
         .withName("Reset Heading");
   }
 
-  public static Command resetPose(Pose2d pose) {
-    Swerve swerve = Swerve.getInstance();
-
+  public static Command resetPose(Swerve swerve, Pose2d pose) {
     return Commands.runOnce(
         () -> {
           swerve.resetOdometry(pose);
@@ -77,9 +73,7 @@ public class DriveCommands {
         swerve);
   }
 
-  public static Command xMode() {
-    Swerve swerve = Swerve.getInstance();
-
+  public static Command xMode(Swerve swerve) {
     return Commands.run(
             () -> {
               swerve.stopWithX();
@@ -90,9 +84,7 @@ public class DriveCommands {
   /**
    * Field relative swerve command using two joysticks (controlling linear and angular velocities).
    */
-  public static Command joystickDrive(CommandXboxController driver) {
-    Swerve swerve = Swerve.getInstance();
-
+  public static Command joystickDrive(Swerve swerve, CommandXboxController driver) {
     DriveInputProcessor driveInputProcessor =
         new DriveInputProcessor(
             driver,

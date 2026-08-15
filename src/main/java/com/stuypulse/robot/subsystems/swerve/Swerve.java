@@ -15,7 +15,6 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.constants.GlobalSettings.Mode;
-import com.stuypulse.robot.subsystems.vision.Vision.VisionConsumer;
 import com.stuypulse.robot.util.FullSubsystem;
 import com.stuypulse.robot.util.LocalADStarAK;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
@@ -45,47 +44,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class Swerve extends FullSubsystem implements VisionConsumer {
-  private static final Swerve instance;
-
-  static {
-    switch (GlobalSettings.currentMode) {
-      case REAL -> {
-        instance =
-            new Swerve(
-                new GyroIOReal(),
-                new ModuleIOReal(TunerConstants.FrontLeft),
-                new ModuleIOReal(TunerConstants.FrontRight),
-                new ModuleIOReal(TunerConstants.BackLeft),
-                new ModuleIOReal(TunerConstants.BackRight));
-      }
-
-      case SIM -> {
-        instance =
-            new Swerve(
-                new GyroIO() {},
-                new ModuleIOSim(TunerConstants.FrontLeft),
-                new ModuleIOSim(TunerConstants.FrontRight),
-                new ModuleIOSim(TunerConstants.BackLeft),
-                new ModuleIOSim(TunerConstants.BackRight));
-      }
-
-        // For replay mode
-      default -> {
-        instance =
-            new Swerve(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
-      }
-    }
-  }
-
-  public static final Swerve getInstance() {
-    return instance;
-  }
+public class Swerve extends FullSubsystem {
 
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 250.0 : 100.0;
@@ -136,7 +95,7 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
-  private Swerve(
+  public Swerve(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
       ModuleIO frModuleIO,
@@ -376,8 +335,7 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
   }
 
   /** Adds a new timestamped vision measurement. */
-  @Override
-  public void accept(
+  public void addVisionMeasurement(
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
