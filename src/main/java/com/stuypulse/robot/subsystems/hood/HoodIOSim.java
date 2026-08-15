@@ -31,8 +31,8 @@ public class HoodIOSim implements HoodIO {
     hoodSystem =
         SystemSim.of(
             new DCMotorSim(
-                LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44(1), 0.01, 1),
-                DCMotor.getKrakenX44(1)));
+                LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 0.01, 1),
+                DCMotor.getKrakenX44Foc(1)));
 
     hoodMotor = new TalonFXSimulation(HoodDeviceIds.HOOD_MOTOR, 1, hoodSystem);
 

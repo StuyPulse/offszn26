@@ -16,7 +16,7 @@ public interface HoodConstants {
     double GEAR_RATIO = 5;
 
     Angle STOW_ANGLE = Degrees.of(0);
-    
+
     Angle FERRY_ANGLE = Degrees.of(30);
   }
 
