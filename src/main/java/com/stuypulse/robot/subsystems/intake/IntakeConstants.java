@@ -19,6 +19,9 @@ public interface IntakeConstants {
     // TODO: All placeholders, need to get real numbers
 
     // Pivot
+    int PIVOT_REGULAR_GAIN_SLOT = 0;
+    int PIVOT_DIGEST_GAIN_SLOT = 1;
+
     Angle PIVOT_STOW_ANGLE = Degrees.of(71.0);
     Angle PIVOT_DEPLOY_ANGLE = Degrees.of(-10.0);
 

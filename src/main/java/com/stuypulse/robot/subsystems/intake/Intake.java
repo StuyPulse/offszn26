@@ -69,13 +69,16 @@ public class Intake extends FullSubsystem {
         if (isPivotBelowPushdownThreshold()) {
           runPivotTorqueCurrent(IntakeSettings.PIVOT_PUSHDOWN_CURRENT);
         } else {
-          runPivotPosition(IntakeSettings.PIVOT_DEPLOY_ANGLE, 0);
+          runPivotPosition(
+              IntakeSettings.PIVOT_DEPLOY_ANGLE, IntakeSettings.PIVOT_REGULAR_GAIN_SLOT);
         }
       }
 
-      case STOW -> runPivotPosition(IntakeSettings.PIVOT_STOW_ANGLE, 0);
+      case STOW -> runPivotPosition(
+          IntakeSettings.PIVOT_STOW_ANGLE, IntakeSettings.PIVOT_REGULAR_GAIN_SLOT);
 
-      case DIGEST -> runPivotPosition(IntakeSettings.PIVOT_STOW_ANGLE, 1);
+      case DIGEST -> runPivotPosition(
+          IntakeSettings.PIVOT_STOW_ANGLE, IntakeSettings.PIVOT_DIGEST_GAIN_SLOT);
     }
 
     if (!canRunRollers()) {
