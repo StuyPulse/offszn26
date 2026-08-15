@@ -73,7 +73,6 @@ public class InterpolationCalculator {
   }
 
   public record InterpolatedShotInfo(Angle hoodAngle, AngularVelocity shooterVelocity) {}
-  ;
 
   public InterpolatedShotInfo interpolateShotInfo() {
     return interpolateShotInfo(poseSupplier.get(), Field.HUB_CENTER);
