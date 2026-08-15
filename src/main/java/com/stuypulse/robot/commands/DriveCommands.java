@@ -144,6 +144,7 @@ public class DriveCommands {
         new Debouncer(Alignment.IS_ALIGNED_DEBOUNCE.in(Seconds), DebounceType.kBoth);
 
     Rotation2d targetHeading = AlignmentUtil.getTargetAlignmentAngle(swerve.getPose(), targetPose);
+
     angleController.enableContinuousInput(-Math.PI, Math.PI);
     angleController.setSetpoint(targetHeading.getRadians());
 
@@ -175,6 +176,11 @@ public class DriveCommands {
 
   public static Command alignToHub(Swerve swerve) {
     return alignToPose(swerve, Field.HUB_CENTER).withName("Swerve Align To Hub");
+  }
+
+  public static Command alignToFerryZone(Swerve swerve) {
+    return alignToPose(swerve, Field.getFerryZonePose(swerve.getPose().getTranslation()))
+        .withName("Swerve Align To Ferry Zone");
   }
 
   /**
