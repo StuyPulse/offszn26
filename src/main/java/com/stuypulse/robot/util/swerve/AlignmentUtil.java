@@ -1,5 +1,6 @@
 package com.stuypulse.robot.util.swerve;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -9,6 +10,6 @@ public class AlignmentUtil {
         Math.atan2(targetPose.getY() - currentPose.getY(), targetPose.getX() - currentPose.getX());
 
     // The shooter shoots out of the back of the robot
-    return new Rotation2d(atan - Math.PI);
+    return new Rotation2d(MathUtil.angleModulus(atan - Math.PI));
   }
 }
