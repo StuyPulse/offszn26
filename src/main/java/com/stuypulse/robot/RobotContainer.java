@@ -15,6 +15,7 @@ import com.stuypulse.robot.subsystems.swerve.ModuleIOReal;
 import com.stuypulse.robot.subsystems.swerve.ModuleIOSim;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
 import com.stuypulse.robot.subsystems.swerve.TunerConstants;
+import com.stuypulse.robot.util.InterpolationCalculator;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,6 +39,8 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
+  private final InterpolationCalculator interpolator;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
@@ -50,6 +53,7 @@ public class RobotContainer {
                 new ModuleIOReal(TunerConstants.FrontRight),
                 new ModuleIOReal(TunerConstants.BackLeft),
                 new ModuleIOReal(TunerConstants.BackRight));
+        interpolator = new InterpolationCalculator(swerve::getPose);
       }
 
       case SIM -> {
@@ -60,6 +64,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+        interpolator = new InterpolationCalculator(swerve::getPose);
       }
 
         // For replay mode
@@ -71,6 +76,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+        interpolator = new InterpolationCalculator(swerve::getPose);
       }
     }
 
@@ -128,5 +134,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  public void clearMemoized() {
+    interpolator.clearMemoized();
   }
 }
