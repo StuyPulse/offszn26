@@ -7,7 +7,10 @@ package com.stuypulse.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.constants.DriverConstants;
+
 import com.stuypulse.robot.constants.GlobalSettings;
+import com.stuypulse.robot.constants.GlobalSettings.VisionMode;
+
 import com.stuypulse.robot.subsystems.swerve.GyroIO;
 import com.stuypulse.robot.subsystems.swerve.GyroIOReal;
 import com.stuypulse.robot.subsystems.swerve.ModuleIO;
@@ -15,11 +18,22 @@ import com.stuypulse.robot.subsystems.swerve.ModuleIOReal;
 import com.stuypulse.robot.subsystems.swerve.ModuleIOSim;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
 import com.stuypulse.robot.subsystems.swerve.TunerConstants;
+import com.stuypulse.robot.subsystems.vision.Vision;
+import com.stuypulse.robot.subsystems.vision.VisionConstants.CamerasList;
+import com.stuypulse.robot.subsystems.vision.VisionIO;
+import com.stuypulse.robot.subsystems.vision.VisionIOLimelight;
+import com.stuypulse.robot.subsystems.vision.VisionIOPhotonVision;
+import com.stuypulse.robot.subsystems.vision.VisionIOPhotonVisionSim;
+
+import com.stuypulse.robot.util.InterpolationCalculator;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+import java.util.Arrays;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -31,6 +45,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Swerve swerve;
+  private final Vision vision;
 
   // Controller
   private final CommandXboxController controller;
@@ -38,10 +53,12 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  private final InterpolationCalculator interpolator;
+
+  /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
 
-    switch (GlobalSettings.currentMode) {
+    switch (GlobalSettings.CURRENT_MODE) {
       case REAL -> {
         swerve =
             new Swerve(
@@ -50,6 +67,23 @@ public class RobotContainer {
                 new ModuleIOReal(TunerConstants.FrontRight),
                 new ModuleIOReal(TunerConstants.BackLeft),
                 new ModuleIOReal(TunerConstants.BackRight));
+
+        if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
+            vision = new Vision(
+                swerve,
+                    Arrays.stream(CamerasList.CAMERAS)
+                        .map((camera) -> new VisionIOLimelight(camera.name(), swerve::getRotation))
+                        .toArray(VisionIO[]::new)
+            );
+        } else {
+            vision = new Vision(
+                swerve,
+                    Arrays.stream(CamerasList.CAMERAS)
+                        .map((camera) -> new VisionIOPhotonVision(camera.name(), camera.robotToCamera()))
+                        .toArray(VisionIO[]::new)
+            );
+        }
+        interpolator = new InterpolationCalculator(swerve::getPose);
       }
 
       case SIM -> {
@@ -60,6 +94,18 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+
+        vision = 
+            new Vision(
+                swerve,
+                Arrays.stream(CamerasList.CAMERAS)
+                    .map((camera) ->
+                        new VisionIOPhotonVisionSim(
+                            camera.name(),
+                            camera.robotToCamera(),
+                            swerve::getPose))
+                    .toArray(VisionIO[]::new));
+        interpolator = new InterpolationCalculator(swerve::getPose);
       }
 
         // For replay mode
@@ -71,6 +117,14 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+
+        vision = new Vision(
+            swerve,
+                Arrays.stream(CamerasList.CAMERAS)
+                    .map((camera) -> new VisionIO() {})
+                    .toArray(VisionIO[]::new)
+        );
+        interpolator = new InterpolationCalculator(swerve::getPose);
       }
     }
 
@@ -117,8 +171,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // Switch to X pattern when X button is pressed
-    controller.x().onTrue(DriveCommands.xMode(swerve));
+    controller.a().onTrue(DriveCommands.alignToHub(swerve));
   }
 
   /**
@@ -128,5 +181,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  public void clearMemoized() {
+    interpolator.clearMemoized();
   }
 }

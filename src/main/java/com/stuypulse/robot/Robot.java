@@ -41,7 +41,7 @@ public class Robot extends LoggedRobot {
     //         });
 
     // Set up data receivers & replay source
-    switch (GlobalSettings.currentMode) {
+    switch (GlobalSettings.CURRENT_MODE) {
       case REAL:
         // Running on a real robot, log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new WPILOGWriter());
@@ -88,6 +88,8 @@ public class Robot extends LoggedRobot {
     // Threads.setCurrentThreadPriority(false, 10);
 
     FullSubsystem.runAllPeriodicAfterScheduler();
+
+    robotContainer.clearMemoized();
   }
 
   /** This function is called once when the robot is disabled. */
