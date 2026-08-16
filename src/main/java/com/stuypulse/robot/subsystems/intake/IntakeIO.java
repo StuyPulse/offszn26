@@ -39,7 +39,6 @@ public interface IntakeIO {
 
   public static enum PivotIOOutputMode {
     POSITION,
-    TORQUE_CURRENT,
     STOP
   }
 
@@ -52,14 +51,8 @@ public interface IntakeIO {
     @AutoLogOutput(key = "Intake/Pivot/Output Mode")
     public PivotIOOutputMode pivotMode = PivotIOOutputMode.POSITION;
 
-    @AutoLogOutput(key = "Intake/Pivot/Gain Slot")
-    public int pivotGainSlot = 0;
-
     @AutoLogOutput(key = "Intake/Pivot/Target Position")
     public Angle pivotTargetPosition = Degrees.zero();
-
-    @AutoLogOutput(key = "Intake/Pivot/Target Torque Current")
-    public Current pivotTargetTorqueCurrent = Amps.zero();
 
     @AutoLogOutput(key = "Intake/Rollers/Output Mode")
     public RollerIOOutputMode rollerMode = RollerIOOutputMode.DUTY_CYCLE;

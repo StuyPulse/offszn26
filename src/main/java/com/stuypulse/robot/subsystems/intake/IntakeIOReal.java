@@ -5,7 +5,6 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.stuypulse.robot.constants.GlobalSettings;
@@ -20,7 +19,6 @@ public class IntakeIOReal implements IntakeIO {
   private final DutyCycleOut rollerLeaderController;
   private final Follower rollerFollowerController;
   private final PositionVoltage pivotPositionController;
-  private final TorqueCurrentFOC pivotPushdownController;
 
   private final StatusSignal<Angle> pivotPosition;
   private final StatusSignal<Current> pivotSupplyCurrent;
@@ -56,7 +54,6 @@ public class IntakeIOReal implements IntakeIO {
     this.rollerFollowerController =
         new Follower(rollerLeaderMotor.getDeviceID(), MotorAlignmentValue.Opposed);
     this.pivotPositionController = new PositionVoltage(0).withEnableFOC(true);
-    this.pivotPushdownController = new TorqueCurrentFOC(0);
 
     rollerFollowerMotor.setControl(rollerFollowerController);
     pivotMotor.setControl(pivotPositionController);
@@ -131,11 +128,7 @@ public class IntakeIOReal implements IntakeIO {
   public void applyOutputs(IntakeIOOutputs outputs) {
     switch (outputs.pivotMode) {
       case POSITION -> pivotMotor.setControl(
-          pivotPositionController
-              .withPosition(outputs.pivotTargetPosition)
-              .withSlot(outputs.pivotGainSlot));
-      case TORQUE_CURRENT -> pivotMotor.setControl(
-          pivotPushdownController.withOutput(outputs.pivotTargetTorqueCurrent));
+          pivotPositionController.withPosition(outputs.pivotTargetPosition));
       case STOP -> pivotMotor.stopMotor();
     }
 

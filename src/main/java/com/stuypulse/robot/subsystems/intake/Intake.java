@@ -7,7 +7,6 @@ import com.stuypulse.robot.subsystems.intake.IntakeIO.PivotIOOutputMode;
 import com.stuypulse.robot.subsystems.intake.IntakeIO.RollerIOOutputMode;
 import com.stuypulse.robot.util.FullSubsystem;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -34,8 +33,7 @@ public class Intake extends FullSubsystem {
 
   public enum PivotState {
     DEPLOY,
-    STOW,
-    DIGEST
+    STOW
   }
 
   public enum RollerState {
@@ -65,20 +63,9 @@ public class Intake extends FullSubsystem {
     }
 
     switch (pivotState) {
-      case DEPLOY -> {
-        if (isPivotBelowPushdownThreshold()) {
-          runPivotTorqueCurrent(IntakeSettings.PIVOT_PUSHDOWN_CURRENT);
-        } else {
-          runPivotPosition(
-              IntakeSettings.PIVOT_DEPLOY_ANGLE, IntakeSettings.PIVOT_REGULAR_GAIN_SLOT);
-        }
-      }
+      case DEPLOY -> runPivotPosition(IntakeSettings.PIVOT_DEPLOY_ANGLE);
 
-      case STOW -> runPivotPosition(
-          IntakeSettings.PIVOT_STOW_ANGLE, IntakeSettings.PIVOT_REGULAR_GAIN_SLOT);
-
-      case DIGEST -> runPivotPosition(
-          IntakeSettings.PIVOT_STOW_ANGLE, IntakeSettings.PIVOT_DIGEST_GAIN_SLOT);
+      case STOW -> runPivotPosition(IntakeSettings.PIVOT_STOW_ANGLE);
     }
 
     if (!canRunRollers()) {
@@ -101,24 +88,14 @@ public class Intake extends FullSubsystem {
     io.applyOutputs(outputs);
   }
 
-  private boolean isPivotBelowPushdownThreshold() {
-    return inputs.pivotMotorPosition.lte(IntakeSettings.PIVOT_PUSHDOWN_THRESHOLD);
-  }
-
   private boolean canRunRollers() {
     return inputs.pivotMotorPosition.lte(IntakeSettings.ROLLER_START_THRESHOLD)
         && pivotState == PivotState.DEPLOY;
   }
 
-  private void runPivotPosition(Angle position, int gainSlot) {
+  private void runPivotPosition(Angle position) {
     outputs.pivotMode = PivotIOOutputMode.POSITION;
-    outputs.pivotGainSlot = gainSlot;
     outputs.pivotTargetPosition = position;
-  }
-
-  private void runPivotTorqueCurrent(Current current) {
-    outputs.pivotMode = PivotIOOutputMode.TORQUE_CURRENT;
-    outputs.pivotTargetTorqueCurrent = current;
   }
 
   private void runRollersDutyCycle(double dutyCycle) {
@@ -159,14 +136,5 @@ public class Intake extends FullSubsystem {
               setRollerState(RollerState.STOP);
             })
         .withName("Intake Stow");
-  }
-
-  public Command digest() {
-    return runOnce(
-            () -> {
-              setPivotState(PivotState.DIGEST);
-              setRollerState(RollerState.STOP);
-            })
-        .withName("Intake Digest");
   }
 }
