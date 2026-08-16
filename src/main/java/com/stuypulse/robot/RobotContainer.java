@@ -171,8 +171,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // Switch to X pattern when X button is pressed
-    controller.x().onTrue(DriveCommands.xMode(swerve));
+    controller.a().onTrue(DriveCommands.alignToHub(swerve));
   }
 
   /**
