@@ -25,6 +25,7 @@ import com.stuypulse.robot.subsystems.vision.VisionIOLimelight;
 import com.stuypulse.robot.subsystems.vision.VisionIOPhotonVision;
 import com.stuypulse.robot.subsystems.vision.VisionIOPhotonVisionSim;
 
+import com.stuypulse.robot.util.InterpolationCalculator;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -51,6 +52,8 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+
+  private final InterpolationCalculator interpolator;
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
@@ -80,6 +83,7 @@ public class RobotContainer {
                         .toArray(VisionIO[]::new)
             );
         }
+        interpolator = new InterpolationCalculator(swerve::getPose);
       }
 
       case SIM -> {
@@ -101,6 +105,7 @@ public class RobotContainer {
                             camera.robotToCamera(),
                             swerve::getPose))
                     .toArray(VisionIO[]::new));
+        interpolator = new InterpolationCalculator(swerve::getPose);
       }
 
         // For replay mode
@@ -119,6 +124,7 @@ public class RobotContainer {
                     .map((camera) -> new VisionIO() {})
                     .toArray(VisionIO[]::new)
         );
+        interpolator = new InterpolationCalculator(swerve::getPose);
       }
     }
 
@@ -176,5 +182,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  public void clearMemoized() {
+    interpolator.clearMemoized();
   }
 }

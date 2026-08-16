@@ -1,0 +1,167 @@
+name: merge pull requests
+on:
+  pull_request:
+    branches: [ main, staging ]
+    types:
+      - closed
+jobs:
+  if-merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+    - name: Build payload for slack
+      id: slack-payload-builder
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+            const pr = context.payload.pull_request;
+
+            const commits = await github.paginate(
+                github.rest.pulls.listCommits,
+                {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number
+                }
+            );
+
+            const fullRepoName = `${context.repo.owner}/${context.repo.repo}`;
+            const MAX_COMMITS = 40;
+
+            const text = (value, style) => ({
+                type: "text",
+                text: value,
+                ...(style ? { style } : {})
+            });
+
+            const bold = (value) => text(value, { bold: true });
+
+            const code = (value) => text(value, { code: true });
+
+            const link = (url, label) => ({
+                type: "link",
+                url,
+                text: label
+            });
+
+            const section = (...elements) => ({
+                type: "rich_text_section",
+                elements
+            });
+
+            const bulletList = (...items) => ({
+                type: "rich_text_list",
+                style: "bullet",
+                indent: 0,
+                border: 0,
+                elements: items
+            });
+
+            const richText = (...elements) => ({
+                type: "rich_text",
+                elements
+            });
+
+            const addPlural = (originalString, count) => count !== 1 ? `${originalString}s` : originalString; 
+
+            const getCommitMessage = (commit) => {
+              const lines = commit.commit.message.split("\n");
+              const firstLine = lines[0];
+
+              return lines.length > 1
+                ? `${firstLine}...`
+                : firstLine;
+            };
+
+            const buildCommitBullet = (commit) => {
+                const commitMessage = getCommitMessage(commit);
+
+                const elements = [
+                    link(commit.html_url, commitMessage)
+                ];
+
+                if (commit.author) {
+                    elements.push(
+                    text(" ("),
+                    link(
+                    commit.author.html_url,
+                    `@${commit.author.login}`),
+                    text(")"));
+                } else if (commit.commit.author?.name) {
+                    elements.push(
+                        text(` (@${commit.commit.author.name})`)
+                    );
+                }
+
+                return section(...elements);
+            };
+
+            const header = section(
+                text("✅ Branch "),
+                code(pr.base.ref),
+                text(" <- "),
+                code(pr.head.ref),
+                text(" merged for "),
+                code(fullRepoName),
+                text(" ("),
+                link(pr.html_url, `#${pr.number}`),
+                text(").\n"),
+                bold(
+                    `${commits.length} ${addPlural("commit", commits.length)} merged`
+                ),
+                text(":")
+            );
+
+            const commitList = (() => {
+                if (commits.length === 0) {
+                    return section(
+                        bold("Failed to fetch commits")
+                    );
+                } else {
+                    return bulletList(
+                        ...commits
+                            .slice(0, MAX_COMMITS)
+                            .map(buildCommitBullet)
+                    );
+                }
+            })();
+
+            const elements = [
+                header,
+                commitList
+            ];
+
+            if (commits.length > MAX_COMMITS) {
+                const remainingCommits = commits.length - MAX_COMMITS;
+
+                elements.push(
+                    section(
+                    bold(
+                        `+${remainingCommits} more ${addPlural(
+                        "commit",
+                        remainingCommits
+                        )}`
+                    ),
+                    text(" — "),
+                    link(
+                        `${pr.html_url}/commits`,
+                        "view all"
+                    )
+                )
+              );
+            }
+
+            const payload = {
+                blocks: [
+                    richText(...elements)
+                ]
+            };
+
+            core.setOutput("payload", JSON.stringify(payload));
+    - name: Notify slack
+      uses: slackapi/slack-github-action@v2.1.1
+      with:
+        webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+        webhook-type: incoming-webhook
+        payload: ${{ steps.slack-payload-builder.outputs.payload }}
