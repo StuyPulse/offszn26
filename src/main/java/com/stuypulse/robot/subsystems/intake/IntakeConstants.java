@@ -66,28 +66,13 @@ public interface IntakeConstants {
             .withSupplyCurrentLimitAmps(10.0) // was 60 on practice day
             .withStatorCurrentLimitEnabled(false)
             .withRampRate(0.25)
-            .withPIDConstants(
-                IntakeGains.Pivot.Regular.kP,
-                IntakeGains.Pivot.Regular.kI,
-                IntakeGains.Pivot.Regular.kD,
-                0)
-            .withPIDConstants(
-                IntakeGains.Pivot.Digestion.kP,
-                IntakeGains.Pivot.Digestion.kI,
-                IntakeGains.Pivot.Digestion.kD,
-                1)
+            .withPIDConstants(IntakeGains.Pivot.kP, IntakeGains.Pivot.kI, IntakeGains.Pivot.kD, 0)
             .withFFConstants(
-                IntakeGains.Pivot.Regular.kS,
-                IntakeGains.Pivot.Regular.kV,
-                IntakeGains.Pivot.Regular.kA,
-                IntakeGains.Pivot.Regular.kG,
+                IntakeGains.Pivot.kS,
+                IntakeGains.Pivot.kV,
+                IntakeGains.Pivot.kA,
+                IntakeGains.Pivot.kG,
                 0)
-            .withFFConstants(
-                IntakeGains.Pivot.Digestion.kS,
-                IntakeGains.Pivot.Digestion.kV,
-                IntakeGains.Pivot.Digestion.kA,
-                IntakeGains.Pivot.Digestion.kG,
-                1)
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign, 0)
             .withGravityType(GravityTypeValue.Arm_Cosine)
             .withSensorToMechanismRatio(IntakeSettings.PIVOT_GEAR_RATIO);
@@ -105,30 +90,15 @@ public interface IntakeConstants {
     // TODO: Placeholders, need tuning
 
     public interface Pivot {
-      public interface Regular {
-        double kP = 125;
-        double kI = 0;
-        double kD = 10;
+      double kP = 125;
+      double kI = 0;
+      double kD = 10;
 
-        double kS = 0;
-        double kV = 0.12;
-        double kA = 0;
+      double kS = 0;
+      double kV = 0.12;
+      double kA = 0;
 
-        double kG = 0.5;
-      }
-
-      public interface Digestion {
-        double kP = 50;
-        double kI = 0;
-        ;
-        double kD = 10;
-
-        double kS = 0;
-        double kV = 0.12;
-        double kA = 0;
-
-        double kG = 0.5;
-      }
+      double kG = 0.5;
     }
   }
 }
