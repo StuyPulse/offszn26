@@ -1,15 +1,13 @@
 package com.stuypulse.robot.subsystems.hood;
 
-import static edu.wpi.first.units.Units.Degrees;
-
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.subsystems.hood.HoodConstants.*;
 import com.stuypulse.robot.subsystems.hood.HoodIO.HoodIOOutputMode;
 import com.stuypulse.robot.subsystems.hood.HoodIO.HoodIOOutputs;
 import com.stuypulse.robot.util.FullSubsystem;
+import com.stuypulse.robot.util.InterpolationCalculator;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -19,13 +17,17 @@ public class Hood extends FullSubsystem {
   private final HoodIOInputsAutoLogged inputs;
   private final HoodIOOutputs outputs;
 
+  private final InterpolationCalculator interpolator;
+
   @AutoLogOutput(key = "States/Hood")
   private HoodState state;
 
-  public Hood(HoodIO io) {
+  public Hood(HoodIO io, InterpolationCalculator interpolator) {
     this.io = io;
     inputs = new HoodIOInputsAutoLogged();
     outputs = new HoodIOOutputs();
+
+    this.interpolator = interpolator;
 
     setState(HoodState.STOW);
   }
@@ -51,9 +53,8 @@ public class Hood extends FullSubsystem {
       return;
     }
 
-    // TODO: Add interpolation
     switch (state) {
-      case SHOOT -> runPosition(Degrees.zero());
+      case SHOOT -> runPosition(interpolator.getInterpolatedShotHoodPosition());
 
       case FERRY -> runPosition(HoodSettings.FERRY_ANGLE);
 

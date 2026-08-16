@@ -58,8 +58,8 @@ public class RobotContainer {
                 new ModuleIOReal(TunerConstants.FrontRight),
                 new ModuleIOReal(TunerConstants.BackLeft),
                 new ModuleIOReal(TunerConstants.BackRight));
-        hood = new Hood(new HoodIOReal());
         interpolator = new InterpolationCalculator(swerve::getPose);
+        hood = new Hood(new HoodIOReal(), interpolator);
       }
 
       case SIM -> {
@@ -70,8 +70,8 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
-        hood = new Hood(new HoodIOSim());
         interpolator = new InterpolationCalculator(swerve::getPose);
+        hood = new Hood(new HoodIOSim(), interpolator);
       }
 
         // For replay mode
@@ -83,8 +83,8 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        hood = new Hood(new HoodIO() {});
         interpolator = new InterpolationCalculator(swerve::getPose);
+        hood = new Hood(new HoodIO() {}, interpolator);
       }
     }
 
