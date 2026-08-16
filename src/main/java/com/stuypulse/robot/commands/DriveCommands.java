@@ -13,14 +13,18 @@
 
 package com.stuypulse.robot.commands;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.*;
 
-import com.stuypulse.robot.constants.DriverConstants.DriveConstraints;
-import com.stuypulse.robot.constants.DriverConstants.Driver;
-import com.stuypulse.robot.constants.DriverConstants.Driver.Turn;
+import com.stuypulse.robot.constants.DriverConstants.*;
+import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
+import com.stuypulse.robot.subsystems.swerve.SwerveConstants.*;
+import com.stuypulse.robot.util.swerve.AlignmentUtil;
 import com.stuypulse.robot.util.swerve.DriveInputProcessor;
 import com.stuypulse.robot.util.swerve.DriveTurnInputProcessor;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -99,7 +103,7 @@ public class DriveCommands {
             Driver.Turn.DEADBAND,
             Driver.Turn.POWER,
             DriveConstraints.MAX_ANGULAR_VEL,
-            Turn.RC);
+            Driver.Turn.RC);
 
     return Commands.run(
             () -> {
@@ -129,6 +133,58 @@ public class DriveCommands {
             },
             swerve)
         .withName("Drive");
+  }
+
+  public static Command alignToPose(Swerve swerve, Pose2d targetPose) {
+    PIDController angleController =
+        new PIDController(
+            SwerveSettings.Alignment.Gains.kP,
+            SwerveSettings.Alignment.Gains.kI,
+            SwerveSettings.Alignment.Gains.kD);
+    Debouncer isAlignedDebouncer =
+        new Debouncer(SwerveSettings.Alignment.IS_ALIGNED_DEBOUNCE.in(Seconds), DebounceType.kBoth);
+
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
+
+    return Commands.runEnd(
+            () -> {
+              Rotation2d targetHeading =
+                  AlignmentUtil.getTargetAlignmentAngle(swerve.getPose(), targetPose);
+
+              ChassisSpeeds speeds =
+                  new ChassisSpeeds(
+                      0,
+                      0,
+                      angleController.calculate(
+                          swerve.getRotation().getRadians(), targetHeading.getRadians()));
+
+              boolean isFlipped =
+                  DriverStation.getAlliance().isPresent()
+                      && DriverStation.getAlliance().get() == Alliance.Red;
+              swerve.runVelocity(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      speeds,
+                      isFlipped
+                          ? swerve.getRotation().plus(new Rotation2d(Math.PI))
+                          : swerve.getRotation()));
+            },
+            () -> angleController.close(),
+            swerve)
+        .until(
+            () ->
+                isAlignedDebouncer.calculate(
+                    Math.abs(angleController.getError())
+                        < SwerveSettings.Alignment.THETA_TOLERANCE.getRadians()))
+        .withName("Swerve Align To Pose");
+  }
+
+  public static Command alignToHub(Swerve swerve) {
+    return alignToPose(swerve, Field.HUB_CENTER).withName("Swerve Align To Hub");
+  }
+
+  public static Command alignToFerryZone(Swerve swerve) {
+    return alignToPose(swerve, Field.getFerryZonePose(swerve.getPose().getTranslation()))
+        .withName("Swerve Align To Ferry Zone");
   }
 
   /**
