@@ -1,0 +1,85 @@
+name: merge pull requests
+on:
+  pull_request:
+    branches: [ main, staging ]
+    types:
+      - closed
+jobs:
+  if-merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+    - name: Build payload for slack
+      id: slack-payload-builder
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const pr = context.payload.pull_request;
+          const commits = await github.paginate(github.rest.pulls.listCommits, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number
+          });
+
+          const fullRepoName = `${context.repo.owner}/${context.repo.repo}`;
+          const repoUrl = `https://github.com/${fullRepoName}`;
+
+          const escapeForSlack = (text) => {
+              return text
+                  .replace(/&/g, "&amp;")
+                  .replace(/</g, "&lt;")
+                  .replace(/>/g, "&gt;");
+          }
+          
+          const addPlural = (originalString, count) => {
+              return count !== 1 ? `${originalString}s` : originalString;
+          }
+
+          const MAX_COMMITS = 40;
+          const commitsAsBulletPoints = (() => {
+              if (commits.length === 0) {
+                  return ["*Failed to fetch commits*"];
+              }
+
+              return commits.slice(0, MAX_COMMITS).map((commit) => {
+                  const commitMessageLines = commit.commit.message.split("\n");
+                  let commitMessage = commitMessageLines[0];
+                  if (commitMessageLines.length > 1) {
+                      commitMessage += "...";
+                  }
+                  return `- <${commit.html_url}|${escapeForSlack(commitMessage)}>`;
+              })
+          })();
+
+          if (commits.length > MAX_COMMITS) {
+                commitsAsBulletPoints.push("...");
+                const remainingCommits = Math.max(0, commits.length - MAX_COMMITS);
+                commitsAsBulletPoints.push(`*+${remainingCommits} more ${addPlural("commit", remainingCommits)}* — <${pr.html_url}/commits|view all>`);
+          }
+
+          const text = [
+              `✅ Branch \`${pr.base.ref}\` <- \`${pr.head.ref}\` merged for \`${fullRepoName}\` (<${pr.html_url}|#${pr.number}>).`,
+              `*${commits.length} ${addPlural("commit", commits.length)} merged:*`,
+              ...commitsAsBulletPoints
+          ].join("\n");
+
+          const payload = {
+              blocks: [
+                  {
+                      type: "section",
+                      text: {
+                          type: "mrkdwn",
+                          text
+                      }
+                  }
+              ]
+          }
+
+          core.setOutput("payload", JSON.stringify(payload));
+    - name: Notify slack
+      uses: slackapi/slack-github-action@v2.1.1
+      with:
+        webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+        webhook-type: incoming-webhook
+        payload: ${{ steps.slack-payload-builder.outputs.payload }}
