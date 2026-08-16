@@ -1,5 +1,7 @@
 package com.stuypulse.robot.subsystems.hood;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.subsystems.hood.HoodConstants.*;
 import com.stuypulse.robot.subsystems.hood.HoodIO.HoodIOOutputMode;
@@ -19,6 +21,8 @@ public class Hood extends FullSubsystem {
 
   private final InterpolationCalculator interpolator;
 
+  private boolean atTolerance;
+
   @AutoLogOutput(key = "States/Hood")
   private HoodState state;
 
@@ -28,6 +32,8 @@ public class Hood extends FullSubsystem {
     outputs = new HoodIOOutputs();
 
     this.interpolator = interpolator;
+
+    atTolerance = false;
 
     setState(HoodState.STOW);
   }
@@ -67,9 +73,17 @@ public class Hood extends FullSubsystem {
     io.applyOutputs(outputs);
   }
 
+  @AutoLogOutput(key = "Hood/At Tolerance")
+  public boolean atTolerance() {
+    return atTolerance;
+  }
+
   private void runPosition(Angle position) {
     outputs.hoodMode = HoodIOOutputMode.POSITION;
     outputs.hoodTargetPosition = position;
+
+    atTolerance =
+        inputs.hoodMotorPosition.minus(position).abs(Degrees) <= HoodSettings.TOLERANCE.in(Degrees);
   }
 
   private void stopMotor() {

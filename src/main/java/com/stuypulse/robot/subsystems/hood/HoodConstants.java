@@ -18,6 +18,8 @@ public interface HoodConstants {
     Angle STOW_ANGLE = Degrees.of(0);
 
     Angle FERRY_ANGLE = Degrees.of(30);
+
+    Angle TOLERANCE = Degrees.of(3);
   }
 
   public interface HoodGains {
