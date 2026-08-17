@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
  * behavior of all WPILib linear system sims in one interface.
  *
  * @see TalonFXSimulation
- * @author Faizaan Jamil (https://github.com/Faizaan-J)
+ * @author Faizaan (https://github.com/Faizaan-J)
  */
 public interface SystemSim<T> {
   /**

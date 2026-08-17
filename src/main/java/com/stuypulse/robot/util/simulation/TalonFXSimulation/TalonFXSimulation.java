@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.RobotController;
  * of WPILib linear sims.
  *
  * @see SystemSim
- * @author Faizaan Jamil (https://github.com/Faizaan-J)
+ * @author Faizaan (https://github.com/Faizaan-J)
  */
 public class TalonFXSimulation extends LoggedTalonFX {
   private final SystemSim<?> simMotor;
