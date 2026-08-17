@@ -1,6 +1,8 @@
 package com.stuypulse.robot.util.logged;
 
+import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.units.measure.*;
+
 import org.littletonrobotics.junction.AutoLog;
 
 /**
@@ -35,10 +37,10 @@ import org.littletonrobotics.junction.AutoLog;
  */
 @AutoLog
 public class TalonFXInputs {
-    public Current supplyCurrent;
-    public Current statorCurrent;
-    public Temperature temperature;
-    public Angle position;
-    public Voltage appliedVoltage;
-    public AngularVelocity velocity;
+    public Current supplyCurrent = Amps.zero();
+    public Current statorCurrent = Amps.zero();
+    public Temperature temperature = Celsius.zero();
+    public Angle position = Degrees.zero();
+    public Voltage appliedVoltage = Volts.zero();
+    public AngularVelocity velocity = DegreesPerSecond.zero();
 }
