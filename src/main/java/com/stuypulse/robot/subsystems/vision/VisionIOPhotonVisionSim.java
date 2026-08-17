@@ -13,19 +13,16 @@
 
 package com.stuypulse.robot.subsystems.vision;
 
+import com.stuypulse.robot.constants.Field;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
-
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
-
-import com.stuypulse.robot.constants.Field;
-
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
@@ -48,7 +45,8 @@ public class VisionIOPhotonVisionSim implements VisionIO {
      * @param robotToCamera The transform from the robot to the camera.
      * @param poseSupplier Supplier for the robot pose to use in simulation.
      */
-    public VisionIOPhotonVisionSim(String name, Transform3d robotToCamera, Supplier<Pose2d> poseSupplier) {
+    public VisionIOPhotonVisionSim(
+            String name, Transform3d robotToCamera, Supplier<Pose2d> poseSupplier) {
         // super(name, robotToCamera);
         this.camera = new PhotonCamera(name);
         this.robotToCamera = robotToCamera;
@@ -78,11 +76,13 @@ public class VisionIOPhotonVisionSim implements VisionIO {
         for (var result : camera.getAllUnreadResults()) {
             // Update latest target observation
             if (result.hasTargets()) {
-                inputs.latestTargetObservation = new TargetObservation(
-                        Rotation2d.fromDegrees(result.getBestTarget().getYaw()),
-                        Rotation2d.fromDegrees(result.getBestTarget().getPitch()));
+                inputs.latestTargetObservation =
+                        new TargetObservation(
+                                Rotation2d.fromDegrees(result.getBestTarget().getYaw()),
+                                Rotation2d.fromDegrees(result.getBestTarget().getPitch()));
             } else {
-                inputs.latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d());
+                inputs.latestTargetObservation =
+                        new TargetObservation(new Rotation2d(), new Rotation2d());
             }
 
             // Add pose observation
@@ -92,7 +92,8 @@ public class VisionIOPhotonVisionSim implements VisionIO {
                 // Calculate robot pose
                 Transform3d fieldToCamera = multitagResult.estimatedPose.best;
                 Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
-                Pose3d robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
+                Pose3d robotPose =
+                        new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
 
                 // Calculate average tag distance
                 double totalTagDistance = 0.0;
@@ -119,12 +120,14 @@ public class VisionIOPhotonVisionSim implements VisionIO {
                 // Calculate robot pose
                 var tagPose = Field.APRIL_TAG_LAYOUT.getTagPose(target.fiducialId);
                 if (tagPose.isPresent()) {
-                    Transform3d fieldToTarget = new Transform3d(tagPose.get().getTranslation(),
-                            tagPose.get().getRotation());
+                    Transform3d fieldToTarget =
+                            new Transform3d(
+                                    tagPose.get().getTranslation(), tagPose.get().getRotation());
                     Transform3d cameraToTarget = target.bestCameraToTarget;
                     Transform3d fieldToCamera = fieldToTarget.plus(cameraToTarget.inverse());
                     Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
-                    Pose3d robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
+                    Pose3d robotPose =
+                            new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
 
                     // Add tag ID
                     tagIds.add((short) target.fiducialId);
@@ -136,7 +139,9 @@ public class VisionIOPhotonVisionSim implements VisionIO {
                                     robotPose, // 3D pose estimate
                                     target.poseAmbiguity, // Ambiguity
                                     1, // Tag count
-                                    cameraToTarget.getTranslation().getNorm(), // Average tag distance
+                                    cameraToTarget
+                                            .getTranslation()
+                                            .getNorm(), // Average tag distance
                                     PoseObservationType.PHOTONVISION)); // Observation type
                 }
             }

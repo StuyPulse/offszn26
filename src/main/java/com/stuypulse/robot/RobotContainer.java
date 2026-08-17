@@ -7,10 +7,8 @@ package com.stuypulse.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.constants.DriverConstants;
-
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.constants.GlobalSettings.VisionMode;
-
 import com.stuypulse.robot.subsystems.swerve.GyroIO;
 import com.stuypulse.robot.subsystems.swerve.GyroIOReal;
 import com.stuypulse.robot.subsystems.swerve.ModuleIO;
@@ -24,16 +22,13 @@ import com.stuypulse.robot.subsystems.vision.VisionIO;
 import com.stuypulse.robot.subsystems.vision.VisionIOLimelight;
 import com.stuypulse.robot.subsystems.vision.VisionIOPhotonVision;
 import com.stuypulse.robot.subsystems.vision.VisionIOPhotonVisionSim;
-
 import com.stuypulse.robot.util.InterpolationCalculator;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
 import java.util.Arrays;
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -43,147 +38,161 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // Subsystems
-  private final Swerve swerve;
-  private final Vision vision;
+    // Subsystems
+    private final Swerve swerve;
+    private final Vision vision;
 
-  // Controller
-  private final CommandXboxController controller;
+    // Controller
+    private final CommandXboxController controller;
 
-  // Dashboard inputs
-  private final LoggedDashboardChooser<Command> autoChooser;
+    // Dashboard inputs
+    private final LoggedDashboardChooser<Command> autoChooser;
 
-  private final InterpolationCalculator interpolator;
+    private final InterpolationCalculator interpolator;
 
-  /** The container for the robot. Contains subsystems, IO devices, and commands. */
-  public RobotContainer() {
+    /** The container for the robot. Contains subsystems, IO devices, and commands. */
+    public RobotContainer() {
 
-    switch (GlobalSettings.CURRENT_MODE) {
-      case REAL -> {
-        swerve =
-            new Swerve(
-                new GyroIOReal(),
-                new ModuleIOReal(TunerConstants.FrontLeft),
-                new ModuleIOReal(TunerConstants.FrontRight),
-                new ModuleIOReal(TunerConstants.BackLeft),
-                new ModuleIOReal(TunerConstants.BackRight));
+        switch (GlobalSettings.CURRENT_MODE) {
+            case REAL -> {
+                swerve =
+                        new Swerve(
+                                new GyroIOReal(),
+                                new ModuleIOReal(TunerConstants.FrontLeft),
+                                new ModuleIOReal(TunerConstants.FrontRight),
+                                new ModuleIOReal(TunerConstants.BackLeft),
+                                new ModuleIOReal(TunerConstants.BackRight));
 
-        if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
-            vision = new Vision(
-                swerve,
-                    Arrays.stream(CamerasList.CAMERAS)
-                        .map((camera) -> new VisionIOLimelight(camera.name(), swerve::getRotation))
-                        .toArray(VisionIO[]::new)
-            );
-        } else {
-            vision = new Vision(
-                swerve,
-                    Arrays.stream(CamerasList.CAMERAS)
-                        .map((camera) -> new VisionIOPhotonVision(camera.name(), camera.robotToCamera()))
-                        .toArray(VisionIO[]::new)
-            );
+                if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
+                    vision =
+                            new Vision(
+                                    swerve,
+                                    Arrays.stream(CamerasList.CAMERAS)
+                                            .map(
+                                                    (camera) ->
+                                                            new VisionIOLimelight(
+                                                                    camera.name(),
+                                                                    swerve::getRotation))
+                                            .toArray(VisionIO[]::new));
+                } else {
+                    vision =
+                            new Vision(
+                                    swerve,
+                                    Arrays.stream(CamerasList.CAMERAS)
+                                            .map(
+                                                    (camera) ->
+                                                            new VisionIOPhotonVision(
+                                                                    camera.name(),
+                                                                    camera.robotToCamera(),
+                                                                    swerve::getPose))
+                                            .toArray(VisionIO[]::new));
+                }
+                interpolator = new InterpolationCalculator(swerve::getPose);
+            }
+
+            case SIM -> {
+                swerve =
+                        new Swerve(
+                                new GyroIO() {},
+                                new ModuleIOSim(TunerConstants.FrontLeft),
+                                new ModuleIOSim(TunerConstants.FrontRight),
+                                new ModuleIOSim(TunerConstants.BackLeft),
+                                new ModuleIOSim(TunerConstants.BackRight));
+
+                vision =
+                        new Vision(
+                                swerve,
+                                Arrays.stream(CamerasList.CAMERAS)
+                                        .map(
+                                                (camera) ->
+                                                        new VisionIOPhotonVisionSim(
+                                                                camera.name(),
+                                                                camera.robotToCamera(),
+                                                                swerve::getPose))
+                                        .toArray(VisionIO[]::new));
+                interpolator = new InterpolationCalculator(swerve::getPose);
+            }
+
+                // For replay mode
+            default -> {
+                swerve =
+                        new Swerve(
+                                new GyroIO() {},
+                                new ModuleIO() {},
+                                new ModuleIO() {},
+                                new ModuleIO() {},
+                                new ModuleIO() {});
+
+                vision =
+                        new Vision(
+                                swerve,
+                                Arrays.stream(CamerasList.CAMERAS)
+                                        .map((camera) -> new VisionIO() {})
+                                        .toArray(VisionIO[]::new));
+                interpolator = new InterpolationCalculator(swerve::getPose);
+            }
         }
-        interpolator = new InterpolationCalculator(swerve::getPose);
-      }
 
-      case SIM -> {
-        swerve =
-            new Swerve(
-                new GyroIO() {},
-                new ModuleIOSim(TunerConstants.FrontLeft),
-                new ModuleIOSim(TunerConstants.FrontRight),
-                new ModuleIOSim(TunerConstants.BackLeft),
-                new ModuleIOSim(TunerConstants.BackRight));
+        this.controller = new CommandXboxController(DriverConstants.Driver.DRIVER_INDEX);
 
-        vision = 
-            new Vision(
-                swerve,
-                Arrays.stream(CamerasList.CAMERAS)
-                    .map((camera) ->
-                        new VisionIOPhotonVisionSim(
-                            camera.name(),
-                            camera.robotToCamera(),
-                            swerve::getPose))
-                    .toArray(VisionIO[]::new));
-        interpolator = new InterpolationCalculator(swerve::getPose);
-      }
+        // Set up auto routines
+        autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-        // For replay mode
-      default -> {
-        swerve =
-            new Swerve(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
+        configureButtonBindings();
+        configureDefaultCommands();
+        configureAutons();
 
-        vision = new Vision(
-            swerve,
-                Arrays.stream(CamerasList.CAMERAS)
-                    .map((camera) -> new VisionIO() {})
-                    .toArray(VisionIO[]::new)
-        );
-        interpolator = new InterpolationCalculator(swerve::getPose);
-      }
+        // COMMENT OUT THIS METHOD BEFORE RUNNING MATCHES
+        configureSysid();
     }
 
-    this.controller = new CommandXboxController(DriverConstants.Driver.DRIVER_INDEX);
+    private void configureDefaultCommands() {
+        swerve.setDefaultCommand(DriveCommands.joystickDrive(swerve, controller));
+    }
 
-    // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    private void configureAutons() {}
 
-    configureButtonBindings();
-    configureDefaultCommands();
-    configureAutons();
+    private void configureSysid() {
+        autoChooser.addOption(
+                "Drive Wheel Radius Characterization",
+                DriveCommands.wheelRadiusCharacterization(swerve));
+        autoChooser.addOption(
+                "Drive Simple FF Characterization",
+                DriveCommands.feedforwardCharacterization(swerve));
+        autoChooser.addOption(
+                "Drive SysId (Quasistatic Forward)",
+                swerve.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+                "Drive SysId (Quasistatic Reverse)",
+                swerve.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        autoChooser.addOption(
+                "Drive SysId (Dynamic Forward)",
+                swerve.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+                "Drive SysId (Dynamic Reverse)",
+                swerve.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    }
 
-    // COMMENT OUT THIS METHOD BEFORE RUNNING MATCHES
-    configureSysid();
-  }
+    /**
+     * Use this method to define your button->command mappings. Buttons can be created by
+     * instantiating a {@link GenericHID} or one of its subclasses ({@link
+     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+     * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+     */
+    private void configureButtonBindings() {
+        controller.a().onTrue(DriveCommands.alignToHub(swerve));
+    }
 
-  private void configureDefaultCommands() {
-    swerve.setDefaultCommand(DriveCommands.joystickDrive(swerve, controller));
-  }
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
+    public Command getAutonomousCommand() {
+        return autoChooser.get();
+    }
 
-  private void configureAutons() {}
-
-  private void configureSysid() {
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(swerve));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(swerve));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        swerve.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        swerve.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", swerve.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", swerve.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-  }
-
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings() {
-    controller.a().onTrue(DriveCommands.alignToHub(swerve));
-  }
-
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    return autoChooser.get();
-  }
-
-  public void clearMemoized() {
-    interpolator.clearMemoized();
-  }
+    public void clearMemoized() {
+        interpolator.clearMemoized();
+    }
 }

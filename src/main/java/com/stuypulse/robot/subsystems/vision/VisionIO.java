@@ -19,49 +19,50 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface VisionIO {
-  @AutoLog
-  class VisionIOInputs {
-    public boolean connected = false;
-    public TargetObservation latestTargetObservation =
-        new TargetObservation(new Rotation2d(), new Rotation2d());
-    public PoseObservation[] poseObservations = new PoseObservation[0];
-    public int[] tagIds = new int[0];
-  }
+    @AutoLog
+    class VisionIOInputs {
+        public boolean connected = false;
+        public TargetObservation latestTargetObservation =
+                new TargetObservation(new Rotation2d(), new Rotation2d());
+        public PoseObservation[] poseObservations = new PoseObservation[0];
+        public int[] tagIds = new int[0];
+        public Pose3d[] objectPoses = new Pose3d[0];
+    }
 
-  /** Represents the angle to a simple target, not used for pose estimation. */
-  record TargetObservation(Rotation2d tx, Rotation2d ty) {}
+    /** Represents the angle to a simple target, not used for pose estimation. */
+    record TargetObservation(Rotation2d tx, Rotation2d ty) {}
 
-  /** Represents a robot pose sample used for pose estimation. */
-  record PoseObservation(
-      double timestamp,
-      Pose3d pose,
-      double ambiguity,
-      int tagCount,
-      double averageTagDistance,
-      PoseObservationType type) {}
+    /** Represents a robot pose sample used for pose estimation. */
+    record PoseObservation(
+            double timestamp,
+            Pose3d pose,
+            double ambiguity,
+            int tagCount,
+            double averageTagDistance,
+            PoseObservationType type) {}
 
-  enum PoseObservationType {
-    MEGATAG_1,
-    MEGATAG_2,
-    PHOTONVISION
-  }
+    enum PoseObservationType {
+        MEGATAG_1,
+        MEGATAG_2,
+        PHOTONVISION
+    }
 
-  enum MegaTagMode {
-    MEGATAG_1,
-    MEGATAG_2
-  }
+    enum MegaTagMode {
+        MEGATAG_1,
+        MEGATAG_2
+    }
 
-  class VisionIOOutputs {
-    public MegaTagMode megaTagMode = MegaTagMode.MEGATAG_1;
+    class VisionIOOutputs {
+        public MegaTagMode megaTagMode = MegaTagMode.MEGATAG_1;
 
-    public int pipeline = 0;
+        public int pipeline = 0;
 
-    public int[] aprilTagIDWhitelist = Field.ALL_TAGS;
+        public int[] aprilTagIDWhitelist = Field.ALL_TAGS;
 
-    public int imuMode = 1;
-  }
+        public int imuMode = 1;
+    }
 
-  public default void updateInputs(VisionIOInputs inputs) {}
+    public default void updateInputs(VisionIOInputs inputs) {}
 
-  public default void applyOutputs(VisionIOOutputs outputs) {}
+    public default void applyOutputs(VisionIOOutputs outputs) {}
 }
