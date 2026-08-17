@@ -15,10 +15,13 @@ package com.stuypulse.robot.commands;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 import com.stuypulse.robot.constants.DriverConstants.*;
 import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
 import com.stuypulse.robot.subsystems.swerve.SwerveConstants.*;
+import com.stuypulse.robot.util.FullSubsystem;
 import com.stuypulse.robot.util.swerve.AlignmentUtil;
 import com.stuypulse.robot.util.swerve.DriveInputProcessor;
 import com.stuypulse.robot.util.swerve.DriveTurnInputProcessor;
@@ -27,6 +30,7 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -43,6 +47,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
 
 public class DriveCommands {
     private static final double FF_START_DELAY = 2.0; // Secs
@@ -336,5 +342,21 @@ public class DriveCommands {
         double[] positions = new double[4];
         Rotation2d lastAngle = new Rotation2d();
         double gyroDelta = 0.0;
+    }
+
+    public static Command visitAllCommand(
+            Supplier<List<Pose3d>> poses, PathConstraints constraints, FullSubsystem swerve) {
+        return Commands.defer(
+                () -> {
+                    Command sequence = Commands.none();
+                    for (Pose3d pose : poses.get()) {
+                        sequence =
+                                sequence.andThen(
+                                        AutoBuilder.pathfindToPose(
+                                                pose.toPose2d(), constraints, 0.0));
+                    }
+                    return sequence;
+                },
+                Set.of(swerve));
     }
 }

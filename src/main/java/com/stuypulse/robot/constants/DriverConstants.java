@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 
+import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
@@ -48,5 +49,8 @@ public interface DriverConstants {
         LinearAcceleration MAX_ACCEL_SOTM = MetersPerSecondPerSecond.of(4.0);
         LinearAcceleration MAX_ACCEL_FOTM = MetersPerSecondPerSecond.of(15.0);
         AngularAcceleration MAX_ANGULAR_ACCEL = DegreesPerSecondPerSecond.of(900.0);
+
+        PathConstraints PATH_CONSTRAINTS =
+                new PathConstraints(MAX_VELOCITY, MAX_ACCEL, MAX_ANGULAR_VEL, MAX_ANGULAR_ACCEL);
     }
 }

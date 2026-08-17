@@ -24,7 +24,7 @@ public interface GlobalSettings {
     // replaying. Change
     // to SIM when simulating code.
     Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : SIMULATION_TASK;
-    VisionMode VISION_MODE = VisionMode.LIMELIGHT_VISION;
+    VisionMode VISION_MODE = VisionMode.PHOTON_VISION;
 
     enum Mode {
         /** Running on a real robot. */

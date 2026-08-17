@@ -13,6 +13,10 @@
 
 package com.stuypulse.robot.subsystems.vision;
 
+import static edu.wpi.first.units.Units.*;
+
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 
@@ -51,6 +55,17 @@ public interface VisionConstants {
     record CameraData(String name, Transform3d robotToCamera, double stdDevFactor) {}
 
     public interface CamerasList {
-        final CameraData[] CAMERAS = {};
+        final CameraData[] CAMERAS = {
+            new CameraData("openaicam", new Transform3d(
+                Inches.of(-0.5),
+                Inches.of(13.861094),
+                Inches.of(4.580044),
+                new Rotation3d(
+                    Degrees.zero(),
+                    Degrees.of(-10),
+                    Degrees.zero()
+                )
+            ), 0)
+        };
     }
 }

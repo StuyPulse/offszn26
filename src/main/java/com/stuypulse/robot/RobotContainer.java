@@ -7,6 +7,7 @@ package com.stuypulse.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.constants.DriverConstants;
+import com.stuypulse.robot.constants.DriverConstants.DriveConstraints;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.constants.GlobalSettings.VisionMode;
 import com.stuypulse.robot.subsystems.swerve.GyroIO;
@@ -181,6 +182,13 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         controller.a().onTrue(DriveCommands.alignToHub(swerve));
+        controller
+                .b()
+                .onTrue(
+                        DriveCommands.visitAllCommand(
+                                vision::getAllObjectPoses,
+                                DriveConstraints.PATH_CONSTRAINTS,
+                                swerve));
     }
 
     /**

@@ -98,6 +98,12 @@ public class Vision extends FullSubsystem {
         return hasDataDebouncer.calculate(hasData);
     }
 
+    public List<Pose3d> getAllObjectPoses() {
+        return this.allObjectPoses;
+    }
+
+    private final List<Pose3d> allObjectPoses = new ArrayList<>();
+
     @Override
     public void periodic() {
         maxTagCount = 0;
@@ -117,7 +123,7 @@ public class Vision extends FullSubsystem {
         List<Pose3d> allRobotPoses = new LinkedList<>();
         List<Pose3d> allRobotPosesAccepted = new LinkedList<>();
         List<Pose3d> allRobotPosesRejected = new LinkedList<>();
-        List<Pose3d> allObjectPoses = new ArrayList<>();
+        allObjectPoses.clear();
 
         // Loop over cameras
         for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
