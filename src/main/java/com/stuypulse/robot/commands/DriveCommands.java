@@ -16,10 +16,9 @@ package com.stuypulse.robot.commands;
 import static edu.wpi.first.units.Units.*;
 
 import com.stuypulse.robot.constants.DriverConstants.*;
-import com.stuypulse.robot.subsystems.swerve.SwerveConstants.*;
-
 import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
+import com.stuypulse.robot.subsystems.swerve.SwerveConstants.*;
 import com.stuypulse.robot.util.swerve.AlignmentUtil;
 import com.stuypulse.robot.util.swerve.DriveInputProcessor;
 import com.stuypulse.robot.util.swerve.DriveTurnInputProcessor;
@@ -54,36 +53,23 @@ public class DriveCommands {
   private DriveCommands() {}
 
   public static Command buzzController(CommandXboxController driver) {
-    return Commands.run(
-            () -> {
-              driver.getHID().setRumble(RumbleType.kBothRumble, Driver.BUZZ_INTENSITY);
-            })
+    return Commands.runEnd(
+            () -> driver.getHID().setRumble(RumbleType.kBothRumble, Driver.BUZZ_INTENSITY),
+            () -> driver.getHID().setRumble(RumbleType.kBothRumble, 0))
         .withName("Buzz Controller");
   }
 
   public static Command resetHeading(Swerve swerve) {
-    return Commands.runOnce(
-            () -> {
-              swerve.resetHeading(Rotation2d.kZero);
-            },
-            swerve)
-        .withName("Reset Heading");
+    return Commands.runOnce(() -> swerve.resetHeading(Rotation2d.kZero))
+        .withName("Swerve Reset Heading");
   }
 
   public static Command resetPose(Swerve swerve, Pose2d pose) {
-    return Commands.runOnce(
-        () -> {
-          swerve.resetOdometry(pose);
-        },
-        swerve);
+    return Commands.runOnce(() -> swerve.resetOdometry(pose)).withName("Swerve Reset Pose");
   }
 
   public static Command xMode(Swerve swerve) {
-    return Commands.run(
-            () -> {
-              swerve.stopWithX();
-            })
-        .withName("Swerve X Mode");
+    return Commands.run(() -> swerve.stopWithX(), swerve).withName("Swerve X Mode");
   }
 
   /**
@@ -138,7 +124,10 @@ public class DriveCommands {
 
   public static Command alignToPose(Swerve swerve, Pose2d targetPose) {
     PIDController angleController =
-        new PIDController(SwerveSettings.Alignment.Gains.kP, SwerveSettings.Alignment.Gains.kI, SwerveSettings.Alignment.Gains.kD);
+        new PIDController(
+            SwerveSettings.Alignment.Gains.kP,
+            SwerveSettings.Alignment.Gains.kI,
+            SwerveSettings.Alignment.Gains.kD);
     Debouncer isAlignedDebouncer =
         new Debouncer(SwerveSettings.Alignment.IS_ALIGNED_DEBOUNCE.in(Seconds), DebounceType.kBoth);
 
@@ -171,7 +160,8 @@ public class DriveCommands {
         .until(
             () ->
                 isAlignedDebouncer.calculate(
-                    Math.abs(angleController.getError()) < SwerveSettings.Alignment.THETA_TOLERANCE.getRadians()))
+                    Math.abs(angleController.getError())
+                        < SwerveSettings.Alignment.THETA_TOLERANCE.getRadians()))
         .withName("Swerve Align To Pose");
   }
 
