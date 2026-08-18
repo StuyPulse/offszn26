@@ -9,7 +9,6 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.stuypulse.robot.util.config.TalonFXConfig;
 import com.stuypulse.robot.util.logged.LoggedTalonFX;
-
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.RobotController;
 

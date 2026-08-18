@@ -83,7 +83,8 @@ public class Hood extends FullSubsystem {
     outputs.hoodTargetPosition = position;
 
     atTolerance =
-        inputs.hoodMotorPosition.minus(position).abs(Degrees) <= HoodSettings.TOLERANCE.in(Degrees);
+        inputs.hoodInputs.position.minus(position).abs(Degrees)
+            <= HoodSettings.TOLERANCE.in(Degrees);
   }
 
   private void stopMotor() {

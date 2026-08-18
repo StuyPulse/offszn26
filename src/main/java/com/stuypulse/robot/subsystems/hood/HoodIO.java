@@ -2,23 +2,15 @@ package com.stuypulse.robot.subsystems.hood;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.stuypulse.robot.util.logged.TalonFXInputs;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Temperature;
-import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 public interface HoodIO {
   @AutoLog
   public static class HoodIOInputs {
-    public Current hoodMotorSupplyCurrent = Amps.zero();
-    public Current hoodMotorStatorCurrent = Amps.zero();
-    public Temperature hoodMotorTemperature = Celsius.zero();
-    public Angle hoodMotorPosition = Degrees.zero();
-    public Voltage hoodMotorAppliedVoltage = Volts.zero();
-    public AngularVelocity hoodMotorVelocity = RPM.zero();
+    public TalonFXInputs hoodInputs = new TalonFXInputs();
   }
 
   public default void updateInputs(HoodIOInputs inputs) {}
