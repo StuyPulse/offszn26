@@ -17,12 +17,17 @@ public interface GlobalSettings {
         new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Intake", true);
     LoggedNetworkBoolean FEEDER =
         new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Feeder", true);
+    LoggedNetworkBoolean VISION =
+        new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Vision", true);
   }
 
   Time DT = Milliseconds.of(20);
 
-  Mode simMode = Mode.SIM;
-  Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+  Mode SIMULATION_TASK =
+      Mode.SIM; // What to do during simulation mode. Change this to REPLAY when replaying. Change
+  // to SIM when simulating code.
+  Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : SIMULATION_TASK;
+  VisionMode VISION_MODE = VisionMode.LIMELIGHT_VISION;
 
   enum Mode {
     /** Running on a real robot. */
@@ -33,5 +38,10 @@ public interface GlobalSettings {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  enum VisionMode {
+    LIMELIGHT_VISION,
+    PHOTON_VISION
   }
 }

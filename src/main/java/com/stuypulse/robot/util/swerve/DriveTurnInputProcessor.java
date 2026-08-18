@@ -36,7 +36,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  *
  * <p>To get the processed speed, call the {@link #get()} method.
  *
- * @author Faizaan Jamil (https://github.com/Faizaan-J)
+ * @author Faizaan (https://github.com/Faizaan-J)
  */
 public class DriveTurnInputProcessor {
   private final CommandXboxController controller;
@@ -88,7 +88,7 @@ public class DriveTurnInputProcessor {
    * @return This instance of the class
    */
   private DriveTurnInputProcessor getRightX() {
-    this.processedAngularVelocity = controller.getRightX();
+    this.processedAngularVelocity = -controller.getRightX();
     return this;
   }
 
