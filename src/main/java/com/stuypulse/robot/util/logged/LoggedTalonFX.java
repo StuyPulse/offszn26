@@ -49,8 +49,9 @@ import edu.wpi.first.units.measure.*;
  *             IntakeDeviceIds.PIVOT,
  *             GlobalSettings.RIO);
  *
- *     // Use `addSignal` to log extra signals beyond the base six.
- *     pivotMotor.addSignal(pivotMotor.getReverseLimit());
+ *     // Use `withSignal` to log extra signals beyond the base six.
+ *     pivotMotor
+ *      .withSignal(pivotMotor.getReverseLimit());
  * }
  * }</pre>
  *
@@ -100,9 +101,11 @@ public class LoggedTalonFX extends TalonFX {
      * Adds a status signal to be logged and replayed.
      *
      * @param signal The status signal to log.
+     * @return This instance of the class, for method chaining.
      */
-    public <T> void addSignal(StatusSignal<T> signal) {
+    public <T> LoggedTalonFX withSignal(StatusSignal<T> signal) {
         additionalSignals.add(new LoggedSignal<>(signal));
+        return this;
     }
 
     /**
