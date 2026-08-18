@@ -11,6 +11,7 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.stuypulse.robot.constants.GlobalSettings;
@@ -253,6 +254,10 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
     }
     kinematics.resetHeadings(headings);
     stop();
+  }
+
+  public Command followPath(PathPlannerPath path) {
+    return AutoBuilder.followPath(path);
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */
