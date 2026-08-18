@@ -53,36 +53,23 @@ public class DriveCommands {
   private DriveCommands() {}
 
   public static Command buzzController(CommandXboxController driver) {
-    return Commands.run(
-            () -> {
-              driver.getHID().setRumble(RumbleType.kBothRumble, Driver.BUZZ_INTENSITY);
-            })
+    return Commands.runEnd(
+            () -> driver.getHID().setRumble(RumbleType.kBothRumble, Driver.BUZZ_INTENSITY),
+            () -> driver.getHID().setRumble(RumbleType.kBothRumble, 0))
         .withName("Buzz Controller");
   }
 
   public static Command resetHeading(Swerve swerve) {
-    return Commands.runOnce(
-            () -> {
-              swerve.resetHeading(Rotation2d.kZero);
-            },
-            swerve)
-        .withName("Reset Heading");
+    return Commands.runOnce(() -> swerve.resetHeading(Rotation2d.kZero))
+        .withName("Swerve Reset Heading");
   }
 
   public static Command resetPose(Swerve swerve, Pose2d pose) {
-    return Commands.runOnce(
-        () -> {
-          swerve.resetOdometry(pose);
-        },
-        swerve);
+    return Commands.runOnce(() -> swerve.resetOdometry(pose)).withName("Swerve Reset Pose");
   }
 
   public static Command xMode(Swerve swerve) {
-    return Commands.run(
-            () -> {
-              swerve.stopWithX();
-            })
-        .withName("Swerve X Mode");
+    return Commands.run(() -> swerve.stopWithX(), swerve).withName("Swerve X Mode");
   }
 
   /**
