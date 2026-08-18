@@ -357,6 +357,8 @@ public class DriveCommands {
         angleController.enableContinuousInput(-180, 180);
         return Commands.runEnd(
                 () -> {
+                    driveInputProcessor.update();
+
                     Rotation2d objectYaw = vision.getClosestObjectYaw(0);
                     double calculatedYaw = angleController.calculate(objectYaw.getDegrees(), 0.0); // verify signs
 
