@@ -89,7 +89,7 @@ public class Intake extends FullSubsystem {
   }
 
   private boolean canRunRollers() {
-    return inputs.pivotMotorPosition.lte(IntakeSettings.ROLLER_START_THRESHOLD)
+    return inputs.pivotInputs.position.lte(IntakeSettings.ROLLER_START_THRESHOLD)
         && pivotState == PivotState.DEPLOY;
   }
 

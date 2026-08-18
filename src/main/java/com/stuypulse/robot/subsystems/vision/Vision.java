@@ -13,11 +13,9 @@
 
 package com.stuypulse.robot.subsystems.vision;
 
-import com.stuypulse.robot.subsystems.vision.VisionConstants.*;
 import com.stuypulse.robot.constants.Field;
-
 import com.stuypulse.robot.constants.GlobalSettings;
-
+import com.stuypulse.robot.subsystems.vision.VisionConstants.*;
 import com.stuypulse.robot.subsystems.vision.VisionConstants.Camera;
 import com.stuypulse.robot.subsystems.vision.VisionIO.MegaTagMode;
 import com.stuypulse.robot.subsystems.vision.VisionIO.PoseObservationType;
@@ -109,7 +107,7 @@ public class Vision extends FullSubsystem {
     }
 
     if (!GlobalSettings.EnabledSubsystems.VISION.get()) {
-        return;
+      return;
     }
 
     // Initialize logging values

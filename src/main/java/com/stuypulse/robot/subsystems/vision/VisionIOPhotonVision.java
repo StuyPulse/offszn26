@@ -13,6 +13,7 @@
 
 package com.stuypulse.robot.subsystems.vision;
 
+import com.stuypulse.robot.constants.Field;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -21,8 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.photonvision.PhotonCamera;
-
-import com.stuypulse.robot.constants.Field;
 
 /** IO implementation for real PhotonVision hardware. */
 public class VisionIOPhotonVision implements VisionIO {

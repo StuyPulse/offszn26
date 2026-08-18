@@ -2,8 +2,6 @@ package com.stuypulse.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -14,7 +12,6 @@ import com.stuypulse.robot.util.simulation.TalonFXSimulation.SystemSim;
 import com.stuypulse.robot.util.simulation.TalonFXSimulation.TalonFXSimulation;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
@@ -29,27 +26,6 @@ public class IntakeIOSim implements IntakeIO {
   private final DutyCycleOut rollerLeaderController;
   private final Follower rollerFollowerController;
   private final PositionVoltage pivotPositionController;
-
-  private final StatusSignal<Angle> pivotPosition;
-  private final StatusSignal<Current> pivotSupplyCurrent;
-  private final StatusSignal<Current> pivotStatorCurrent;
-  private final StatusSignal<Temperature> pivotTemperature;
-  private final StatusSignal<Voltage> pivotAppliedVoltage;
-  private final StatusSignal<AngularVelocity> pivotVelocity;
-
-  private final StatusSignal<Angle> rollerLeaderPosition;
-  private final StatusSignal<Current> rollerLeaderSupplyCurrent;
-  private final StatusSignal<Current> rollerLeaderStatorCurrent;
-  private final StatusSignal<Temperature> rollerLeaderTemperature;
-  private final StatusSignal<Voltage> rollerLeaderAppliedVoltage;
-  private final StatusSignal<AngularVelocity> rollerLeaderVelocity;
-
-  private final StatusSignal<Angle> rollerFollowerPosition;
-  private final StatusSignal<Current> rollerFollowerSupplyCurrent;
-  private final StatusSignal<Current> rollerFollowerStatorCurrent;
-  private final StatusSignal<Temperature> rollerFollowerTemperature;
-  private final StatusSignal<Voltage> rollerFollowerAppliedVoltage;
-  private final StatusSignal<AngularVelocity> rollerFollowerVelocity;
 
   public IntakeIOSim() {
     this.pivotSim =
@@ -94,27 +70,6 @@ public class IntakeIOSim implements IntakeIO {
     this.pivotPositionController = new PositionVoltage(0).withEnableFOC(true);
 
     rollerFollowerMotor.setControl(rollerFollowerController);
-
-    this.pivotPosition = pivotMotor.getPosition();
-    this.pivotSupplyCurrent = pivotMotor.getSupplyCurrent();
-    this.pivotStatorCurrent = pivotMotor.getStatorCurrent();
-    this.pivotTemperature = pivotMotor.getDeviceTemp();
-    this.pivotAppliedVoltage = pivotMotor.getMotorVoltage();
-    this.pivotVelocity = pivotMotor.getVelocity();
-
-    this.rollerLeaderPosition = rollerLeaderMotor.getPosition();
-    this.rollerLeaderSupplyCurrent = rollerLeaderMotor.getSupplyCurrent();
-    this.rollerLeaderStatorCurrent = rollerLeaderMotor.getStatorCurrent();
-    this.rollerLeaderTemperature = rollerLeaderMotor.getDeviceTemp();
-    this.rollerLeaderAppliedVoltage = rollerLeaderMotor.getMotorVoltage();
-    this.rollerLeaderVelocity = rollerLeaderMotor.getVelocity();
-
-    this.rollerFollowerPosition = rollerFollowerMotor.getPosition();
-    this.rollerFollowerSupplyCurrent = rollerFollowerMotor.getSupplyCurrent();
-    this.rollerFollowerStatorCurrent = rollerFollowerMotor.getStatorCurrent();
-    this.rollerFollowerTemperature = rollerFollowerMotor.getDeviceTemp();
-    this.rollerFollowerAppliedVoltage = rollerFollowerMotor.getMotorVoltage();
-    this.rollerFollowerVelocity = rollerFollowerMotor.getVelocity();
   }
 
   @Override
@@ -126,46 +81,9 @@ public class IntakeIOSim implements IntakeIO {
     this.rollerLeaderMotor.refresh();
     this.rollerFollowerMotor.refresh();
 
-    BaseStatusSignal.refreshAll(
-        pivotPosition,
-        pivotSupplyCurrent,
-        pivotStatorCurrent,
-        pivotTemperature,
-        pivotAppliedVoltage,
-        pivotVelocity,
-        rollerLeaderPosition,
-        rollerLeaderSupplyCurrent,
-        rollerLeaderStatorCurrent,
-        rollerLeaderTemperature,
-        rollerLeaderAppliedVoltage,
-        rollerLeaderVelocity,
-        rollerFollowerPosition,
-        rollerFollowerSupplyCurrent,
-        rollerFollowerStatorCurrent,
-        rollerFollowerTemperature,
-        rollerFollowerAppliedVoltage,
-        rollerFollowerVelocity);
-
-    inputs.pivotMotorPosition = pivotPosition.getValue();
-    inputs.pivotMotorSupplyCurrent = pivotSupplyCurrent.getValue();
-    inputs.pivotMotorStatorCurrent = pivotStatorCurrent.getValue();
-    inputs.pivotMotorTemperature = pivotTemperature.getValue();
-    inputs.pivotMotorAppliedVoltage = pivotAppliedVoltage.getValue();
-    inputs.pivotMotorVelocity = pivotVelocity.getValue();
-
-    inputs.rollerLeaderMotorPosition = rollerLeaderPosition.getValue();
-    inputs.rollerLeaderMotorSupplyCurrent = rollerLeaderSupplyCurrent.getValue();
-    inputs.rollerLeaderMotorStatorCurrent = rollerLeaderStatorCurrent.getValue();
-    inputs.rollerLeaderMotorTemperature = rollerLeaderTemperature.getValue();
-    inputs.rollerLeaderMotorAppliedVoltage = rollerLeaderAppliedVoltage.getValue();
-    inputs.rollerLeaderMotorVelocity = rollerLeaderVelocity.getValue();
-
-    inputs.rollerFollowerMotorPosition = rollerFollowerPosition.getValue();
-    inputs.rollerFollowerMotorSupplyCurrent = rollerFollowerSupplyCurrent.getValue();
-    inputs.rollerFollowerMotorStatorCurrent = rollerFollowerStatorCurrent.getValue();
-    inputs.rollerFollowerMotorTemperature = rollerFollowerTemperature.getValue();
-    inputs.rollerFollowerMotorAppliedVoltage = rollerFollowerAppliedVoltage.getValue();
-    inputs.rollerFollowerMotorVelocity = rollerFollowerVelocity.getValue();
+    pivotMotor.updateInputs(inputs.pivotInputs);
+    rollerLeaderMotor.updateInputs(inputs.rollerLeaderInputs);
+    rollerFollowerMotor.updateInputs(inputs.rollerFollowerInputs);
   }
 
   @Override

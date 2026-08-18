@@ -22,7 +22,6 @@ import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -166,7 +165,8 @@ public class VisionIOLimelight implements VisionIO {
 
     pipelinePublisher.accept(outputs.pipeline);
 
-    aprilTagWhitelistPublisher.accept(Arrays.stream(outputs.aprilTagIDWhitelist).asDoubleStream().toArray());
+    aprilTagWhitelistPublisher.accept(
+        Arrays.stream(outputs.aprilTagIDWhitelist).asDoubleStream().toArray());
 
     imuModePublisher.accept(outputs.imuMode);
   }

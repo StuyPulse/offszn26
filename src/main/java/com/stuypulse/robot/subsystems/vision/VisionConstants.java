@@ -13,9 +13,7 @@
 
 package com.stuypulse.robot.subsystems.vision;
 
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.util.Units;
 
 public interface VisionConstants {
   public interface VisionSettings {
@@ -39,18 +37,16 @@ public interface VisionConstants {
   }
 
   /**
-   * <p>!!!! Note that the index of the Camera enum and the index of the camera data array must
+   * !!!! Note that the index of the Camera enum and the index of the camera data array must
    * match!!!!
    */
   enum Camera {
-    // Add names here for each camera, in the order they are defined in the CamerasList.CAMERAS array
+  // Add names here for each camera, in the order they are defined in the CamerasList.CAMERAS array
   }
 
   record CameraData(String name, Transform3d robotToCamera, double stdDevFactor) {}
 
   public interface CamerasList {
-    final CameraData[] CAMERAS = {
-    
-    };
+    final CameraData[] CAMERAS = {};
   }
 }
