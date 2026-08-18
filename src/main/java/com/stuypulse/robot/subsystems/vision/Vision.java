@@ -20,6 +20,7 @@ import com.stuypulse.robot.subsystems.vision.VisionIO.MegaTagMode;
 import com.stuypulse.robot.subsystems.vision.VisionIO.PoseObservation;
 import com.stuypulse.robot.subsystems.vision.VisionIO.PoseObservationType;
 import com.stuypulse.robot.subsystems.vision.VisionIO.VisionIOOutputs;
+import com.stuypulse.robot.subsystems.vision.VisionIO.VisionPipeline;
 import com.stuypulse.robot.util.FullSubsystem;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -275,7 +276,7 @@ public class Vision extends FullSubsystem {
                 .ignoringDisable(true);
     }
 
-    public Command setPipeline(int pipeline) {
+    public Command setPipeline(VisionPipeline pipeline) {
         return runOnce(
                         () -> {
                             for (VisionIOOutputs output : outputs) {

@@ -166,7 +166,7 @@ public class VisionIOLimelight implements VisionIO {
     public void applyOutputs(VisionIOOutputs outputs) {
         this.megaTagMode = outputs.megaTagMode;
 
-        pipelinePublisher.accept(outputs.pipeline);
+        pipelinePublisher.accept(outputs.pipeline.getPipelineIndex());
 
         aprilTagWhitelistPublisher.accept(
                 Arrays.stream(outputs.aprilTagIDWhitelist).asDoubleStream().toArray());

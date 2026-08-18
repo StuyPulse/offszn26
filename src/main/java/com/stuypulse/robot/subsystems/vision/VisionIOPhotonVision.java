@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -90,8 +92,9 @@ public class VisionIOPhotonVision implements VisionIO {
     private void updateObjectDetectionInputs(VisionIOInputs inputs) {
         final List<PhotonPipelineResult> results = camera.getAllUnreadResults();
         List<Pose3d> objectPoses = new ArrayList<>();
-        // DogLog.log("Vision/" + currentCamera.getName() + "_numResults/",
-        // results.size());
+
+        Logger.recordOutput("Vision/" + camera.getName() + "_numResults/", results.size());
+
         for (PhotonPipelineResult result : results) {
             if (!result.hasTargets()) {
                 continue;
@@ -103,8 +106,6 @@ public class VisionIOPhotonVision implements VisionIO {
                             this.robotToCamera,
                             result.getBestTarget());
             if (fuelPose.isPresent()) {
-                // DogLog.log("Vision/" + currentCamera.getName() + "_FuelPose",
-                // fuelPose.get());
                 objectPoses.add(fuelPose.get());
             }
         }
@@ -218,6 +219,6 @@ public class VisionIOPhotonVision implements VisionIO {
 
     @Override
     public void applyOutputs(VisionIOOutputs outputs) {
-        camera.setPipelineIndex(outputs.pipeline);
+        camera.setPipelineIndex(outputs.pipeline.getPipelineIndex());
     }
 }

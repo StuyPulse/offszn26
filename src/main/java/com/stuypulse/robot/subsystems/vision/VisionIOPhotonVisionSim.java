@@ -163,6 +163,6 @@ public class VisionIOPhotonVisionSim implements VisionIO {
 
     @Override
     public void applyOutputs(VisionIOOutputs outputs) {
-        camera.setPipelineIndex(outputs.pipeline);
+        camera.setPipelineIndex(outputs.pipeline.getPipelineIndex());
     }
 }

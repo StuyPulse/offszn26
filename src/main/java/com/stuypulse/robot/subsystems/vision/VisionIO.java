@@ -17,6 +17,7 @@ import com.stuypulse.robot.constants.Field;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public interface VisionIO {
     @AutoLog
@@ -52,10 +53,26 @@ public interface VisionIO {
         MEGATAG_2
     }
 
+    enum VisionPipeline {
+        OBJECT_DETECTION(0),
+        APRILTAG(1);
+
+        private final int pipelineIndex;
+
+        private VisionPipeline(int pipelineIndex) {
+            this.pipelineIndex = pipelineIndex;
+        }
+
+        public int getPipelineIndex() {
+            return pipelineIndex;
+        }
+    }
+
     class VisionIOOutputs {
         public MegaTagMode megaTagMode = MegaTagMode.MEGATAG_1;
 
-        public int pipeline = 0;
+        @AutoLogOutput(key = "Vision/PipelineIndex")
+        public VisionPipeline pipeline = VisionPipeline.OBJECT_DETECTION; // object detection
 
         public int[] aprilTagIDWhitelist = Field.ALL_TAGS;
 

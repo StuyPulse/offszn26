@@ -37,7 +37,7 @@ public interface DriverConstants {
     }
 
     public interface DriveConstraints {
-        LinearVelocity MAX_VELOCITY = MetersPerSecond.of(4.16);
+        LinearVelocity MAX_VELOCITY = MetersPerSecond.of(1.16);
         LinearVelocity MAX_VELOCITY_SOTM = MetersPerSecond.of(1.75);
         LinearVelocity MAX_VELOCITY_FOTM = MetersPerSecond.of(4.16);
 
