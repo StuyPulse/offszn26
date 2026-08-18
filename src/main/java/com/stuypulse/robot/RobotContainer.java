@@ -53,8 +53,6 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
-  private final InterpolationCalculator interpolator;
-
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
 
@@ -68,27 +66,22 @@ public class RobotContainer {
                 new ModuleIOReal(TunerConstants.BackLeft),
                 new ModuleIOReal(TunerConstants.BackRight));
 
-        interpolator = new InterpolationCalculator(swerve::getPose);
-
-        intake = new Intake(new IntakeIOReal());
-
         if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
-          vision =
-              new Vision(
-                  swerve,
-                  Arrays.stream(CamerasList.CAMERAS)
-                      .map((camera) -> new VisionIOLimelight(camera.name(), swerve::getRotation))
-                      .toArray(VisionIO[]::new));
+            vision = new Vision(
+                swerve,
+                    Arrays.stream(CamerasList.CAMERAS)
+                        .map((camera) -> new VisionIOLimelight(camera.name(), swerve::getRotation))
+                        .toArray(VisionIO[]::new)
+            );
         } else {
-          vision =
-              new Vision(
-                  swerve,
-                  Arrays.stream(CamerasList.CAMERAS)
-                      .map(
-                          (camera) ->
-                              new VisionIOPhotonVision(camera.name(), camera.robotToCamera()))
-                      .toArray(VisionIO[]::new));
+            vision = new Vision(
+                swerve,
+                    Arrays.stream(CamerasList.CAMERAS)
+                        .map((camera) -> new VisionIOPhotonVision(camera.name(), camera.robotToCamera()))
+                        .toArray(VisionIO[]::new)
+            );
         }
+        intake = new Intake(new IntakeIOReal());
       }
 
       case SIM -> {
@@ -99,8 +92,6 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
-        interpolator = new InterpolationCalculator(swerve::getPose);
-        intake = new Intake(new IntakeIOSim());
         vision =
             new Vision(
                 swerve,
@@ -110,6 +101,7 @@ public class RobotContainer {
                             new VisionIOPhotonVisionSim(
                                 camera.name(), camera.robotToCamera(), swerve::getPose))
                     .toArray(VisionIO[]::new));
+        intake = new Intake(new IntakeIOSim());
       }
 
         // For replay mode
@@ -122,19 +114,13 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        interpolator = new InterpolationCalculator(swerve::getPose);
-
-        intake = new Intake(new IntakeIO() {});
-
-        vision =
-            new Vision(
-                swerve,
+        vision = new Vision(
+            swerve,
                 Arrays.stream(CamerasList.CAMERAS)
-                    .map(
-                        (camera) ->
-                            new VisionIOPhotonVisionSim(
-                                camera.name(), camera.robotToCamera(), swerve::getPose))
-                    .toArray(VisionIO[]::new));
+                    .map((camera) -> new VisionIO() {})
+                    .toArray(VisionIO[]::new)
+        );
+        intake = new Intake(new IntakeIO() {});
       }
     }
 
@@ -194,6 +180,6 @@ public class RobotContainer {
   }
 
   public void clearMemoized() {
-    interpolator.clearMemoized();
+    InterpolationCalculator.clearMemoized();
   }
 }
