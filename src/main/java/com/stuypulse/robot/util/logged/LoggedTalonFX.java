@@ -83,6 +83,8 @@ public class LoggedTalonFX extends TalonFX {
     private final StatusSignal<AngularVelocity> velocity;
 
     private final List<StatusSignal<?>> additionalSignals = new ArrayList<>();
+    // keep references of alerts to stop java from complaining about resource leak
+    private final List<Alert> additionalSignalAlerts = new ArrayList<>();
 
     public LoggedTalonFX(int deviceId, CANBus bus) {
         super(deviceId, bus);
@@ -105,6 +107,17 @@ public class LoggedTalonFX extends TalonFX {
      * @return This instance of the class, for method chaining.
      */
     public <T> LoggedTalonFX withSignal(StatusSignal<T> signal) {
+        if (!LogTableUtil.isSupportedType(signal.getValue())) {
+            Alert alert = new Alert(
+                    "LoggedTalonFX #" + getDeviceID(),
+                    "Unsupported signal type for logging: " + signal.getName(),
+                    AlertType.kError);
+            alert.set(true);
+            additionalSignalAlerts.add(alert);
+
+            return this;
+        }
+
         additionalSignals.add(signal);
         return this;
     }
