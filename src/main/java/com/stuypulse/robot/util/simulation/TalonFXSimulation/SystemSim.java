@@ -16,7 +16,8 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
  * <p>This interface defines the contract for a system simulation, which can be used to abstract the
  * behavior of all WPILib linear system sims in one interface.
  *
- * @author Faizaan Jamil (https://github.com/Faizaan-J)
+ * @see TalonFXSimulation
+ * @author Faizaan (https://github.com/Faizaan-J)
  */
 public interface SystemSim<T> {
   /**
