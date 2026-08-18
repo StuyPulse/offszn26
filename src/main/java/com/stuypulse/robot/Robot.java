@@ -91,7 +91,7 @@ public class Robot extends LoggedRobot {
 
     FullSubsystem.runAllPeriodicAfterScheduler();
 
-    InterpolationCalculator.clearMemoized();
+    robotContainer.clearMemoized();
   }
 
   /** This function is called once when the robot is disabled. */
