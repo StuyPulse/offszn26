@@ -11,21 +11,16 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public class InterpolationCalculator {
-  private final InterpolatingDoubleTreeMap shooterRPMInterpolation;
-  private final InterpolatingDoubleTreeMap hoodPositionInterpolation;
-  private final InterpolatingDoubleTreeMap shooterFerryRPMInterpolation;
+  private static final InterpolatingDoubleTreeMap shooterRPMInterpolation;
+  private static final InterpolatingDoubleTreeMap hoodPositionInterpolation;
+  private static final InterpolatingDoubleTreeMap shooterFerryRPMInterpolation;
 
-  private final Supplier<Pose2d> poseSupplier;
+  private static Optional<InterpolatedShotInfo> cachedInterpolatedShotInfo;
+  private static Optional<AngularVelocity> cachedInterpolatedFerryRPM;
 
-  private Optional<InterpolatedShotInfo> cachedInterpolatedShotInfo;
-  private Optional<AngularVelocity> cachedInterpolatedFerryRPM;
-
-  public InterpolationCalculator(Supplier<Pose2d> poseSupplier) {
-    this.poseSupplier = poseSupplier;
-
+  static {
     shooterRPMInterpolation = new InterpolatingDoubleTreeMap();
     hoodPositionInterpolation = new InterpolatingDoubleTreeMap();
     shooterFerryRPMInterpolation = new InterpolatingDoubleTreeMap();
@@ -43,30 +38,32 @@ public class InterpolationCalculator {
     }
   }
 
-  public void clearMemoized() {
+  private InterpolationCalculator() {}
+
+  public static void clearMemoized() {
     cachedInterpolatedShotInfo = Optional.empty();
     cachedInterpolatedFerryRPM = Optional.empty();
   }
 
-  public AngularVelocity getInterpolatedShotRPM() {
+  public static AngularVelocity getInterpolatedShotRPM(Pose2d currentPose) {
     if (cachedInterpolatedShotInfo.isEmpty()) {
-      cachedInterpolatedShotInfo = Optional.of(interpolateShotInfo());
+      cachedInterpolatedShotInfo = Optional.of(interpolateShotInfo(currentPose));
     }
 
     return cachedInterpolatedShotInfo.get().shooterVelocity();
   }
 
-  public Angle getInterpolatedShotHoodPosition() {
+  public static Angle getInterpolatedShotHoodPosition(Pose2d currentPose) {
     if (cachedInterpolatedShotInfo.isEmpty()) {
-      cachedInterpolatedShotInfo = Optional.of(interpolateShotInfo());
+      cachedInterpolatedShotInfo = Optional.of(interpolateShotInfo(currentPose));
     }
 
     return cachedInterpolatedShotInfo.get().hoodAngle();
   }
 
-  public AngularVelocity getInterpolatedFerryRPM() {
+  public static AngularVelocity getInterpolatedFerryRPM(Pose2d currentPose) {
     if (cachedInterpolatedFerryRPM.isEmpty()) {
-      cachedInterpolatedFerryRPM = Optional.of(interpolateFerryingInfo());
+      cachedInterpolatedFerryRPM = Optional.of(interpolateFerryingInfo(currentPose));
     }
 
     return cachedInterpolatedFerryRPM.get();
@@ -74,11 +71,11 @@ public class InterpolationCalculator {
 
   public record InterpolatedShotInfo(Angle hoodAngle, AngularVelocity shooterVelocity) {}
 
-  public InterpolatedShotInfo interpolateShotInfo() {
-    return interpolateShotInfo(poseSupplier.get(), Field.HUB_CENTER);
+  public static InterpolatedShotInfo interpolateShotInfo(Pose2d currentPose) {
+    return interpolateShotInfo(currentPose, Field.HUB_CENTER);
   }
 
-  public InterpolatedShotInfo interpolateShotInfo(Pose2d currentPose, Pose2d targetPose) {
+  public static InterpolatedShotInfo interpolateShotInfo(Pose2d currentPose, Pose2d targetPose) {
     Translation2d hubTranslation = targetPose.getTranslation();
     Translation2d currentTranslation = currentPose.getTranslation();
 
@@ -90,14 +87,13 @@ public class InterpolationCalculator {
     return new InterpolatedShotInfo(targetAngle, targetRPM);
   }
 
-  public AngularVelocity interpolateFerryingInfo() {
-    Pose2d currentPose = poseSupplier.get();
+  public static AngularVelocity interpolateFerryingInfo(Pose2d currentPose) {
     Pose2d ferryPose = Field.getFerryZonePose(currentPose.getTranslation());
 
     return interpolateFerryingInfo(currentPose, ferryPose);
   }
 
-  public AngularVelocity interpolateFerryingInfo(Pose2d currentPose, Pose2d targetPose) {
+  public static AngularVelocity interpolateFerryingInfo(Pose2d currentPose, Pose2d targetPose) {
     Translation2d currentTranslation = currentPose.getTranslation();
     Translation2d ferryPose = targetPose.getTranslation();
 

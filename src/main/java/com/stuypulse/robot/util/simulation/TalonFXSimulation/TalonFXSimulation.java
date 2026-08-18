@@ -6,9 +6,9 @@
 package com.stuypulse.robot.util.simulation.TalonFXSimulation;
 
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.stuypulse.robot.util.config.TalonFXConfig;
+import com.stuypulse.robot.util.logged.LoggedTalonFX.LoggedTalonFX;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.RobotController;
 
@@ -22,9 +22,10 @@ import edu.wpi.first.wpilibj.RobotController;
  * class is designed to be used in a conjunction with a SystemSim instance that abstracts all types
  * of WPILib linear sims.
  *
- * @author Faizaan Jamil (https://github.com/Faizaan-J)
+ * @see SystemSim
+ * @author Faizaan (https://github.com/Faizaan-J)
  */
-public class TalonFXSimulation extends TalonFX {
+public class TalonFXSimulation extends LoggedTalonFX {
   private final SystemSim<?> simMotor;
   private double gearRatio;
 
