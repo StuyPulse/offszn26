@@ -1,10 +1,13 @@
-package com.stuypulse.robot.util.logged;
+package com.stuypulse.robot.util.logged.LoggedTalonFX;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.stuypulse.robot.util.logged.LogTableUtil;
 import edu.wpi.first.units.measure.*;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,14 +23,13 @@ import java.util.List;
  *
  * <h3>Usage</h3>
  *
- * <p>Include a {@link TalonFXInputsAutoLogged} field for each motor that should have its telemetry
- * logged.
+ * <p>Include a {@link TalonFXInputs} field for each motor that should have its telemetry logged.
  *
  * <pre>{@code
  * @AutoLog
  * public static class IntakeIOInputs {
- *     public TalonFXInputsAutoLogged pivotSignals = new TalonFXInputsAutoLogged();
- *     public TalonFXInputsAutoLogged rollerSignals = new TalonFXInputsAutoLogged();
+ *     public TalonFXInputs pivotInputs = new TalonFXInputs();
+ *     public TalonFXInputsAutoLogged rollerInputs = new TalonFXInputs();
  * }
  * }</pre>
  *
@@ -43,8 +45,9 @@ import java.util.List;
  *             IntakeDeviceIds.PIVOT,
  *             GlobalSettings.RIO);
  *
- *     // Use `addSignal` to log extra signals beyond the base six.
- *     pivotMotor.addSignal(pivotMotor.getReverseLimit());
+ *     // Use `withSignal` to log extra signals beyond the base six.
+ *     pivotMotor
+ *      .withSignal(pivotMotor.getReverseLimit());
  * }
  * }</pre>
  *
@@ -56,24 +59,25 @@ import java.util.List;
  * <pre>{@code
  * @Override
  * public void updateInputs(IntakeIOInputs inputs) {
- *     pivotMotor.updateInputs(inputs.pivotSignals);
- *     rollerMotor.updateInputs(inputs.rollerSignals);
+ *     pivotMotor.updateInputs(inputs.pivotInputs);
+ *     rollerMotor.updateInputs(inputs.rollerInputs);
  * }
  * }</pre>
  *
  * @see TalonFXInputs
- * @see LoggedSignal
  * @author Faizaan (https://github.com/Faizaan-J)
  */
 public class LoggedTalonFX extends TalonFX {
   private final StatusSignal<Current> supplyCurrent;
   private final StatusSignal<Current> statorCurrent;
-  private final StatusSignal<Temperature> temperature;
+    private final StatusSignal<Temperature> temperature;
   private final StatusSignal<Angle> position;
   private final StatusSignal<Voltage> appliedVoltage;
   private final StatusSignal<AngularVelocity> velocity;
 
-  private final List<LoggedSignal<?>> additionalSignals = new ArrayList<>();
+  private final List<StatusSignal<?>> additionalSignals = new ArrayList<>();
+  // keep references of alerts to stop java from complaining about resource leak
+  private final List<Alert> additionalSignalAlerts = new ArrayList<>();
 
   public LoggedTalonFX(int deviceId, CANBus bus) {
     super(deviceId, bus);
@@ -93,9 +97,23 @@ public class LoggedTalonFX extends TalonFX {
    * Adds a status signal to be logged and replayed.
    *
    * @param signal The status signal to log.
+   * @return This instance of the class, for method chaining.
    */
-  public <T> void addSignal(StatusSignal<T> signal) {
-    additionalSignals.add(new LoggedSignal<>(signal));
+  public <T> LoggedTalonFX withSignal(StatusSignal<T> signal) {
+    if (!LogTableUtil.isSupportedType(signal.getValue())) {
+      Alert alert =
+          new Alert(
+              "LoggedTalonFX #" + getDeviceID(),
+              "Unsupported signal type for logging: " + signal.getName(),
+              AlertType.kError);
+      alert.set(true);
+      additionalSignalAlerts.add(alert);
+
+      return this;
+    }
+
+    additionalSignals.add(signal);
+    return this;
   }
 
   /**
@@ -108,11 +126,9 @@ public class LoggedTalonFX extends TalonFX {
         supplyCurrent, statorCurrent, temperature, position, appliedVoltage, velocity);
 
     if (!additionalSignals.isEmpty()) {
-      BaseStatusSignal.refreshAll(
-          additionalSignals.stream().map(LoggedSignal::getSignal).toArray(StatusSignal<?>[]::new));
-
-      for (LoggedSignal<?> signal : additionalSignals) {
+      for (StatusSignal<?> signal : additionalSignals) {
         signal.refresh();
+        inputs.recordAdditionalSignal(signal.getName(), signal.getValue());
       }
     }
 
@@ -122,6 +138,5 @@ public class LoggedTalonFX extends TalonFX {
     inputs.position = position.getValue();
     inputs.appliedVoltage = appliedVoltage.getValue();
     inputs.velocity = velocity.getValue();
-    inputs.setAdditionalSignals(additionalSignals);
   }
 }
