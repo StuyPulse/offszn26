@@ -355,7 +355,7 @@ public class DriveCommands {
             Driver.Drive.RC);
         PIDController angleController = new PIDController(Alignment.Gains.kP, Alignment.Gains.kI, Alignment.Gains.kD);
         angleController.enableContinuousInput(-180, 180);
-        return Commands.run(
+        return Commands.runEnd(
                 () -> {
                     Rotation2d objectYaw = vision.getClosestObjectYaw(0);
                     double calculatedYaw = angleController.calculate(objectYaw.getDegrees(), 0.0); // verify signs
@@ -363,7 +363,9 @@ public class DriveCommands {
                     Translation2d linearVelocity = driveInputProcessor.get();
                     ChassisSpeeds speeds = new ChassisSpeeds(linearVelocity.getX(), linearVelocity.getY(), Math.toRadians(calculatedYaw));
                     swerve.runVelocity(speeds);
-                }, swerve)
+                }, 
+                () -> angleController.close(),
+                swerve)
             .beforeStarting(angleController::reset)
             .finallyDo(interrupted -> swerve.runVelocity(new ChassisSpeeds()))
             .withName("ServoToGamepiece");
