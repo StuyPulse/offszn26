@@ -53,8 +53,6 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
-  private final InterpolationCalculator interpolator;
-
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
 
@@ -85,8 +83,7 @@ public class RobotContainer {
                               new VisionIOPhotonVision(camera.name(), camera.robotToCamera()))
                       .toArray(VisionIO[]::new));
         }
-        interpolator = new InterpolationCalculator(swerve::getPose);
-        hood = new Hood(new HoodIOReal(), interpolator);
+        hood = new Hood(new HoodIOReal(), swerve::getPose);
       }
 
       case SIM -> {
@@ -107,8 +104,7 @@ public class RobotContainer {
                             new VisionIOPhotonVisionSim(
                                 camera.name(), camera.robotToCamera(), swerve::getPose))
                     .toArray(VisionIO[]::new));
-        interpolator = new InterpolationCalculator(swerve::getPose);
-        hood = new Hood(new HoodIOSim(), interpolator);
+        hood = new Hood(new HoodIOSim(), swerve::getPose);
       }
 
         // For replay mode
@@ -127,8 +123,7 @@ public class RobotContainer {
                 Arrays.stream(CamerasList.CAMERAS)
                     .map((camera) -> new VisionIO() {})
                     .toArray(VisionIO[]::new));
-        interpolator = new InterpolationCalculator(swerve::getPose);
-        hood = new Hood(new HoodIO() {}, interpolator);
+        hood = new Hood(new HoodIO() {}, swerve::getPose);
       }
     }
 
@@ -188,6 +183,6 @@ public class RobotContainer {
   }
 
   public void clearMemoized() {
-    interpolator.clearMemoized();
+    InterpolationCalculator.clearMemoized();
   }
 }
