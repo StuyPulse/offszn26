@@ -6,6 +6,8 @@ package com.stuypulse.robot;
 
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.util.FullSubsystem;
+import com.stuypulse.robot.util.InterpolationCalculator;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -89,7 +91,7 @@ public class Robot extends LoggedRobot {
 
     FullSubsystem.runAllPeriodicAfterScheduler();
 
-    robotContainer.clearMemoized();
+    InterpolationCalculator.clearMemoized();
   }
 
   /** This function is called once when the robot is disabled. */
