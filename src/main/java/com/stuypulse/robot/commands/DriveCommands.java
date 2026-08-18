@@ -364,8 +364,17 @@ public class DriveCommands {
 
                     Translation2d linearVelocity = driveInputProcessor.get();
                     ChassisSpeeds speeds = new ChassisSpeeds(linearVelocity.getX(), linearVelocity.getY(), Math.toRadians(calculatedYaw));
-                    swerve.runVelocity(speeds);
-                }, 
+
+                    boolean isFlipped = DriverStation.getAlliance().isPresent()
+                                && DriverStation.getAlliance().get() == Alliance.Red;
+                    swerve.runVelocity(
+                        ChassisSpeeds.fromFieldRelativeSpeeds(
+                                speeds,
+                                isFlipped
+                                        ? swerve.getRotation()
+                                                .plus(new Rotation2d(Math.PI))
+                                        : swerve.getRotation()));
+                },
                 () -> angleController.close(),
                 swerve)
             .beforeStarting(angleController::reset)
