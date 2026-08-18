@@ -21,6 +21,8 @@ import com.stuypulse.robot.constants.DriverConstants.*;
 import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
 import com.stuypulse.robot.subsystems.swerve.SwerveConstants.*;
+import com.stuypulse.robot.subsystems.swerve.SwerveConstants.SwerveSettings.Alignment;
+import com.stuypulse.robot.subsystems.vision.Vision;
 import com.stuypulse.robot.util.FullSubsystem;
 import com.stuypulse.robot.util.swerve.AlignmentUtil;
 import com.stuypulse.robot.util.swerve.DriveInputProcessor;
@@ -56,14 +58,14 @@ public class DriveCommands {
     private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
     private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
 
-    private DriveCommands() {}
+    private DriveCommands() {
+    }
 
     public static Command buzzController(CommandXboxController driver) {
         return Commands.runEnd(
-                        () ->
-                                driver.getHID()
-                                        .setRumble(RumbleType.kBothRumble, Driver.BUZZ_INTENSITY),
-                        () -> driver.getHID().setRumble(RumbleType.kBothRumble, 0))
+                () -> driver.getHID()
+                        .setRumble(RumbleType.kBothRumble, Driver.BUZZ_INTENSITY),
+                () -> driver.getHID().setRumble(RumbleType.kBothRumble, 0))
                 .withName("Buzz Controller");
     }
 
@@ -81,103 +83,93 @@ public class DriveCommands {
     }
 
     /**
-     * Field relative swerve command using two joysticks (controlling linear and angular
+     * Field relative swerve command using two joysticks (controlling linear and
+     * angular
      * velocities).
      */
     public static Command joystickDrive(Swerve swerve, CommandXboxController driver) {
-        DriveInputProcessor driveInputProcessor =
-                new DriveInputProcessor(
-                        driver,
-                        Driver.Drive.DEADBAND,
-                        Driver.Drive.POWER,
-                        DriveConstraints.MAX_VELOCITY,
-                        DriveConstraints.MAX_ACCEL,
-                        Driver.Drive.RC);
-        DriveTurnInputProcessor driveTurnInputProcessor =
-                new DriveTurnInputProcessor(
-                        driver,
-                        Driver.Turn.DEADBAND,
-                        Driver.Turn.POWER,
-                        DriveConstraints.MAX_ANGULAR_VEL,
-                        Driver.Turn.RC);
+        DriveInputProcessor driveInputProcessor = new DriveInputProcessor(
+                driver,
+                Driver.Drive.DEADBAND,
+                Driver.Drive.POWER,
+                DriveConstraints.MAX_VELOCITY,
+                DriveConstraints.MAX_ACCEL,
+                Driver.Drive.RC);
+        DriveTurnInputProcessor driveTurnInputProcessor = new DriveTurnInputProcessor(
+                driver,
+                Driver.Turn.DEADBAND,
+                Driver.Turn.POWER,
+                DriveConstraints.MAX_ANGULAR_VEL,
+                Driver.Turn.RC);
 
         return Commands.run(
-                        () -> {
-                            driveInputProcessor.update();
-                            driveTurnInputProcessor.update();
-                            // Get linear velocity
-                            Translation2d linearVelocity = driveInputProcessor.get();
+                () -> {
+                    driveInputProcessor.update();
+                    driveTurnInputProcessor.update();
+                    // Get linear velocity
+                    Translation2d linearVelocity = driveInputProcessor.get();
 
-                            // Get angular velocity
-                            AngularVelocity angularVelocity = driveTurnInputProcessor.get();
+                    // Get angular velocity
+                    AngularVelocity angularVelocity = driveTurnInputProcessor.get();
 
-                            // Convert to field relative speeds & send command
-                            ChassisSpeeds speeds =
-                                    new ChassisSpeeds(
-                                            linearVelocity.getX(),
-                                            linearVelocity.getY(),
-                                            angularVelocity.in(RadiansPerSecond));
-                            boolean isFlipped =
-                                    DriverStation.getAlliance().isPresent()
-                                            && DriverStation.getAlliance().get() == Alliance.Red;
-                            swerve.runVelocity(
-                                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                                            speeds,
-                                            isFlipped
-                                                    ? swerve.getRotation()
-                                                            .plus(new Rotation2d(Math.PI))
-                                                    : swerve.getRotation()));
-                        },
-                        swerve)
+                    // Convert to field relative speeds & send command
+                    ChassisSpeeds speeds = new ChassisSpeeds(
+                            linearVelocity.getX(),
+                            linearVelocity.getY(),
+                            angularVelocity.in(RadiansPerSecond));
+                    boolean isFlipped = DriverStation.getAlliance().isPresent()
+                            && DriverStation.getAlliance().get() == Alliance.Red;
+                    swerve.runVelocity(
+                            ChassisSpeeds.fromFieldRelativeSpeeds(
+                                    speeds,
+                                    isFlipped
+                                            ? swerve.getRotation()
+                                                    .plus(new Rotation2d(Math.PI))
+                                            : swerve.getRotation()));
+                },
+                swerve)
                 .withName("Drive");
     }
 
     public static Command alignToPose(Swerve swerve, Pose2d targetPose) {
-        PIDController angleController =
-                new PIDController(
-                        SwerveSettings.Alignment.Gains.kP,
-                        SwerveSettings.Alignment.Gains.kI,
-                        SwerveSettings.Alignment.Gains.kD);
-        Debouncer isAlignedDebouncer =
-                new Debouncer(
-                        SwerveSettings.Alignment.IS_ALIGNED_DEBOUNCE.in(Seconds),
-                        DebounceType.kBoth);
+        PIDController angleController = new PIDController(
+                SwerveSettings.Alignment.Gains.kP,
+                SwerveSettings.Alignment.Gains.kI,
+                SwerveSettings.Alignment.Gains.kD);
+        Debouncer isAlignedDebouncer = new Debouncer(
+                SwerveSettings.Alignment.IS_ALIGNED_DEBOUNCE.in(Seconds),
+                DebounceType.kBoth);
 
         angleController.enableContinuousInput(-Math.PI, Math.PI);
 
         return Commands.runEnd(
-                        () -> {
-                            Rotation2d targetHeading =
-                                    AlignmentUtil.getTargetAlignmentAngle(
-                                            swerve.getPose(), targetPose);
+                () -> {
+                    Rotation2d targetHeading = AlignmentUtil.getTargetAlignmentAngle(
+                            swerve.getPose(), targetPose);
 
-                            ChassisSpeeds speeds =
-                                    new ChassisSpeeds(
-                                            0,
-                                            0,
-                                            angleController.calculate(
-                                                    swerve.getRotation().getRadians(),
-                                                    targetHeading.getRadians()));
+                    ChassisSpeeds speeds = new ChassisSpeeds(
+                            0,
+                            0,
+                            angleController.calculate(
+                                    swerve.getRotation().getRadians(),
+                                    targetHeading.getRadians()));
 
-                            boolean isFlipped =
-                                    DriverStation.getAlliance().isPresent()
-                                            && DriverStation.getAlliance().get() == Alliance.Red;
-                            swerve.runVelocity(
-                                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                                            speeds,
-                                            isFlipped
-                                                    ? swerve.getRotation()
-                                                            .plus(new Rotation2d(Math.PI))
-                                                    : swerve.getRotation()));
-                        },
-                        () -> angleController.close(),
-                        swerve)
+                    boolean isFlipped = DriverStation.getAlliance().isPresent()
+                            && DriverStation.getAlliance().get() == Alliance.Red;
+                    swerve.runVelocity(
+                            ChassisSpeeds.fromFieldRelativeSpeeds(
+                                    speeds,
+                                    isFlipped
+                                            ? swerve.getRotation()
+                                                    .plus(new Rotation2d(Math.PI))
+                                            : swerve.getRotation()));
+                },
+                () -> angleController.close(),
+                swerve)
                 .until(
-                        () ->
-                                isAlignedDebouncer.calculate(
-                                        Math.abs(angleController.getError())
-                                                < SwerveSettings.Alignment.THETA_TOLERANCE
-                                                        .getRadians()))
+                        () -> isAlignedDebouncer.calculate(
+                                Math.abs(angleController.getError()) < SwerveSettings.Alignment.THETA_TOLERANCE
+                                        .getRadians()))
                 .withName("Swerve Align To Pose");
     }
 
@@ -193,7 +185,8 @@ public class DriveCommands {
     /**
      * Measures the velocity feedforward constants for the swerve motors.
      *
-     * <p>This command should only be used in voltage control mode.
+     * <p>
+     * This command should only be used in voltage control mode.
      */
     public static Command feedforwardCharacterization(Swerve swerve) {
         List<Double> velocitySamples = new LinkedList<>();
@@ -217,13 +210,13 @@ public class DriveCommands {
 
                 // Accelerate and gather data
                 Commands.run(
-                                () -> {
-                                    double voltage = timer.get() * FF_RAMP_RATE;
-                                    swerve.runCharacterization(voltage);
-                                    velocitySamples.add(swerve.getFFCharacterizationVelocity());
-                                    voltageSamples.add(voltage);
-                                },
-                                swerve)
+                        () -> {
+                            double voltage = timer.get() * FF_RAMP_RATE;
+                            swerve.runCharacterization(voltage);
+                            velocitySamples.add(swerve.getFFCharacterizationVelocity());
+                            voltageSamples.add(voltage);
+                        },
+                        swerve)
 
                         // When cancelled, calculate and print results
                         .finallyDo(
@@ -239,11 +232,9 @@ public class DriveCommands {
                                         sumXY += velocitySamples.get(i) * voltageSamples.get(i);
                                         sumX2 += velocitySamples.get(i) * velocitySamples.get(i);
                                     }
-                                    double kS =
-                                            (sumY * sumX2 - sumX * sumXY)
-                                                    / (n * sumX2 - sumX * sumX);
-                                    double kV =
-                                            (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+                                    double kS = (sumY * sumX2 - sumX * sumXY)
+                                            / (n * sumX2 - sumX * sumX);
+                                    double kV = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
 
                                     NumberFormat formatter = new DecimalFormat("#0.00000");
                                     System.out.println(
@@ -283,38 +274,33 @@ public class DriveCommands {
                         // Record starting measurement
                         Commands.runOnce(
                                 () -> {
-                                    state.positions =
-                                            swerve.getWheelRadiusCharacterizationPositions();
+                                    state.positions = swerve.getWheelRadiusCharacterizationPositions();
                                     state.lastAngle = swerve.getRotation();
                                     state.gyroDelta = 0.0;
                                 }),
 
                         // Update gyro delta
                         Commands.run(
-                                        () -> {
-                                            var rotation = swerve.getRotation();
-                                            state.gyroDelta +=
-                                                    Math.abs(
-                                                            rotation.minus(state.lastAngle)
-                                                                    .getRadians());
-                                            state.lastAngle = rotation;
-                                        })
+                                () -> {
+                                    var rotation = swerve.getRotation();
+                                    state.gyroDelta += Math.abs(
+                                            rotation.minus(state.lastAngle)
+                                                    .getRadians());
+                                    state.lastAngle = rotation;
+                                })
 
                                 // When cancelled, calculate and print results
                                 .finallyDo(
                                         () -> {
-                                            double[] positions =
-                                                    swerve
-                                                            .getWheelRadiusCharacterizationPositions();
+                                            double[] positions = swerve
+                                                    .getWheelRadiusCharacterizationPositions();
                                             double wheelDelta = 0.0;
                                             for (int i = 0; i < 4; i++) {
-                                                wheelDelta +=
-                                                        Math.abs(positions[i] - state.positions[i])
-                                                                / 4.0;
+                                                wheelDelta += Math.abs(positions[i] - state.positions[i])
+                                                        / 4.0;
                                             }
-                                            double wheelRadius =
-                                                    (state.gyroDelta * Swerve.DRIVE_BASE_RADIUS)
-                                                            / wheelDelta;
+                                            double wheelRadius = (state.gyroDelta * Swerve.DRIVE_BASE_RADIUS)
+                                                    / wheelDelta;
 
                                             NumberFormat formatter = new DecimalFormat("#0.000");
                                             System.out.println(
@@ -350,13 +336,36 @@ public class DriveCommands {
                 () -> {
                     Command sequence = Commands.none();
                     for (Pose3d pose : poses.get()) {
-                        sequence =
-                                sequence.andThen(
-                                        AutoBuilder.pathfindToPose(
-                                                pose.toPose2d(), constraints, 0.0));
+                        sequence = sequence.andThen(
+                                AutoBuilder.pathfindToPose(
+                                        pose.toPose2d(), constraints, 0.0));
                     }
                     return sequence;
                 },
                 Set.of(swerve));
+    }
+
+    public static Command servoToGamepiece(Swerve swerve, Vision vision, CommandXboxController driver) {
+        DriveInputProcessor driveInputProcessor = new DriveInputProcessor(
+            driver,
+            Driver.Drive.DEADBAND,
+            Driver.Drive.POWER,
+            DriveConstraints.MAX_VELOCITY,
+            DriveConstraints.MAX_ACCEL,
+            Driver.Drive.RC);
+        PIDController angleController = new PIDController(Alignment.Gains.kP, Alignment.Gains.kI, Alignment.Gains.kD);
+        angleController.enableContinuousInput(-180, 180);
+        return Commands.run(
+                () -> {
+                    Rotation2d objectYaw = vision.getClosestObjectYaw(0);
+                    double calculatedYaw = angleController.calculate(objectYaw.getDegrees(), 0.0); // verify signs
+
+                    Translation2d linearVelocity = driveInputProcessor.get();
+                    ChassisSpeeds speeds = new ChassisSpeeds(linearVelocity.getX(), linearVelocity.getY(), Math.toRadians(calculatedYaw));
+                    swerve.runVelocity(speeds);
+                }, swerve)
+            .beforeStarting(angleController::reset)
+            .finallyDo(interrupted -> swerve.runVelocity(new ChassisSpeeds()))
+            .withName("ServoToGamepiece");
     }
 }

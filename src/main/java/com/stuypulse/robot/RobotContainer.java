@@ -7,7 +7,6 @@ package com.stuypulse.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.constants.DriverConstants;
-import com.stuypulse.robot.constants.DriverConstants.DriveConstraints;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.constants.GlobalSettings.VisionMode;
 import com.stuypulse.robot.subsystems.swerve.GyroIO;
@@ -33,9 +32,12 @@ import java.util.Arrays;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
@@ -51,85 +53,84 @@ public class RobotContainer {
 
     private final InterpolationCalculator interpolator;
 
-    /** The container for the robot. Contains subsystems, IO devices, and commands. */
+    /**
+     * The container for the robot. Contains subsystems, IO devices, and commands.
+     */
     public RobotContainer() {
 
         switch (GlobalSettings.CURRENT_MODE) {
             case REAL -> {
-                swerve =
-                        new Swerve(
-                                new GyroIOReal(),
-                                new ModuleIOReal(TunerConstants.FrontLeft),
-                                new ModuleIOReal(TunerConstants.FrontRight),
-                                new ModuleIOReal(TunerConstants.BackLeft),
-                                new ModuleIOReal(TunerConstants.BackRight));
+                swerve = new Swerve(
+                        new GyroIOReal(),
+                        new ModuleIOReal(TunerConstants.FrontLeft),
+                        new ModuleIOReal(TunerConstants.FrontRight),
+                        new ModuleIOReal(TunerConstants.BackLeft),
+                        new ModuleIOReal(TunerConstants.BackRight));
 
                 if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
-                    vision =
-                            new Vision(
-                                    swerve,
-                                    Arrays.stream(CamerasList.CAMERAS)
-                                            .map(
-                                                    (camera) ->
-                                                            new VisionIOLimelight(
-                                                                    camera.name(),
-                                                                    swerve::getRotation))
-                                            .toArray(VisionIO[]::new));
+                    vision = new Vision(
+                            swerve,
+                            Arrays.stream(CamerasList.CAMERAS)
+                                    .map(
+                                            (camera) -> new VisionIOLimelight(
+                                                    camera.name(),
+                                                    swerve::getRotation))
+                                    .toArray(VisionIO[]::new));
                 } else {
-                    vision =
-                            new Vision(
-                                    swerve,
-                                    Arrays.stream(CamerasList.CAMERAS)
-                                            .map(
-                                                    (camera) ->
-                                                            new VisionIOPhotonVision(
-                                                                    camera.name(),
-                                                                    camera.robotToCamera(),
-                                                                    swerve::getPose))
-                                            .toArray(VisionIO[]::new));
+                    vision = new Vision(
+                            swerve,
+                            Arrays.stream(CamerasList.CAMERAS)
+                                    .map(
+                                            (camera) -> new VisionIOPhotonVision(
+                                                    camera.name(),
+                                                    camera.robotToCamera(),
+                                                    swerve::getPose))
+                                    .toArray(VisionIO[]::new));
                 }
                 interpolator = new InterpolationCalculator(swerve::getPose);
             }
 
             case SIM -> {
-                swerve =
-                        new Swerve(
-                                new GyroIO() {},
-                                new ModuleIOSim(TunerConstants.FrontLeft),
-                                new ModuleIOSim(TunerConstants.FrontRight),
-                                new ModuleIOSim(TunerConstants.BackLeft),
-                                new ModuleIOSim(TunerConstants.BackRight));
+                swerve = new Swerve(
+                        new GyroIO() {
+                        },
+                        new ModuleIOSim(TunerConstants.FrontLeft),
+                        new ModuleIOSim(TunerConstants.FrontRight),
+                        new ModuleIOSim(TunerConstants.BackLeft),
+                        new ModuleIOSim(TunerConstants.BackRight));
 
-                vision =
-                        new Vision(
-                                swerve,
-                                Arrays.stream(CamerasList.CAMERAS)
-                                        .map(
-                                                (camera) ->
-                                                        new VisionIOPhotonVisionSim(
-                                                                camera.name(),
-                                                                camera.robotToCamera(),
-                                                                swerve::getPose))
-                                        .toArray(VisionIO[]::new));
+                vision = new Vision(
+                        swerve,
+                        Arrays.stream(CamerasList.CAMERAS)
+                                .map(
+                                        (camera) -> new VisionIOPhotonVisionSim(
+                                                camera.name(),
+                                                camera.robotToCamera(),
+                                                swerve::getPose))
+                                .toArray(VisionIO[]::new));
                 interpolator = new InterpolationCalculator(swerve::getPose);
             }
 
-                // For replay mode
+            // For replay mode
             default -> {
-                swerve =
-                        new Swerve(
-                                new GyroIO() {},
-                                new ModuleIO() {},
-                                new ModuleIO() {},
-                                new ModuleIO() {},
-                                new ModuleIO() {});
+                swerve = new Swerve(
+                        new GyroIO() {
+                        },
+                        new ModuleIO() {
+                        },
+                        new ModuleIO() {
+                        },
+                        new ModuleIO() {
+                        },
+                        new ModuleIO() {
+                        });
 
-                vision =
-                        new Vision(
-                                swerve,
-                                Arrays.stream(CamerasList.CAMERAS)
-                                        .map((camera) -> new VisionIO() {})
-                                        .toArray(VisionIO[]::new));
+                vision = new Vision(
+                        swerve,
+                        Arrays.stream(CamerasList.CAMERAS)
+                                .map((camera) -> new VisionIO() {
+                                })
+                                .toArray(VisionIO[]::new));
                 interpolator = new InterpolationCalculator(swerve::getPose);
             }
         }
@@ -151,7 +152,8 @@ public class RobotContainer {
         swerve.setDefaultCommand(DriveCommands.joystickDrive(swerve, controller));
     }
 
-    private void configureAutons() {}
+    private void configureAutons() {
+    }
 
     private void configureSysid() {
         autoChooser.addOption(
@@ -175,20 +177,23 @@ public class RobotContainer {
     }
 
     /**
-     * Use this method to define your button->command mappings. Buttons can be created by
+     * Use this method to define your button->command mappings. Buttons can be
+     * created by
      * instantiating a {@link GenericHID} or one of its subclasses ({@link
-     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
+     * it to a {@link
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
         controller.a().onTrue(DriveCommands.alignToHub(swerve));
-        controller
-                .b()
-                .onTrue(
-                        DriveCommands.visitAllCommand(
-                                vision::getAllObjectPoses,
-                                DriveConstraints.PATH_CONSTRAINTS,
-                                swerve));
+        // controller
+        // .b()
+        // .onTrue(
+        // DriveCommands.visitAllCommand(
+        // vision::getAllObjectPoses,
+        // DriveConstraints.PATH_CONSTRAINTS,
+        // swerve));
+        controller.rightBumper().whileTrue(DriveCommands.servoToGamepiece(swerve, vision, controller));
     }
 
     /**

@@ -34,8 +34,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -87,6 +85,11 @@ public class Vision extends FullSubsystem {
         return inputs[cameraIndex].latestTargetObservation.tx();
     }
 
+    public Rotation2d getClosestObjectYaw(int cameraIndex) {
+        final double yawDegrees = inputs[cameraIndex].closestTarget.getYaw();
+        return Rotation2d.fromDegrees(yawDegrees);
+    }
+
     public int getMaxTagCount() {
         return maxTagCount;
     }
@@ -99,11 +102,11 @@ public class Vision extends FullSubsystem {
         return hasDataDebouncer.calculate(hasData);
     }
 
-    public List<Pose3d> getAllObjectPoses() {
-        return this.allObjectPoses;
-    }
+    // public List<Pose3d> getAllObjectPoses() {
+    //     return this.allObjectPoses;
+    // }
 
-    private final List<Pose3d> allObjectPoses = new ArrayList<>();
+    // private final List<Pose3d> allObjectPoses = new ArrayList<>();
 
     @Override
     public void periodic() {
@@ -124,7 +127,7 @@ public class Vision extends FullSubsystem {
         List<Pose3d> allRobotPoses = new LinkedList<>();
         List<Pose3d> allRobotPosesAccepted = new LinkedList<>();
         List<Pose3d> allRobotPosesRejected = new LinkedList<>();
-        allObjectPoses.clear();
+        // allObjectPoses.clear();
 
         // Loop over cameras
         for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
@@ -146,7 +149,7 @@ public class Vision extends FullSubsystem {
             }
 
             // add every object pose to the main list
-            Collections.addAll(allObjectPoses, inputs[cameraIndex].objectPoses);
+            // Collections.addAll(allObjectPoses, inputs[cameraIndex].objectPoses);
 
             // Loop over pose observations
             for (PoseObservation observation : inputs[cameraIndex].poseObservations) {
@@ -239,9 +242,9 @@ public class Vision extends FullSubsystem {
         Logger.recordOutput(
                 "Vision/Summary/RobotPosesRejected",
                 allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
-        Logger.recordOutput(
-                "Vision/Summary/ObjectPoses",
-                allObjectPoses.toArray(new Pose3d[allObjectPoses.size()]));
+        // Logger.recordOutput(
+        //         "Vision/Summary/ObjectPoses",
+        //         allObjectPoses.toArray(new Pose3d[allObjectPoses.size()]));
     }
 
     @Override

@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 public interface VisionIO {
     @AutoLog
@@ -27,7 +28,8 @@ public interface VisionIO {
                 new TargetObservation(new Rotation2d(), new Rotation2d());
         public PoseObservation[] poseObservations = new PoseObservation[0];
         public int[] tagIds = new int[0];
-        public Pose3d[] objectPoses = new Pose3d[0];
+        // public Pose3d[] objectPoses = new Pose3d[0];
+        public PhotonTrackedTarget closestTarget = new PhotonTrackedTarget();
     }
 
     /** Represents the angle to a simple target, not used for pose estimation. */

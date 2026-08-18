@@ -18,12 +18,12 @@ import com.stuypulse.robot.subsystems.vision.VisionConstants.*;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import java.util.ArrayList;
+import edu.wpi.first.units.measure.Distance;
+
+import static edu.wpi.first.units.Units.*;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,8 +46,9 @@ public class VisionIOPhotonVision implements VisionIO {
     /**
      * Creates a new VisionIOPhotonVision.
      *
-     * @param name The configured name of the camera.
-     * @param rotationSupplier The 3D position of the camera relative to the robot.
+     * @param name          The configured name of the camera.
+     * @param robotToCamera The 3D position of the camera relative to the robot.
+     * @param poseSupplier  A supplier for the pose of the robot.
      */
     public VisionIOPhotonVision(
             String name, Transform3d robotToCamera, Supplier<Pose2d> poseSupplier) {
@@ -56,42 +57,63 @@ public class VisionIOPhotonVision implements VisionIO {
         this.poseSupplier = poseSupplier;
     }
 
-    private Optional<Pose3d> getFuelFieldPose(
-            Pose3d currentRobotPose, Transform3d robotToCamera, PhotonTrackedTarget target) {
+    // private Optional<Pose3d> getFuelFieldPose(
+    // Pose3d currentRobotPose, Transform3d robotToCamera, PhotonTrackedTarget
+    // target) {
 
-        final double yawRad = Units.degreesToRadians(-target.getYaw()); // negative
+    // final double yawRad = Units.degreesToRadians(-target.getYaw()); // doesn't need to get negated? both systems use left as positive
+    // final double pitchRad = Units.degreesToRadians(target.getPitch());
+
+    // SmartDashboard.putNumber("Vision/Fuel Yaw", Units.radiansToDegrees(yawRad));
+    // SmartDashboard.putNumber("Vision/Fuel Pitch",
+    // Units.radiansToDegrees(pitchRad));
+
+    // final double cameraPitchRad = -robotToCamera.getRotation().getY(); //
+    // negative
+
+    // final double distance =
+    // PhotonUtils.calculateDistanceToTargetMeters(
+    // robotToCamera.getZ(), VisionSettings.FUEL_RADIUS, cameraPitchRad, pitchRad);
+
+    // if (distance <= 0 || Double.isNaN(distance)) {
+    // SmartDashboard.putNumber(
+    // "Vision/target_" + target.getDetectedObjectClassID() + "_distance_m",
+    // distance);
+    // return Optional.empty();
+    // }
+
+    // final Translation3d camToPiece =
+    // new Translation3d(
+    // PhotonUtils.estimateCameraToTargetTranslation(
+    // distance, new Rotation2d(yawRad)));
+
+    // final Pose3d fieldToCamera = currentRobotPose.transformBy(robotToCamera);
+    // final Pose3d fieldToPiece =
+    // fieldToCamera.transformBy(new Transform3d(camToPiece, new Rotation3d()));
+
+    // return Optional.of(fieldToPiece);
+    // }
+
+    private Optional<Distance> getFuelFieldDistance(PhotonTrackedTarget target) {
         final double pitchRad = Units.degreesToRadians(target.getPitch());
+        final double cameraPitchRad = -robotToCamera.getRotation().getY(); // negated
 
-        SmartDashboard.putNumber("Vision/Fuel Yaw", Units.radiansToDegrees(yawRad));
-        SmartDashboard.putNumber("Vision/Fuel Pitch", Units.radiansToDegrees(pitchRad));
-
-        final double cameraPitchRad = -robotToCamera.getRotation().getY(); // negative
-
-        final double distance =
-                PhotonUtils.calculateDistanceToTargetMeters(
-                        robotToCamera.getZ(), VisionSettings.FUEL_RADIUS, cameraPitchRad, pitchRad);
-
-        if (distance <= 0 || Double.isNaN(distance)) {
-            SmartDashboard.putNumber(
-                    "Vision/target_" + target.getDetectedObjectClassID() + "distance_m", distance);
+        final double distanceMeters = PhotonUtils.calculateDistanceToTargetMeters(robotToCamera.getZ(),
+                VisionSettings.FUEL_RADIUS, cameraPitchRad, pitchRad);
+        if (distanceMeters <= 0 || Double.isNaN(distanceMeters)) {
+            Logger.recordOutput(
+                    "Vision/target_" + target.getDetectedObjectClassID() + "_distance_m", distanceMeters);
             return Optional.empty();
         }
 
-        final Translation3d camToPiece =
-                new Translation3d(
-                        PhotonUtils.estimateCameraToTargetTranslation(
-                                distance, new Rotation2d(yawRad)));
-
-        final Pose3d fieldToCamera = currentRobotPose.transformBy(robotToCamera);
-        final Pose3d fieldToPiece =
-                fieldToCamera.transformBy(new Transform3d(camToPiece, new Rotation3d()));
-
-        return Optional.of(fieldToPiece);
+        return Optional.of(Meters.of(distanceMeters));
     }
 
     private void updateObjectDetectionInputs(VisionIOInputs inputs) {
         final List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-        List<Pose3d> objectPoses = new ArrayList<>();
+        // List<Pose3d> objectPoses = new ArrayList<>();
+        Distance closestDistance = null;
+        PhotonTrackedTarget closestTarget = null;
 
         Logger.recordOutput("Vision/" + camera.getName() + "_numResults/", results.size());
 
@@ -100,19 +122,30 @@ public class VisionIOPhotonVision implements VisionIO {
                 continue;
             }
 
-            Optional<Pose3d> fuelPose =
-                    this.getFuelFieldPose(
-                            new Pose3d(poseSupplier.get()),
-                            this.robotToCamera,
-                            result.getBestTarget());
-            if (fuelPose.isPresent()) {
-                objectPoses.add(fuelPose.get());
+            for (PhotonTrackedTarget target : result.getTargets()) {
+                Optional<Distance> distance = this.getFuelFieldDistance(target);
+                if (distance.isEmpty()) {
+                    continue;
+                }
+                if (closestDistance == null || closestDistance.gt(distance.get())) {
+                    closestDistance = distance.get();
+                    closestTarget = target;
+                }
             }
+            // Optional<Pose3d> fuelPose =
+            // this.getFuelFieldPose(
+            // new Pose3d(poseSupplier.get()),
+            // this.robotToCamera,
+            // result.getBestTarget());
+            // if (fuelPose.isPresent()) {
+            // objectPoses.add(fuelPose.get());
+            // }
         }
-        inputs.objectPoses = new Pose3d[objectPoses.size()];
-        for (int i = 0; i < objectPoses.size(); i++) {
-            inputs.objectPoses[i] = objectPoses.get(i);
-        }
+        inputs.closestTarget = closestTarget;
+        // inputs.objectPoses = new Pose3d[objectPoses.size()];
+        // for (int i = 0; i < objectPoses.size(); i++) {
+        // inputs.objectPoses[i] = objectPoses.get(i);
+        // }
     }
 
     private void updateAprilTagInputs(VisionIOInputs inputs) {
@@ -122,13 +155,11 @@ public class VisionIOPhotonVision implements VisionIO {
         for (var result : camera.getAllUnreadResults()) {
             // Update latest target observation
             if (result.hasTargets()) {
-                inputs.latestTargetObservation =
-                        new TargetObservation(
-                                Rotation2d.fromDegrees(result.getBestTarget().getYaw()),
-                                Rotation2d.fromDegrees(result.getBestTarget().getPitch()));
+                inputs.latestTargetObservation = new TargetObservation(
+                        Rotation2d.fromDegrees(result.getBestTarget().getYaw()),
+                        Rotation2d.fromDegrees(result.getBestTarget().getPitch()));
             } else {
-                inputs.latestTargetObservation =
-                        new TargetObservation(new Rotation2d(), new Rotation2d());
+                inputs.latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d());
             }
 
             // Add pose observation
@@ -138,8 +169,7 @@ public class VisionIOPhotonVision implements VisionIO {
                 // Calculate robot pose
                 Transform3d fieldToCamera = multitagResult.estimatedPose.best;
                 Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
-                Pose3d robotPose =
-                        new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
+                Pose3d robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
 
                 // Calculate average tag distance
                 double totalTagDistance = 0.0;
@@ -166,14 +196,12 @@ public class VisionIOPhotonVision implements VisionIO {
                 // Calculate robot pose
                 var tagPose = Field.APRIL_TAG_LAYOUT.getTagPose(target.fiducialId);
                 if (tagPose.isPresent()) {
-                    Transform3d fieldToTarget =
-                            new Transform3d(
-                                    tagPose.get().getTranslation(), tagPose.get().getRotation());
+                    Transform3d fieldToTarget = new Transform3d(
+                            tagPose.get().getTranslation(), tagPose.get().getRotation());
                     Transform3d cameraToTarget = target.bestCameraToTarget;
                     Transform3d fieldToCamera = fieldToTarget.plus(cameraToTarget.inverse());
                     Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
-                    Pose3d robotPose =
-                            new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
+                    Pose3d robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
 
                     // Add tag ID
                     tagIds.add((short) target.fiducialId);
