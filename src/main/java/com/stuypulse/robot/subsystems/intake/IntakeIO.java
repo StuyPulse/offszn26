@@ -2,7 +2,7 @@ package com.stuypulse.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.stuypulse.robot.util.logged.TalonFXInputs;
+import com.stuypulse.robot.util.logged.LoggedTalonFX.TalonFXInputs;
 import edu.wpi.first.units.measure.Angle;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;

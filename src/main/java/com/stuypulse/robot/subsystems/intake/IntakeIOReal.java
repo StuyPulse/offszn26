@@ -6,7 +6,7 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.subsystems.intake.IntakeConstants.*;
-import com.stuypulse.robot.util.logged.LoggedTalonFX;
+import com.stuypulse.robot.util.logged.LoggedTalonFX.LoggedTalonFX;
 
 public class IntakeIOReal implements IntakeIO {
   private final LoggedTalonFX pivotMotor;

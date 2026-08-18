@@ -67,19 +67,21 @@ public class RobotContainer {
                 new ModuleIOReal(TunerConstants.BackRight));
 
         if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
-            vision = new Vision(
-                swerve,
-                    Arrays.stream(CamerasList.CAMERAS)
-                        .map((camera) -> new VisionIOLimelight(camera.name(), swerve::getRotation))
-                        .toArray(VisionIO[]::new)
-            );
+          vision =
+              new Vision(
+                  swerve,
+                  Arrays.stream(CamerasList.CAMERAS)
+                      .map((camera) -> new VisionIOLimelight(camera.name(), swerve::getRotation))
+                      .toArray(VisionIO[]::new));
         } else {
-            vision = new Vision(
-                swerve,
-                    Arrays.stream(CamerasList.CAMERAS)
-                        .map((camera) -> new VisionIOPhotonVision(camera.name(), camera.robotToCamera()))
-                        .toArray(VisionIO[]::new)
-            );
+          vision =
+              new Vision(
+                  swerve,
+                  Arrays.stream(CamerasList.CAMERAS)
+                      .map(
+                          (camera) ->
+                              new VisionIOPhotonVision(camera.name(), camera.robotToCamera()))
+                      .toArray(VisionIO[]::new));
         }
         intake = new Intake(new IntakeIOReal());
       }
@@ -114,12 +116,12 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        vision = new Vision(
-            swerve,
+        vision =
+            new Vision(
+                swerve,
                 Arrays.stream(CamerasList.CAMERAS)
                     .map((camera) -> new VisionIO() {})
-                    .toArray(VisionIO[]::new)
-        );
+                    .toArray(VisionIO[]::new));
         intake = new Intake(new IntakeIO() {});
       }
     }

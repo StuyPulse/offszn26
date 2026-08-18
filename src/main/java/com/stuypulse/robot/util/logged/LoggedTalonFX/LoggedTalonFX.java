@@ -70,7 +70,7 @@ import java.util.List;
 public class LoggedTalonFX extends TalonFX {
   private final StatusSignal<Current> supplyCurrent;
   private final StatusSignal<Current> statorCurrent;
-    private final StatusSignal<Temperature> temperature;
+  private final StatusSignal<Temperature> temperature;
   private final StatusSignal<Angle> position;
   private final StatusSignal<Voltage> appliedVoltage;
   private final StatusSignal<AngularVelocity> velocity;
