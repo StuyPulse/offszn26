@@ -11,10 +11,12 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.constants.GlobalSettings.Mode;
+import com.stuypulse.robot.subsystems.vision.Vision.VisionConsumer;
 import com.stuypulse.robot.util.FullSubsystem;
 import com.stuypulse.robot.util.LocalADStarAK;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
@@ -44,7 +46,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class Swerve extends FullSubsystem {
+public class Swerve extends FullSubsystem implements VisionConsumer {
 
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 250.0 : 100.0;
@@ -202,7 +204,7 @@ public class Swerve extends FullSubsystem {
     }
 
     // Update gyro alert
-    gyroDisconnectedAlert.set(!gyroInputs.connected && GlobalSettings.currentMode != Mode.SIM);
+    gyroDisconnectedAlert.set(!gyroInputs.connected && GlobalSettings.CURRENT_MODE != Mode.SIM);
   }
 
   /**
@@ -252,6 +254,10 @@ public class Swerve extends FullSubsystem {
     }
     kinematics.resetHeadings(headings);
     stop();
+  }
+
+  public Command followPath(PathPlannerPath path) {
+    return AutoBuilder.followPath(path);
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */
@@ -335,7 +341,8 @@ public class Swerve extends FullSubsystem {
   }
 
   /** Adds a new timestamped vision measurement. */
-  public void addVisionMeasurement(
+  @Override
+  public void accept(
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
