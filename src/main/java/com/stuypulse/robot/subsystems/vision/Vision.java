@@ -55,7 +55,8 @@ public class Vision extends FullSubsystem {
     public Vision(VisionConsumer consumer, EnumMap<Cameras, VisionIO> io) {
         this.consumer = consumer;
         
-        this.io = io;
+        // this.io = io;
+        this.io = new EnumMap<>(io);
         
         // Initialize inputs
         this.inputs = new EnumMap<>(Cameras.class);
