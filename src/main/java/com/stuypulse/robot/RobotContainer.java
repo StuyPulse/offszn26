@@ -19,7 +19,7 @@ import com.stuypulse.robot.subsystems.swerve.ModuleIOSim;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
 import com.stuypulse.robot.subsystems.swerve.TunerConstants;
 import com.stuypulse.robot.subsystems.vision.Vision;
-import com.stuypulse.robot.subsystems.vision.VisionConstants.CamerasList;
+import com.stuypulse.robot.subsystems.vision.VisionConstants.Cameras;
 import com.stuypulse.robot.subsystems.vision.VisionIO;
 import com.stuypulse.robot.subsystems.vision.VisionIOLimelight;
 import com.stuypulse.robot.subsystems.vision.VisionIOPhotonVision;
@@ -33,7 +33,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import java.util.Arrays;
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -69,15 +68,15 @@ public class RobotContainer {
         if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
             vision = new Vision(
                 swerve,
-                    Arrays.stream(CamerasList.CAMERAS)
-                        .map((camera) -> new VisionIOLimelight(camera.name(), swerve::getRotation))
+                    Arrays.stream(Cameras.values())
+                        .map((camera) -> new VisionIOLimelight(camera.getName(), swerve::getRotation))
                         .toArray(VisionIO[]::new)
             );
         } else {
             vision = new Vision(
                 swerve,
-                    Arrays.stream(CamerasList.CAMERAS)
-                        .map((camera) -> new VisionIOPhotonVision(camera.name(), camera.robotToCamera()))
+                    Arrays.stream(Cameras.values())
+                        .map((camera) -> new VisionIOPhotonVision(camera.getName(), camera.getRobotToCamera()))
                         .toArray(VisionIO[]::new)
             );
         }
@@ -95,11 +94,11 @@ public class RobotContainer {
         vision = 
             new Vision(
                 swerve,
-                Arrays.stream(CamerasList.CAMERAS)
+                Arrays.stream(Cameras.values())
                     .map((camera) ->
                         new VisionIOPhotonVisionSim(
-                            camera.name(),
-                            camera.robotToCamera(),
+                            camera.getName(),
+                            camera.getRobotToCamera(),
                             swerve::getPose))
                     .toArray(VisionIO[]::new));
       }
@@ -116,7 +115,7 @@ public class RobotContainer {
 
         vision = new Vision(
             swerve,
-                Arrays.stream(CamerasList.CAMERAS)
+                Arrays.stream(Cameras.values())
                     .map((camera) -> new VisionIO() {})
                     .toArray(VisionIO[]::new)
         );
