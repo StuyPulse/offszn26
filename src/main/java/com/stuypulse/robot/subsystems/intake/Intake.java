@@ -19,7 +19,7 @@ public class Intake extends FullSubsystem {
   @AutoLogOutput(key = "Intake/Pivot/State")
   private PivotState pivotState;
 
-  @AutoLogOutput(key = "Intake/Pivot/State")
+  @AutoLogOutput(key = "Intake/Rollers/State")
   private RollerState rollerState;
 
   public Intake(IntakeIO io) {
