@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends FullSubsystem {
   private final ShooterIO io;
@@ -59,6 +60,7 @@ public class Shooter extends FullSubsystem {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
+    Logger.processInputs("Shooter", inputs);
 
     if (!GlobalSettings.EnabledSubsystems.SHOOTER.get()) {
       outputs.mode = ShooterIOOutputMode.STOP;
