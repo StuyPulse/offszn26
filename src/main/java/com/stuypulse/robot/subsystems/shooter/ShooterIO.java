@@ -1,0 +1,37 @@
+package com.stuypulse.robot.subsystems.shooter;
+
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
+
+import com.stuypulse.robot.util.logged.LoggedTalonFX.TalonFXInputs;
+
+import static edu.wpi.first.units.Units.*;
+
+import edu.wpi.first.units.measure.*;
+
+public interface ShooterIO {
+    @AutoLog
+    public static class ShooterIOInputs {
+        public TalonFXInputs topLeftMotorInputs = new TalonFXInputs();
+        public TalonFXInputs bottomLeftMotorInputs = new TalonFXInputs();
+
+        public TalonFXInputs topRightMotorInputs = new TalonFXInputs();
+        public TalonFXInputs bottomRightMotorInputs = new TalonFXInputs();
+    }
+
+    public enum ShooterMode {
+        STOP,
+        VELOCITY_TORQUE_CURRENT_FOC
+    }
+
+    public static class ShooterIOOutputs {
+        @AutoLogOutput(key = "Shooter/TargetVelocity")
+        public AngularVelocity targetVelocity = RPM.zero();
+
+        @AutoLogOutput(key = "Shooter/Mode")
+        public ShooterMode mode = ShooterMode.VELOCITY_TORQUE_CURRENT_FOC;
+    }
+
+    default void updateInputs(ShooterIOInputs inputs) {};
+    default void applyOutputs(ShooterIOOutputs outputs) {};
+}

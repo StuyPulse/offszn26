@@ -15,6 +15,7 @@ public interface GlobalSettings {
   // Add subsystems as they're added.
   public interface EnabledSubsystems {
     LoggedNetworkBoolean VISION = new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Vision", true);
+    LoggedNetworkBoolean SHOOTER = new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Shooter", true);
   }
 
   Time DT = Milliseconds.of(20);
