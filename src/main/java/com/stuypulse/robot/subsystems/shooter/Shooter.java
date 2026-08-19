@@ -46,7 +46,7 @@ public class Shooter extends FullSubsystem {
         outputs.mode = ShooterMode.VELOCITY_TORQUE_CURRENT_FOC;
     }
 
-    private void _setState(ShooterState state) {
+    private void setState(ShooterState state) {
         this.state = state;
     }
 
@@ -71,7 +71,11 @@ public class Shooter extends FullSubsystem {
         io.applyOutputs(outputs);
     }
 
-    public Command setState(ShooterState state) {
-        return runOnce(() -> _setState(state));
+    public Command setShooting() {
+        return runOnce(() -> setState(ShooterState.SHOOT));
+    }
+
+    public Command setFerrying() {
+        return runOnce(() -> setState(ShooterState.FERRY));
     }
 }
