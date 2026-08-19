@@ -12,9 +12,9 @@ public interface IntakeIO {
   public static class IntakeIOInputs {
     public TalonFXInputs pivotInputs = new TalonFXInputs();
 
-    public TalonFXInputs rollerLeaderInputs = new TalonFXInputs();
+    public TalonFXInputs rollerLeftInputs = new TalonFXInputs();
 
-    public TalonFXInputs rollerFollowerInputs = new TalonFXInputs();
+    public TalonFXInputs rollerRightInputs = new TalonFXInputs();
   }
 
   public default void updateInputs(IntakeIOInputs inputs) {}

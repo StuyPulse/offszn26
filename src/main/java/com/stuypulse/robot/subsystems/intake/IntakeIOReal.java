@@ -10,8 +10,8 @@ import com.stuypulse.robot.util.logged.LoggedTalonFX.LoggedTalonFX;
 
 public class IntakeIOReal implements IntakeIO {
   private final LoggedTalonFX pivotMotor;
-  private final LoggedTalonFX rollerLeaderMotor;
-  private final LoggedTalonFX rollerFollowerMotor;
+  private final LoggedTalonFX rollerLeftMotor;
+  private final LoggedTalonFX rollerRightMotor;
 
   private final DutyCycleOut rollerLeaderController;
   private final Follower rollerFollowerController;
@@ -19,28 +19,28 @@ public class IntakeIOReal implements IntakeIO {
 
   public IntakeIOReal() {
     this.pivotMotor = new LoggedTalonFX(IntakeDeviceIds.PIVOT, GlobalSettings.RIO);
-    this.rollerLeaderMotor = new LoggedTalonFX(IntakeDeviceIds.ROLLER_LEADER, GlobalSettings.RIO);
-    this.rollerFollowerMotor =
+    this.rollerLeftMotor = new LoggedTalonFX(IntakeDeviceIds.ROLLER_LEADER, GlobalSettings.RIO);
+    this.rollerRightMotor =
         new LoggedTalonFX(IntakeDeviceIds.ROLLER_FOLLOWER, GlobalSettings.RIO);
 
     IntakeMotorConfigs.PIVOT_CONFIG.configure(pivotMotor);
-    IntakeMotorConfigs.ROLLER_CONFIG.configure(rollerLeaderMotor);
-    IntakeMotorConfigs.ROLLER_CONFIG.configure(rollerFollowerMotor);
+    IntakeMotorConfigs.ROLLER_CONFIG.configure(rollerLeftMotor);
+    IntakeMotorConfigs.ROLLER_CONFIG.configure(rollerRightMotor);
 
     this.rollerLeaderController = new DutyCycleOut(0).withEnableFOC(true);
     this.rollerFollowerController =
-        new Follower(rollerLeaderMotor.getDeviceID(), MotorAlignmentValue.Opposed);
+        new Follower(rollerLeftMotor.getDeviceID(), MotorAlignmentValue.Opposed);
     this.pivotPositionController = new PositionVoltage(0).withEnableFOC(true);
 
-    rollerFollowerMotor.setControl(rollerFollowerController);
+    rollerRightMotor.setControl(rollerFollowerController);
     pivotMotor.setControl(pivotPositionController);
   }
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
     pivotMotor.updateInputs(inputs.pivotInputs);
-    rollerLeaderMotor.updateInputs(inputs.rollerLeaderInputs);
-    rollerFollowerMotor.updateInputs(inputs.rollerFollowerInputs);
+    rollerLeftMotor.updateInputs(inputs.rollerLeftInputs);
+    rollerRightMotor.updateInputs(inputs.rollerRightInputs);
   }
 
   @Override
@@ -52,12 +52,12 @@ public class IntakeIOReal implements IntakeIO {
     }
 
     switch (outputs.rollerMode) {
-      case DUTY_CYCLE -> rollerLeaderMotor.setControl(
+      case DUTY_CYCLE -> rollerLeftMotor.setControl(
           rollerLeaderController.withOutput(outputs.rollerTargetDutyCycle));
       case STOP -> {
-        rollerLeaderMotor.stopMotor();
-        rollerFollowerMotor.stopMotor();
-        rollerFollowerMotor.setControl(rollerFollowerController);
+        rollerLeftMotor.stopMotor();
+        rollerRightMotor.stopMotor();
+        rollerRightMotor.setControl(rollerFollowerController);
       }
     }
   }

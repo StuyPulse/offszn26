@@ -82,8 +82,8 @@ public class IntakeIOSim implements IntakeIO {
     this.rollerFollowerMotor.refresh();
 
     pivotMotor.updateInputs(inputs.pivotInputs);
-    rollerLeaderMotor.updateInputs(inputs.rollerLeaderInputs);
-    rollerFollowerMotor.updateInputs(inputs.rollerFollowerInputs);
+    rollerLeaderMotor.updateInputs(inputs.rollerLeftInputs);
+    rollerFollowerMotor.updateInputs(inputs.rollerRightInputs);
   }
 
   @Override
