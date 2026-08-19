@@ -1,11 +1,12 @@
-package com.stuypulse.robot.util.logged;
+package com.stuypulse.robot.util.logged.LoggedTalonFX;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.stuypulse.robot.util.logged.LogTableUtil;
 import edu.wpi.first.units.measure.*;
-import java.util.ArrayList;
-import java.util.List;
-import org.littletonrobotics.junction.AutoLog;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
@@ -15,9 +16,6 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
  * <h2>TalonFX Inputs</h2>
  *
  * <p>Contains logged data collected from a {@link LoggedTalonFX}.
- *
- * <p>This class is annotated with {@link AutoLog} so AdvantageKit can automatically generate the
- * corresponding logged inputs class and record the motor signals.
  *
  * <p>A {@code TalonFXInputs} instance is typically stored as a field in a subsystem's {@code
  * IOInputs} class:
@@ -30,12 +28,10 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
  * }
  * }</pre>
  *
- * <p>The values are populated by {@link LoggedTalonFX#updateInputs(TalonFXInputs)} and should not
- * be updated directly by the subsystem. Any signals registered on the owning {@link LoggedTalonFX}
- * via {@code addSignal} are logged and replayed automatically — see {@link LoggedSignal}.
+ * <p>The values are populated by {@link LoggedTalonFX#updateInputs(TalonFXInputs)}.
  *
  * @see LoggedTalonFX
- * @see LoggedSignal
+ * @see LogTableUtil
  * @author Faizaan (https://github.com/Faizaan-J)
  */
 public class TalonFXInputs implements LoggableInputs, Cloneable {
@@ -46,15 +42,32 @@ public class TalonFXInputs implements LoggableInputs, Cloneable {
   public Voltage appliedVoltage = Volts.zero();
   public AngularVelocity velocity = DegreesPerSecond.zero();
 
-  private List<LoggedSignal<?>> additionalSignals = new ArrayList<>();
+  private Map<String, Object> additionalSignalValues = new HashMap<>();
 
   /**
-   * Updates the additional signals associated with this motor.
+   * Records additional StatusSignals to be logged.
    *
    * @param signals The signals to log.
    */
-  public void setAdditionalSignals(List<LoggedSignal<?>> signals) {
-    this.additionalSignals = signals;
+  void recordAdditionalSignal(String name, Object value) {
+    this.additionalSignalValues.put(name, value);
+  }
+
+  /**
+   * Returns the value of an additional logged StatusSignal, or null if signal is not logged.
+   *
+   * @param <T> The type of the signal value.
+   * @param name The name of the StatusSignal to retrieve.
+   * @param type The type of the signal value.
+   * @return The value of the signal, or null if not logged.
+   */
+  public <T> T getAdditionalSignal(String name, Class<T> type) {
+    Object value = additionalSignalValues.get(name);
+    if (value == null) {
+      return null;
+    }
+
+    return type.cast(value);
   }
 
   @Override
@@ -66,8 +79,8 @@ public class TalonFXInputs implements LoggableInputs, Cloneable {
     table.put("AppliedVoltage", appliedVoltage);
     table.put("Velocity", velocity);
 
-    for (LoggedSignal<?> signal : additionalSignals) {
-      signal.toLog(table);
+    for (Entry<String, Object> entry : additionalSignalValues.entrySet()) {
+      LogTableUtil.put(table, entry.getKey(), entry.getValue());
     }
   }
 
@@ -80,8 +93,9 @@ public class TalonFXInputs implements LoggableInputs, Cloneable {
     appliedVoltage = table.get("AppliedVoltage", appliedVoltage);
     velocity = table.get("Velocity", velocity);
 
-    for (LoggedSignal<?> signal : additionalSignals) {
-      signal.fromLog(table);
+    for (Entry<String, Object> entry : additionalSignalValues.entrySet()) {
+      additionalSignalValues.put(
+          entry.getKey(), LogTableUtil.get(table, entry.getKey(), entry.getValue()));
     }
   }
 
@@ -93,7 +107,7 @@ public class TalonFXInputs implements LoggableInputs, Cloneable {
     copy.position = this.position;
     copy.appliedVoltage = this.appliedVoltage;
     copy.velocity = this.velocity;
-    copy.additionalSignals = new ArrayList<>(this.additionalSignals);
+    copy.additionalSignalValues = new HashMap<>(this.additionalSignalValues);
     return copy;
   }
 }

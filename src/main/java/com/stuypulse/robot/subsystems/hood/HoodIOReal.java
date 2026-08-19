@@ -3,7 +3,7 @@ package com.stuypulse.robot.subsystems.hood;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.subsystems.hood.HoodConstants.*;
-import com.stuypulse.robot.util.logged.LoggedTalonFX;
+import com.stuypulse.robot.util.logged.LoggedTalonFX.LoggedTalonFX;
 
 public class HoodIOReal implements HoodIO {
   private final LoggedTalonFX hoodMotor;
