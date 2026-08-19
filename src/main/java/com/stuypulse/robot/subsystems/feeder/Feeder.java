@@ -14,7 +14,7 @@ public class Feeder extends FullSubsystem {
   private final FeederIOInputsAutoLogged inputs;
   private final FeederIOOutputs outputs;
 
-  @AutoLogOutput(key = "States/Feeder")
+  @AutoLogOutput(key = "Feeder/State")
   private FeederState state;
 
   public Feeder(FeederIO io) {
