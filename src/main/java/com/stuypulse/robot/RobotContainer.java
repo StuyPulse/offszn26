@@ -9,6 +9,10 @@ import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.constants.DriverConstants;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.constants.GlobalSettings.VisionMode;
+import com.stuypulse.robot.subsystems.indexer.Indexer;
+import com.stuypulse.robot.subsystems.indexer.IndexerIO;
+import com.stuypulse.robot.subsystems.indexer.IndexerIOReal;
+import com.stuypulse.robot.subsystems.indexer.IndexerIOSim;
 import com.stuypulse.robot.subsystems.swerve.GyroIO;
 import com.stuypulse.robot.subsystems.swerve.GyroIOReal;
 import com.stuypulse.robot.subsystems.swerve.ModuleIO;
@@ -41,6 +45,7 @@ public class RobotContainer {
   // Subsystems
   private final Swerve swerve;
   private final Vision vision;
+  private final Indexer indexer;
 
   // Controller
   private final CommandXboxController controller;
@@ -78,6 +83,8 @@ public class RobotContainer {
                               new VisionIOPhotonVision(camera.name(), camera.robotToCamera()))
                       .toArray(VisionIO[]::new));
         }
+
+        indexer = new Indexer(new IndexerIOReal());
       }
 
       case SIM -> {
@@ -98,6 +105,8 @@ public class RobotContainer {
                             new VisionIOPhotonVisionSim(
                                 camera.name(), camera.robotToCamera(), swerve::getPose))
                     .toArray(VisionIO[]::new));
+        
+        indexer = new Indexer(new IndexerIOSim());
       }
 
         // For replay mode
@@ -116,6 +125,8 @@ public class RobotContainer {
                 Arrays.stream(CamerasList.CAMERAS)
                     .map((camera) -> new VisionIO() {})
                     .toArray(VisionIO[]::new));
+                    
+        indexer = new Indexer(new IndexerIO() {});
       }
     }
 
