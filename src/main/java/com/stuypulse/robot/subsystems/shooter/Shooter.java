@@ -1,5 +1,7 @@
 package com.stuypulse.robot.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.subsystems.shooter.ShooterConstants.ShooterSettings;
 import com.stuypulse.robot.subsystems.shooter.ShooterIO.ShooterIOOutputs;
@@ -9,9 +11,6 @@ import com.stuypulse.robot.util.InterpolationCalculator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj2.command.Command;
-
-import static edu.wpi.first.units.Units.RPM;
-
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 
@@ -44,11 +43,13 @@ public class Shooter extends FullSubsystem {
     setState(ShooterState.SHOOT);
   }
 
-  private void setTargetVelocity(AngularVelocity targetVelocity) {
+  private void runVelocity(AngularVelocity targetVelocity) {
     outputs.targetVelocity = targetVelocity;
     outputs.mode = ShooterMode.VELOCITY_TORQUE_CURRENT_FOC;
 
-    atTolerance = inputs.topLeftMotorInputs.velocity.minus(targetVelocity).abs(RPM) < ShooterSettings.TOLERANCE.in(RPM);
+    atTolerance =
+        inputs.topLeftMotorInputs.velocity.minus(targetVelocity).abs(RPM)
+            < ShooterSettings.TOLERANCE.in(RPM);
   }
 
   private void setState(ShooterState state) {
@@ -66,9 +67,8 @@ public class Shooter extends FullSubsystem {
 
     switch (state) {
       case STOP -> outputs.mode = ShooterMode.STOP;
-      case SHOOT -> setTargetVelocity(
-          InterpolationCalculator.getInterpolatedShotRPM(poseSupplier.get()));
-      case FERRY -> setTargetVelocity(
+      case SHOOT -> runVelocity(InterpolationCalculator.getInterpolatedShotRPM(poseSupplier.get()));
+      case FERRY -> runVelocity(
           InterpolationCalculator.getInterpolatedFerryRPM(poseSupplier.get()));
     }
   }
@@ -82,15 +82,15 @@ public class Shooter extends FullSubsystem {
     return atTolerance;
   }
 
-  public Command setShooting() {
+  public Command shoot() {
     return runOnce(() -> setState(ShooterState.SHOOT)).withName("Shooter Shoot");
   }
 
-  public Command setFerrying() {
+  public Command ferry() {
     return runOnce(() -> setState(ShooterState.FERRY)).withName("Shooter Ferry");
   }
 
-  public Command setStop() {
+  public Command stop() {
     return runOnce(() -> setState(ShooterState.STOP)).withName("Shooter Stop");
   }
 }
