@@ -131,7 +131,7 @@ public class RobotContainer {
                     .toArray(VisionIO[]::new)
         );
 
-        shooter = new Shooter(new ShooterIO() {}, null);
+        shooter = new Shooter(new ShooterIO() {}, swerve::getPose);
       }
     }
 
