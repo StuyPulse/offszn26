@@ -14,7 +14,7 @@ public class Indexer extends FullSubsystem {
   private final IndexerIOInputsAutoLogged inputs;
   private final IndexerIOOutputs outputs;
 
-  @AutoLogOutput(key = "States/Indexer")
+  @AutoLogOutput(key = "Indexer/State")
   private IndexerState state;
 
   public Indexer(IndexerIO io) {
