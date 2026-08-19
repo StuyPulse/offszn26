@@ -7,8 +7,8 @@ import org.littletonrobotics.junction.AutoLogOutput;
 public interface IndexerIO {
   @AutoLog
   public static class IndexerIOInputs {
-    public TalonFXInputs indexerLeaderInputs = new TalonFXInputs();
-    public TalonFXInputs indexerFollowerInputs = new TalonFXInputs();
+    public TalonFXInputs indexerBackInputs = new TalonFXInputs();
+    public TalonFXInputs indexerFrontInputs = new TalonFXInputs();
   }
 
   public default void updateInputs(IndexerIOInputs inputs) {}

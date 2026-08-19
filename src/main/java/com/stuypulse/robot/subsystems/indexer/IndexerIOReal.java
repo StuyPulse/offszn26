@@ -8,43 +8,43 @@ import com.stuypulse.robot.subsystems.indexer.IndexerConstants.*;
 import com.stuypulse.robot.util.logged.LoggedTalonFX.LoggedTalonFX;
 
 public class IndexerIOReal implements IndexerIO {
-  private final LoggedTalonFX indexerLeader;
-  private final LoggedTalonFX indexerFollower;
+  private final LoggedTalonFX indexerBackMotor;
+  private final LoggedTalonFX indexerFrontMotor;
 
   private final DutyCycleOut indexerLeaderController;
   private final Follower indexerFollowerController;
 
   public IndexerIOReal() {
-    indexerLeader = new LoggedTalonFX(IndexerDeviceIds.LEADER, GlobalSettings.RIO);
-    indexerFollower = new LoggedTalonFX(IndexerDeviceIds.FOLLOWER, GlobalSettings.RIO);
+    indexerBackMotor = new LoggedTalonFX(IndexerDeviceIds.LEADER, GlobalSettings.RIO);
+    indexerFrontMotor = new LoggedTalonFX(IndexerDeviceIds.FOLLOWER, GlobalSettings.RIO);
 
-    IndexerMotorConfigs.INDEXER_CONFIG.configure(indexerLeader);
-    IndexerMotorConfigs.INDEXER_CONFIG.configure(indexerFollower);
+    IndexerMotorConfigs.INDEXER_CONFIG.configure(indexerBackMotor);
+    IndexerMotorConfigs.INDEXER_CONFIG.configure(indexerFrontMotor);
 
     indexerLeaderController = new DutyCycleOut(0).withEnableFOC(true);
     indexerFollowerController =
-        new Follower(indexerLeader.getDeviceID(), MotorAlignmentValue.Opposed);
+        new Follower(indexerBackMotor.getDeviceID(), MotorAlignmentValue.Opposed);
 
-    indexerFollower.setControl(indexerFollowerController);
+    indexerFrontMotor.setControl(indexerFollowerController);
   }
 
   @Override
   public void updateInputs(IndexerIOInputs inputs) {
-    indexerLeader.updateInputs(inputs.indexerLeaderInputs);
-    indexerFollower.updateInputs(inputs.indexerFollowerInputs);
+    indexerBackMotor.updateInputs(inputs.indexerBackInputs);
+    indexerFrontMotor.updateInputs(inputs.indexerFrontInputs);
   }
 
   @Override
   public void applyOutputs(IndexerIOOutputs outputs) {
     switch (outputs.indexerMode) {
-      case DUTY_CYCLE -> indexerLeader.setControl(
+      case DUTY_CYCLE -> indexerBackMotor.setControl(
           indexerLeaderController.withOutput(outputs.targetDutyCycle));
 
       case STOP -> {
-        indexerLeader.stopMotor();
-        indexerFollower.stopMotor();
+        indexerBackMotor.stopMotor();
+        indexerFrontMotor.stopMotor();
 
-        indexerFollower.setControl(indexerFollowerController);
+        indexerFrontMotor.setControl(indexerFollowerController);
       }
     }
   }

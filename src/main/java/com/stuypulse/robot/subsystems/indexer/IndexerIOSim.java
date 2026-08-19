@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 public class IndexerIOSim implements IndexerIO {
   private final SystemSim<DCMotorSim> indexerSystem;
 
-  private final TalonFXSimulation indexerLeader;
-  private final TalonFXSimulation indexerFollower;
+  private final TalonFXSimulation indexerBackMotor;
+  private final TalonFXSimulation indexerFrontMotor;
 
   private final DutyCycleOut indexerLeaderController;
   private final Follower indexerFollowerController;
@@ -28,44 +28,44 @@ public class IndexerIOSim implements IndexerIO {
                     DCMotor.getKrakenX60Foc(2), 0.01, IndexerSettings.GEAR_RATIO),
                 DCMotor.getKrakenX60Foc(2)));
 
-    indexerLeader =
+    indexerBackMotor =
         new TalonFXSimulation(IndexerDeviceIds.LEADER, IndexerSettings.GEAR_RATIO, indexerSystem);
-    indexerFollower =
+    indexerFrontMotor =
         new TalonFXSimulation(IndexerDeviceIds.FOLLOWER, IndexerSettings.GEAR_RATIO, indexerSystem);
 
-    indexerLeader.configure(IndexerMotorConfigs.INDEXER_CONFIG);
-    indexerFollower.configure(IndexerMotorConfigs.INDEXER_CONFIG);
+    indexerBackMotor.configure(IndexerMotorConfigs.INDEXER_CONFIG);
+    indexerFrontMotor.configure(IndexerMotorConfigs.INDEXER_CONFIG);
 
-    indexerFollower.linkToReference(indexerLeader);
+    indexerFrontMotor.linkToReference(indexerBackMotor);
 
     indexerLeaderController = new DutyCycleOut(0).withEnableFOC(true);
     indexerFollowerController =
-        new Follower(indexerLeader.getDeviceID(), MotorAlignmentValue.Opposed);
+        new Follower(indexerBackMotor.getDeviceID(), MotorAlignmentValue.Opposed);
 
-    indexerFollower.setControl(indexerFollowerController);
+    indexerFrontMotor.setControl(indexerFollowerController);
   }
 
   @Override
   public void updateInputs(IndexerIOInputs inputs) {
     indexerSystem.update(GlobalSettings.DT);
-    indexerLeader.refresh();
-    indexerFollower.refresh();
+    indexerBackMotor.refresh();
+    indexerFrontMotor.refresh();
 
-    indexerLeader.updateInputs(inputs.indexerLeaderInputs);
-    indexerFollower.updateInputs(inputs.indexerFollowerInputs);
+    indexerBackMotor.updateInputs(inputs.indexerBackInputs);
+    indexerFrontMotor.updateInputs(inputs.indexerFrontInputs);
   }
 
   @Override
   public void applyOutputs(IndexerIOOutputs outputs) {
     switch (outputs.indexerMode) {
-      case DUTY_CYCLE -> indexerLeader.setControl(
+      case DUTY_CYCLE -> indexerBackMotor.setControl(
           indexerLeaderController.withOutput(outputs.targetDutyCycle));
 
       case STOP -> {
-        indexerLeader.stopMotor();
-        indexerFollower.stopMotor();
+        indexerBackMotor.stopMotor();
+        indexerFrontMotor.stopMotor();
 
-        indexerFollower.setControl(indexerFollowerController);
+        indexerFrontMotor.setControl(indexerFollowerController);
       }
     }
   }
