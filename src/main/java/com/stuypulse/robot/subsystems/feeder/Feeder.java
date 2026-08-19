@@ -70,14 +70,14 @@ public class Feeder extends FullSubsystem {
   }
 
   public Command runForward() {
-    return runOnce(() -> setState(FeederState.FORWARD));
+    return runOnce(() -> setState(FeederState.FORWARD)).withName("Feeder Forward");
   }
 
   public Command runReverse() {
-    return runOnce(() -> setState(FeederState.REVERSE));
+    return runOnce(() -> setState(FeederState.REVERSE)).withName("Feeder Reverse");
   }
 
   public Command stop() {
-    return runOnce(() -> setState(FeederState.STOP));
+    return runOnce(() -> setState(FeederState.STOP)).withName("Feeder Stop");
   }
 }
