@@ -19,7 +19,7 @@ public interface ShooterIO {
         public TalonFXInputs bottomRightMotorInputs = new TalonFXInputs();
     }
 
-    public enum ShooterMode {
+    public enum ShooterIOOutputMode {
         STOP,
         VELOCITY_TORQUE_CURRENT_FOC
     }
@@ -28,8 +28,8 @@ public interface ShooterIO {
         @AutoLogOutput(key = "Shooter/TargetVelocity")
         public AngularVelocity targetVelocity = RPM.zero();
 
-        @AutoLogOutput(key = "Shooter/Mode")
-        public ShooterMode mode = ShooterMode.VELOCITY_TORQUE_CURRENT_FOC;
+        @AutoLogOutput(key = "Shooter/Output Mode")
+        public ShooterIOOutputMode mode = ShooterIOOutputMode.VELOCITY_TORQUE_CURRENT_FOC;
     }
 
     default void updateInputs(ShooterIOInputs inputs) {};

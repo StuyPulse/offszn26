@@ -52,7 +52,7 @@ public final class ShooterIOReal implements ShooterIO {
 
     @Override
     public void applyOutputs(ShooterIOOutputs outputs) {
-        if (outputs.mode == ShooterMode.STOP) {
+        if (outputs.mode == ShooterIOOutputMode.STOP) {
             topLeftMotor.stopMotor();
             bottomLeftMotor.stopMotor();
             topRightMotor.stopMotor();
@@ -61,7 +61,7 @@ public final class ShooterIOReal implements ShooterIO {
             // reapply followers
             bottomLeftMotor.setControl(shooterFollowerLeft);
             bottomRightMotor.setControl(shooterFollowerRight);
-        } else if (outputs.mode == ShooterMode.VELOCITY_TORQUE_CURRENT_FOC) {
+        } else if (outputs.mode == ShooterIOOutputMode.VELOCITY_TORQUE_CURRENT_FOC) {
             shooterVelocityControl.withVelocity(outputs.targetVelocity);
             topLeftMotor.setControl(shooterVelocityControl);
             topRightMotor.setControl(shooterVelocityControl);

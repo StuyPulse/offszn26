@@ -5,7 +5,7 @@ import static edu.wpi.first.units.Units.RPM;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.subsystems.shooter.ShooterConstants.ShooterSettings;
 import com.stuypulse.robot.subsystems.shooter.ShooterIO.ShooterIOOutputs;
-import com.stuypulse.robot.subsystems.shooter.ShooterIO.ShooterMode;
+import com.stuypulse.robot.subsystems.shooter.ShooterIO.ShooterIOOutputMode;
 import com.stuypulse.robot.util.FullSubsystem;
 import com.stuypulse.robot.util.InterpolationCalculator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -45,7 +45,7 @@ public class Shooter extends FullSubsystem {
 
   private void runVelocity(AngularVelocity targetVelocity) {
     outputs.targetVelocity = targetVelocity;
-    outputs.mode = ShooterMode.VELOCITY_TORQUE_CURRENT_FOC;
+    outputs.mode = ShooterIOOutputMode.VELOCITY_TORQUE_CURRENT_FOC;
 
     atTolerance =
         inputs.topLeftMotorInputs.velocity.minus(targetVelocity).abs(RPM)
@@ -61,12 +61,12 @@ public class Shooter extends FullSubsystem {
     io.updateInputs(inputs);
 
     if (!GlobalSettings.EnabledSubsystems.SHOOTER.get()) {
-      outputs.mode = ShooterMode.STOP;
+      outputs.mode = ShooterIOOutputMode.STOP;
       return;
     }
 
     switch (state) {
-      case STOP -> outputs.mode = ShooterMode.STOP;
+      case STOP -> outputs.mode = ShooterIOOutputMode.STOP;
       case SHOOT -> runVelocity(InterpolationCalculator.getInterpolatedShotRPM(poseSupplier.get()));
       case FERRY -> runVelocity(
           InterpolationCalculator.getInterpolatedFerryRPM(poseSupplier.get()));
