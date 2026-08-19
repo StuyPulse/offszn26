@@ -4,6 +4,8 @@
 /**************************************************************/
 package com.stuypulse.robot;
 
+import java.util.EnumMap;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.constants.DriverConstants;
@@ -21,7 +23,7 @@ import com.stuypulse.robot.subsystems.swerve.ModuleIOSim;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
 import com.stuypulse.robot.subsystems.swerve.TunerConstants;
 import com.stuypulse.robot.subsystems.vision.Vision;
-import com.stuypulse.robot.subsystems.vision.VisionConstants.CamerasList;
+import com.stuypulse.robot.subsystems.vision.VisionConstants.Cameras;
 import com.stuypulse.robot.subsystems.vision.VisionIO;
 import com.stuypulse.robot.subsystems.vision.VisionIOLimelight;
 import com.stuypulse.robot.subsystems.vision.VisionIOPhotonVision;
@@ -32,7 +34,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import java.util.Arrays;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -56,6 +58,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
 
+    EnumMap<Cameras, VisionIO> cameraIOMap = new EnumMap<>(Cameras.class);
     switch (GlobalSettings.CURRENT_MODE) {
       case REAL -> {
         swerve =
@@ -65,23 +68,15 @@ public class RobotContainer {
                 new ModuleIOReal(TunerConstants.FrontRight),
                 new ModuleIOReal(TunerConstants.BackLeft),
                 new ModuleIOReal(TunerConstants.BackRight));
+
         feeder = new Feeder(new FeederIOReal());
-        if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
-          vision =
-              new Vision(
-                  swerve,
-                  Arrays.stream(CamerasList.CAMERAS)
-                      .map((camera) -> new VisionIOLimelight(camera.name(), swerve::getRotation))
-                      .toArray(VisionIO[]::new));
-        } else {
-          vision =
-              new Vision(
-                  swerve,
-                  Arrays.stream(CamerasList.CAMERAS)
-                      .map(
-                          (camera) ->
-                              new VisionIOPhotonVision(camera.name(), camera.robotToCamera()))
-                      .toArray(VisionIO[]::new));
+
+        for (Cameras camera : Cameras.values()) {
+            if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
+                cameraIOMap.put(camera, new VisionIOLimelight(camera.getName(), swerve::getRotation));
+            } else {
+                cameraIOMap.put(camera, new VisionIOPhotonVision(camera.getName(), camera.getRobotToCamera()));
+            }
         }
       }
 
@@ -94,15 +89,10 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
         feeder = new Feeder(new FeederIOSim());
-        vision =
-            new Vision(
-                swerve,
-                Arrays.stream(CamerasList.CAMERAS)
-                    .map(
-                        (camera) ->
-                            new VisionIOPhotonVisionSim(
-                                camera.name(), camera.robotToCamera(), swerve::getPose))
-                    .toArray(VisionIO[]::new));
+
+        for (Cameras camera : Cameras.values()) {
+            cameraIOMap.put(camera, new VisionIOPhotonVisionSim(camera.getName(), camera.getRobotToCamera(), swerve::getPose));
+        }
       }
 
         // For replay mode
@@ -114,15 +104,15 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+
         feeder = new Feeder(new FeederIO() {});
-        vision =
-            new Vision(
-                swerve,
-                Arrays.stream(CamerasList.CAMERAS)
-                    .map((camera) -> new VisionIO() {})
-                    .toArray(VisionIO[]::new));
+
+        for (Cameras camera : Cameras.values()) {
+            cameraIOMap.put(camera, new VisionIO() {});
+        }
       }
     }
+    this.vision = new Vision(swerve, cameraIOMap);
 
     this.controller = new CommandXboxController(DriverConstants.Driver.DRIVER_INDEX);
 
