@@ -25,7 +25,7 @@ public class Hood extends FullSubsystem {
 
   private boolean atTolerance;
 
-  @AutoLogOutput(key = "States/Hood")
+  @AutoLogOutput(key = "Hood/State")
   private HoodState state;
 
   public Hood(HoodIO io, Supplier<Pose2d> poseSupplier) {
