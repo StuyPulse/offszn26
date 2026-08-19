@@ -40,6 +40,8 @@ public class Shooter extends FullSubsystem {
     this.outputs = new ShooterIOOutputs();
 
     this.poseSupplier = poseSupplier;
+
+    setState(ShooterState.SHOOT);
   }
 
   private void setTargetVelocity(AngularVelocity targetVelocity) {
