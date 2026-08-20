@@ -4,9 +4,6 @@
 /**************************************************************/
 package com.stuypulse.robot;
 
-import java.util.Arrays;
-import java.util.EnumMap;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.constants.DriverConstants;
@@ -35,7 +32,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import java.util.EnumMap;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -73,11 +70,12 @@ public class RobotContainer {
         hood = new Hood(new HoodIOReal(), swerve::getPose);
 
         for (Cameras camera : Cameras.values()) {
-                    if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
-                        cameraIOMap.put(camera, new VisionIOLimelight(camera.getName(), swerve::getRotation));
-                    } else {
-                        cameraIOMap.put(camera, new VisionIOPhotonVision(camera.getName(), camera.getRobotToCamera()));
-                    }
+          if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
+            cameraIOMap.put(camera, new VisionIOLimelight(camera.getName(), swerve::getRotation));
+          } else {
+            cameraIOMap.put(
+                camera, new VisionIOPhotonVision(camera.getName(), camera.getRobotToCamera()));
+          }
         }
       }
 
@@ -89,11 +87,14 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
-        
+
         hood = new Hood(new HoodIOSim(), swerve::getPose);
 
         for (Cameras camera : Cameras.values()) {
-            cameraIOMap.put(camera, new VisionIOPhotonVisionSim(camera.getName(), camera.getRobotToCamera(), swerve::getPose));
+          cameraIOMap.put(
+              camera,
+              new VisionIOPhotonVisionSim(
+                  camera.getName(), camera.getRobotToCamera(), swerve::getPose));
         }
       }
 
@@ -109,7 +110,7 @@ public class RobotContainer {
         hood = new Hood(new HoodIO() {}, swerve::getPose);
 
         for (Cameras camera : Cameras.values()) {
-            cameraIOMap.put(camera, new VisionIO() {});
+          cameraIOMap.put(camera, new VisionIO() {});
         }
       }
     }
