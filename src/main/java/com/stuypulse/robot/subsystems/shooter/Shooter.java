@@ -4,8 +4,8 @@ import static edu.wpi.first.units.Units.RPM;
 
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.subsystems.shooter.ShooterConstants.ShooterSettings;
-import com.stuypulse.robot.subsystems.shooter.ShooterIO.ShooterIOOutputs;
 import com.stuypulse.robot.subsystems.shooter.ShooterIO.ShooterIOOutputMode;
+import com.stuypulse.robot.subsystems.shooter.ShooterIO.ShooterIOOutputs;
 import com.stuypulse.robot.util.FullSubsystem;
 import com.stuypulse.robot.util.InterpolationCalculator;
 import edu.wpi.first.math.geometry.Pose2d;
