@@ -84,8 +84,7 @@ public class Shooter extends FullSubsystem {
                     InterpolationCalculator.getInterpolatedShotRPM(poseSupplier.get()));
             case FERRY -> runVelocity(
                     InterpolationCalculator.getInterpolatedFerryRPM(poseSupplier.get()));
-            case KB -> 
-                    runVelocity(ShooterConstants.ShooterSettings.KB_VELOCITY);
+            case KB -> runVelocity(ShooterConstants.ShooterSettings.KB_VELOCITY);
             case TOWER -> runVelocity(ShooterConstants.ShooterSettings.TOWER_VELOCITY);
         }
     }
@@ -116,7 +115,7 @@ public class Shooter extends FullSubsystem {
         return runOnce(() -> setState(ShooterState.KB)).withName("Shooter KB");
     }
 
-    public Command tower(){
+    public Command tower() {
         return runOnce(() -> setState(ShooterState.TOWER)).withName("Shooter Tower");
     }
 
