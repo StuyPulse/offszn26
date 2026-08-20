@@ -25,6 +25,10 @@ import com.stuypulse.robot.subsystems.intake.Intake;
 import com.stuypulse.robot.subsystems.intake.IntakeIO;
 import com.stuypulse.robot.subsystems.intake.IntakeIOReal;
 import com.stuypulse.robot.subsystems.intake.IntakeIOSim;
+import com.stuypulse.robot.subsystems.shooter.Shooter;
+import com.stuypulse.robot.subsystems.shooter.ShooterIO;
+import com.stuypulse.robot.subsystems.shooter.ShooterIOReal;
+import com.stuypulse.robot.subsystems.shooter.ShooterIOSim;
 import com.stuypulse.robot.subsystems.swerve.GyroIO;
 import com.stuypulse.robot.subsystems.swerve.GyroIOReal;
 import com.stuypulse.robot.subsystems.swerve.ModuleIO;
@@ -60,6 +64,7 @@ public class RobotContainer {
   private final Intake intake;
   private final Feeder feeder;
   private final Vision vision;
+  private final Shooter shooter;
   private final Indexer indexer;
 
   // Controller
@@ -82,6 +87,7 @@ public class RobotContainer {
                 new ModuleIOReal(TunerConstants.BackLeft),
                 new ModuleIOReal(TunerConstants.BackRight));
 
+        shooter = new Shooter(new ShooterIOReal(), swerve::getPose);
         hood = new Hood(new HoodIOReal(), swerve::getPose);
         intake = new Intake(new IntakeIOReal());
         feeder = new Feeder(new FeederIOReal());
@@ -106,6 +112,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
 
+        shooter = new Shooter(new ShooterIOSim(), swerve::getPose);
         hood = new Hood(new HoodIOSim(), swerve::getPose);
         intake = new Intake(new IntakeIOSim());
         feeder = new Feeder(new FeederIOSim());
@@ -128,8 +135,9 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        hood = new Hood(new HoodIO() {}, swerve::getPose);
 
+        shooter = new Shooter(new ShooterIO() {}, swerve::getPose);
+        hood = new Hood(new HoodIO() {}, swerve::getPose);
         intake = new Intake(new IntakeIO() {});
         indexer = new Indexer(new IndexerIO() {});
         feeder = new Feeder(new FeederIO() {});
