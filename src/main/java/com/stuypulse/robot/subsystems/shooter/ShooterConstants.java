@@ -30,6 +30,10 @@ public interface ShooterConstants {
 
         Current IS_SHOOTING_CURRENT = Amps.of(30);
         Time IS_SHOOTING_DEBOUNCE = Seconds.of(2);
+
+        //TODO: CHANGE TO REAL VALUES
+        AngularVelocity KB_VELOCITY = RPM.of(69); //place holder
+        AngularVelocity TOWER_VELOCITY = RPM.of(16); //place holder
     }
 
     public interface ShooterIds { // placeholders

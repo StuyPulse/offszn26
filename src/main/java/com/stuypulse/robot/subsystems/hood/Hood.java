@@ -43,7 +43,9 @@ public class Hood extends FullSubsystem {
     public enum HoodState {
         SHOOT,
         FERRY,
-        STOW
+        STOW,
+        KB,
+        TOWER
     }
 
     private void setState(HoodState state) {
@@ -68,6 +70,10 @@ public class Hood extends FullSubsystem {
             case FERRY -> runPosition(HoodSettings.FERRY_ANGLE);
 
             case STOW -> runPosition(HoodSettings.STOW_ANGLE);
+
+            case KB -> runPosition(HoodSettings.KB_ANGLE);
+
+            case TOWER -> runPosition(HoodSettings.TOWER_ANGLE);
         }
     }
 
@@ -100,6 +106,14 @@ public class Hood extends FullSubsystem {
 
     public Command ferry() {
         return runOnce(() -> setState(HoodState.FERRY)).withName("Hood Ferry");
+    }
+
+    public Command kb() {
+        return runOnce(() -> setState(HoodState.KB)).withName("Hood KB");
+    }
+
+    public Command tower() {
+        return runOnce(() -> setState(HoodState.TOWER)).withName("Hood tower");
     }
 
     public Command stow() {

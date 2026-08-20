@@ -20,6 +20,11 @@ public interface HoodConstants {
         Angle FERRY_ANGLE = Degrees.of(30);
 
         Angle TOLERANCE = Degrees.of(3);
+
+        //TODO: GET ACTUAL ANLGE FOR KB AND TOWER
+        Angle KB_ANGLE = Degrees.of(694);
+
+        Angle TOWER_ANGLE = Degrees.of(516);
     }
 
     public interface HoodGains {
