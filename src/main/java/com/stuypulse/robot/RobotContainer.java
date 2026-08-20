@@ -13,6 +13,10 @@ import com.stuypulse.robot.subsystems.feeder.Feeder;
 import com.stuypulse.robot.subsystems.feeder.FeederIO;
 import com.stuypulse.robot.subsystems.feeder.FeederIOReal;
 import com.stuypulse.robot.subsystems.feeder.FeederIOSim;
+import com.stuypulse.robot.subsystems.hood.Hood;
+import com.stuypulse.robot.subsystems.hood.HoodIO;
+import com.stuypulse.robot.subsystems.hood.HoodIOReal;
+import com.stuypulse.robot.subsystems.hood.HoodIOSim;
 import com.stuypulse.robot.subsystems.indexer.Indexer;
 import com.stuypulse.robot.subsystems.indexer.IndexerIO;
 import com.stuypulse.robot.subsystems.indexer.IndexerIOReal;
@@ -52,6 +56,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Swerve swerve;
+  private final Hood hood;
   private final Intake intake;
   private final Feeder feeder;
   private final Vision vision;
@@ -77,6 +82,7 @@ public class RobotContainer {
                 new ModuleIOReal(TunerConstants.BackLeft),
                 new ModuleIOReal(TunerConstants.BackRight));
 
+        hood = new Hood(new HoodIOReal(), swerve::getPose);
         intake = new Intake(new IntakeIOReal());
         feeder = new Feeder(new FeederIOReal());
         indexer = new Indexer(new IndexerIOReal());
@@ -100,6 +106,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
 
+        hood = new Hood(new HoodIOSim(), swerve::getPose);
         intake = new Intake(new IntakeIOSim());
         feeder = new Feeder(new FeederIOSim());
         indexer = new Indexer(new IndexerIOSim());
@@ -121,6 +128,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+        hood = new Hood(new HoodIO() {}, swerve::getPose);
 
         intake = new Intake(new IntakeIO() {});
         indexer = new Indexer(new IndexerIO() {});
