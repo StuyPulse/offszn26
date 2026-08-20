@@ -14,6 +14,12 @@ public interface GlobalSettings {
   // Add subsystems as they're added.
   public interface EnabledSubsystems {
     LoggedNetworkBoolean HOOD = new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Hood", true);
+    LoggedNetworkBoolean INDEXER =
+        new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Indexer", true);
+    LoggedNetworkBoolean INTAKE =
+        new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Intake", true);
+    LoggedNetworkBoolean FEEDER =
+        new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Feeder", true);
     LoggedNetworkBoolean VISION =
         new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Vision", true);
   }
