@@ -27,6 +27,8 @@ public interface ShooterConstants {
 
         // TODO: Needs tuning
         AngularVelocity TOLERANCE = RPM.of(100);
+
+        Current IS_SHOOTING_CURRENT = Amps.of(30);
     }
 
     public interface ShooterIds { // placeholders
