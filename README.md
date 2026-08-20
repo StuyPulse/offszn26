@@ -40,8 +40,8 @@
 ## Drivetrain
 **POIs**: 
 - [`src/main/java/com/stuypulse/robot/subsystems/swerve`](src/main/java/com/stuypulse/robot/subsystems/swerve)
-- [`src/main/java/com/stuypulse/robot/util/swerve/swerveinput/DriveInputProcessor.java`](src/main/java/com/stuypulse/robot/util/swerve/DriveInputProcessor.java)
-- [`src/main/java/com/stuypulse/robot/util/swerve/swerveinput/DriveTurnInputProcessor.java`](src/main/java/com/stuypulse/robot/util/swerve/DriveTurnInputProcessor.java)
+- [`src/main/java/com/stuypulse/robot/util/swerve/DriveInputProcessor.java`](src/main/java/com/stuypulse/robot/util/swerve/DriveInputProcessor.java)
+- [`src/main/java/com/stuypulse/robot/util/swerve/DriveTurnInputProcessor.java`](src/main/java/com/stuypulse/robot/util/swerve/DriveTurnInputProcessor.java)
 
 We utilize a raised swerve drivetrain with CTRE Phoenix 6 hardware and four swerve modules, letting us independently rotate the wheels. This allows for higher manueverability.
 
