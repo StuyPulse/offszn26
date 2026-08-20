@@ -4,8 +4,6 @@
 /**************************************************************/
 package com.stuypulse.robot;
 
-import java.util.EnumMap;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.constants.DriverConstants;
@@ -15,6 +13,10 @@ import com.stuypulse.robot.subsystems.feeder.Feeder;
 import com.stuypulse.robot.subsystems.feeder.FeederIO;
 import com.stuypulse.robot.subsystems.feeder.FeederIOReal;
 import com.stuypulse.robot.subsystems.feeder.FeederIOSim;
+import com.stuypulse.robot.subsystems.indexer.Indexer;
+import com.stuypulse.robot.subsystems.indexer.IndexerIO;
+import com.stuypulse.robot.subsystems.indexer.IndexerIOReal;
+import com.stuypulse.robot.subsystems.indexer.IndexerIOSim;
 import com.stuypulse.robot.subsystems.swerve.GyroIO;
 import com.stuypulse.robot.subsystems.swerve.GyroIOReal;
 import com.stuypulse.robot.subsystems.swerve.ModuleIO;
@@ -34,7 +36,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import java.util.EnumMap;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -48,6 +50,7 @@ public class RobotContainer {
   private final Swerve swerve;
   private final Feeder feeder;
   private final Vision vision;
+  private final Indexer indexer;
 
   // Controller
   private final CommandXboxController controller;
@@ -70,13 +73,15 @@ public class RobotContainer {
                 new ModuleIOReal(TunerConstants.BackRight));
 
         feeder = new Feeder(new FeederIOReal());
+        indexer = new Indexer(new IndexerIOReal());
 
         for (Cameras camera : Cameras.values()) {
-            if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
-                cameraIOMap.put(camera, new VisionIOLimelight(camera.getName(), swerve::getRotation));
-            } else {
-                cameraIOMap.put(camera, new VisionIOPhotonVision(camera.getName(), camera.getRobotToCamera()));
-            }
+          if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
+            cameraIOMap.put(camera, new VisionIOLimelight(camera.getName(), swerve::getRotation));
+          } else {
+            cameraIOMap.put(
+                camera, new VisionIOPhotonVision(camera.getName(), camera.getRobotToCamera()));
+          }
         }
       }
 
@@ -88,10 +93,15 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+
         feeder = new Feeder(new FeederIOSim());
+        indexer = new Indexer(new IndexerIOSim());
 
         for (Cameras camera : Cameras.values()) {
-            cameraIOMap.put(camera, new VisionIOPhotonVisionSim(camera.getName(), camera.getRobotToCamera(), swerve::getPose));
+          cameraIOMap.put(
+              camera,
+              new VisionIOPhotonVisionSim(
+                  camera.getName(), camera.getRobotToCamera(), swerve::getPose));
         }
       }
 
@@ -105,10 +115,11 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
+        indexer = new Indexer(new IndexerIO() {});
         feeder = new Feeder(new FeederIO() {});
 
         for (Cameras camera : Cameras.values()) {
-            cameraIOMap.put(camera, new VisionIO() {});
+          cameraIOMap.put(camera, new VisionIO() {});
         }
       }
     }
