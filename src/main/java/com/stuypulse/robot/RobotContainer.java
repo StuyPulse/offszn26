@@ -217,5 +217,6 @@ public class RobotContainer {
 
     public void clearMemoized() {
         InterpolationCalculator.clearMemoized();
+        swerve.clearMemoized();
     }
 }

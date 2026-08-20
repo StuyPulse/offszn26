@@ -14,11 +14,14 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
+import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.constants.GlobalSettings.Mode;
+import com.stuypulse.robot.subsystems.swerve.SwerveConstants.SwerveSettings.Alignment;
 import com.stuypulse.robot.subsystems.vision.Vision.VisionConsumer;
 import com.stuypulse.robot.util.FullSubsystem;
 import com.stuypulse.robot.util.LocalADStarAK;
+import com.stuypulse.robot.util.swerve.AlignmentUtil;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -41,6 +44,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -105,6 +110,8 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
     private SwerveDrivePoseEstimator poseEstimator =
             new SwerveDrivePoseEstimator(
                     kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+    
+    private Optional<Pose2d> pose = Optional.empty();
 
     public Swerve(
             GyroIO gyroIO,
@@ -285,6 +292,27 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
                 .andThen(sysId.dynamic(direction));
     }
 
+    public boolean isAlignedToPose(Pose2d targetPose) {
+        Pose2d currentPose = getPose();
+
+        return Math.abs(
+                        currentPose
+                                .getRotation()
+                                .minus(
+                                        AlignmentUtil.getTargetAlignmentAngle(
+                                                currentPose, targetPose))
+                                .getDegrees())
+                < Alignment.SHOOTING_TOLERANCE.getDegrees();
+    }
+
+    public boolean isAlignedToHub() {
+        return isAlignedToPose(Field.HUB_CENTER);
+    }
+
+    public boolean isAlignedToFerryZone() {
+        return isAlignedToPose(Field.getFerryZonePose(getPose().getTranslation()));
+    }
+
     /** Returns the module states (turn angles and drive velocities) for all of the modules. */
     @AutoLogOutput(key = "SwerveStates/Measured")
     private SwerveModuleState[] getModuleStates() {
@@ -331,7 +359,11 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
     /** Returns the current odometry pose. */
     @AutoLogOutput(key = "Odometry/Robot")
     public Pose2d getPose() {
-        return poseEstimator.getEstimatedPosition();
+        if (pose.isEmpty()) {
+            pose = Optional.of(poseEstimator.getEstimatedPosition());
+        }
+
+        return pose.get();
     }
 
     /** Returns the current odometry rotation. */
@@ -384,5 +416,9 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
             new Translation2d(
                     TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
         };
+    }
+
+    public void clearMemoized() {
+        pose = Optional.empty();
     }
 }
