@@ -10,6 +10,7 @@ public interface SwerveConstants {
         public interface Alignment {
             // TODO: Placeholder values, needs tuning
             Rotation2d THETA_TOLERANCE = Rotation2d.fromDegrees(3.0);
+            Rotation2d SHOOTING_TOLERANCE = Rotation2d.fromDegrees(10);
 
             Time IS_ALIGNED_DEBOUNCE = Seconds.of(0.5);
 

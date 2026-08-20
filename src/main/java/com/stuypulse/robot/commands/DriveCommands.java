@@ -137,14 +137,13 @@ public class DriveCommands {
                         SwerveSettings.Alignment.IS_ALIGNED_DEBOUNCE.in(Seconds),
                         DebounceType.kBoth);
 
+        Rotation2d targetHeading =
+                AlignmentUtil.getTargetAlignmentAngle(swerve.getPose(), targetPose);
+
         angleController.enableContinuousInput(-Math.PI, Math.PI);
 
         return Commands.runEnd(
                         () -> {
-                            Rotation2d targetHeading =
-                                    AlignmentUtil.getTargetAlignmentAngle(
-                                            swerve.getPose(), targetPose);
-
                             ChassisSpeeds speeds =
                                     new ChassisSpeeds(
                                             0,
