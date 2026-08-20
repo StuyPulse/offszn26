@@ -70,14 +70,14 @@ public class Indexer extends FullSubsystem {
   }
 
   public Command runForward() {
-    return runOnce(() -> setState(IndexerState.FORWARD));
+    return runOnce(() -> setState(IndexerState.FORWARD)).withName("Indexer Forward");
   }
 
   public Command runReverse() {
-    return runOnce(() -> setState(IndexerState.REVERSE));
+    return runOnce(() -> setState(IndexerState.REVERSE)).withName("Indexer Reverse");
   }
 
   public Command stop() {
-    return runOnce(() -> setState(IndexerState.STOP));
+    return runOnce(() -> setState(IndexerState.STOP)).withName("Indexer Stop");
   }
 }
