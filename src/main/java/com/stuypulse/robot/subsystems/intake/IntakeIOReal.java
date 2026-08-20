@@ -33,7 +33,6 @@ public class IntakeIOReal implements IntakeIO {
         this.pivotPositionController = new PositionVoltage(0).withEnableFOC(true);
 
         rollerRightMotor.setControl(rollerFollowerController);
-        pivotMotor.setControl(pivotPositionController);
     }
 
     @Override
