@@ -17,92 +17,92 @@ import org.littletonrobotics.junction.Logger;
 
 public class Hood extends FullSubsystem {
 
-  private final HoodIO io;
-  private final HoodIOInputsAutoLogged inputs;
-  private final HoodIOOutputs outputs;
+    private final HoodIO io;
+    private final HoodIOInputsAutoLogged inputs;
+    private final HoodIOOutputs outputs;
 
-  private final Supplier<Pose2d> poseSupplier;
+    private final Supplier<Pose2d> poseSupplier;
 
-  private boolean atTolerance;
+    private boolean atTolerance;
 
-  @AutoLogOutput(key = "Hood/State")
-  private HoodState state;
+    @AutoLogOutput(key = "Hood/State")
+    private HoodState state;
 
-  public Hood(HoodIO io, Supplier<Pose2d> poseSupplier) {
-    this.io = io;
-    inputs = new HoodIOInputsAutoLogged();
-    outputs = new HoodIOOutputs();
+    public Hood(HoodIO io, Supplier<Pose2d> poseSupplier) {
+        this.io = io;
+        inputs = new HoodIOInputsAutoLogged();
+        outputs = new HoodIOOutputs();
 
-    this.poseSupplier = poseSupplier;
+        this.poseSupplier = poseSupplier;
 
-    atTolerance = false;
+        atTolerance = false;
 
-    setState(HoodState.STOW);
-  }
-
-  public enum HoodState {
-    SHOOT,
-    FERRY,
-    STOW
-  }
-
-  private void setState(HoodState state) {
-    this.state = state;
-  }
-
-  @Override
-  public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("Hood", inputs);
-
-    if (!GlobalSettings.EnabledSubsystems.HOOD.get()) {
-      stopMotor();
-
-      return;
+        setState(HoodState.STOW);
     }
 
-    switch (state) {
-      case SHOOT -> runPosition(
-          InterpolationCalculator.getInterpolatedShotHoodPosition(poseSupplier.get()));
-
-      case FERRY -> runPosition(HoodSettings.FERRY_ANGLE);
-
-      case STOW -> runPosition(HoodSettings.STOW_ANGLE);
+    public enum HoodState {
+        SHOOT,
+        FERRY,
+        STOW
     }
-  }
 
-  @Override
-  public void periodicAfterScheduler() {
-    io.applyOutputs(outputs);
-  }
+    private void setState(HoodState state) {
+        this.state = state;
+    }
 
-  @AutoLogOutput(key = "Hood/At Tolerance")
-  public boolean atTolerance() {
-    return atTolerance;
-  }
+    @Override
+    public void periodic() {
+        io.updateInputs(inputs);
+        Logger.processInputs("Hood", inputs);
 
-  private void runPosition(Angle position) {
-    outputs.hoodMode = HoodIOOutputMode.POSITION;
-    outputs.hoodTargetPosition = position;
+        if (!GlobalSettings.EnabledSubsystems.HOOD.get()) {
+            stopMotor();
 
-    atTolerance =
-        inputs.hoodInputs.position.minus(position).abs(Degrees)
-            <= HoodSettings.TOLERANCE.in(Degrees);
-  }
+            return;
+        }
 
-  private void stopMotor() {
-    outputs.hoodMode = HoodIOOutputMode.STOP;
-  }
+        switch (state) {
+            case SHOOT -> runPosition(
+                    InterpolationCalculator.getInterpolatedShotHoodPosition(poseSupplier.get()));
 
-  public Command shoot() {
-    return runOnce(() -> setState(HoodState.SHOOT)).withName("Hood Shoot");
-  }
+            case FERRY -> runPosition(HoodSettings.FERRY_ANGLE);
 
-  public Command ferry() {
-    return runOnce(() -> setState(HoodState.FERRY)).withName("Hood Ferry");
-  }
+            case STOW -> runPosition(HoodSettings.STOW_ANGLE);
+        }
+    }
 
-  public Command stow() {
-    return runOnce(() -> setState(HoodState.STOW)).withName("Hood Stow");
-  }
+    @Override
+    public void periodicAfterScheduler() {
+        io.applyOutputs(outputs);
+    }
+
+    @AutoLogOutput(key = "Hood/At Tolerance")
+    public boolean atTolerance() {
+        return atTolerance;
+    }
+
+    private void runPosition(Angle position) {
+        outputs.hoodMode = HoodIOOutputMode.POSITION;
+        outputs.hoodTargetPosition = position;
+
+        atTolerance =
+                inputs.hoodInputs.position.minus(position).abs(Degrees)
+                        <= HoodSettings.TOLERANCE.in(Degrees);
+    }
+
+    private void stopMotor() {
+        outputs.hoodMode = HoodIOOutputMode.STOP;
+    }
+
+    public Command shoot() {
+        return runOnce(() -> setState(HoodState.SHOOT)).withName("Hood Shoot");
+    }
+
+    public Command ferry() {
+        return runOnce(() -> setState(HoodState.FERRY)).withName("Hood Ferry");
+    }
+
+    public Command stow() {
+        return runOnce(() -> setState(HoodState.STOW)).withName("Hood Stow");
+    }
 }

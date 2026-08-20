@@ -11,41 +11,42 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class HoodIOSim implements HoodIO {
 
-  private final SystemSim<DCMotorSim> hoodSystem;
+    private final SystemSim<DCMotorSim> hoodSystem;
 
-  private final TalonFXSimulation hoodMotor;
+    private final TalonFXSimulation hoodMotor;
 
-  private final PositionVoltage positionController;
+    private final PositionVoltage positionController;
 
-  public HoodIOSim() {
-    hoodSystem =
-        SystemSim.of(
-            new DCMotorSim(
-                LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44Foc(1), 0.01, 1),
-                DCMotor.getKrakenX44Foc(1)));
+    public HoodIOSim() {
+        hoodSystem =
+                SystemSim.of(
+                        new DCMotorSim(
+                                LinearSystemId.createDCMotorSystem(
+                                        DCMotor.getKrakenX44Foc(1), 0.01, 1),
+                                DCMotor.getKrakenX44Foc(1)));
 
-    hoodMotor = new TalonFXSimulation(HoodDeviceIds.HOOD_MOTOR, 1, hoodSystem);
+        hoodMotor = new TalonFXSimulation(HoodDeviceIds.HOOD_MOTOR, 1, hoodSystem);
 
-    hoodMotor.configure(HoodMotorConfigs.HOOD_CONFIG);
+        hoodMotor.configure(HoodMotorConfigs.HOOD_CONFIG);
 
-    positionController = new PositionVoltage(0).withEnableFOC(true);
-  }
-
-  @Override
-  public void updateInputs(HoodIOInputs inputs) {
-    hoodSystem.update(GlobalSettings.DT);
-    hoodMotor.refresh();
-
-    hoodMotor.updateInputs(inputs.hoodInputs);
-  }
-
-  @Override
-  public void applyOutputs(HoodIOOutputs outputs) {
-    switch (outputs.hoodMode) {
-      case POSITION -> hoodMotor.setControl(
-          positionController.withPosition(outputs.hoodTargetPosition));
-
-      case STOP -> hoodMotor.stopMotor();
+        positionController = new PositionVoltage(0).withEnableFOC(true);
     }
-  }
+
+    @Override
+    public void updateInputs(HoodIOInputs inputs) {
+        hoodSystem.update(GlobalSettings.DT);
+        hoodMotor.refresh();
+
+        hoodMotor.updateInputs(inputs.hoodInputs);
+    }
+
+    @Override
+    public void applyOutputs(HoodIOOutputs outputs) {
+        switch (outputs.hoodMode) {
+            case POSITION -> hoodMotor.setControl(
+                    positionController.withPosition(outputs.hoodTargetPosition));
+
+            case STOP -> hoodMotor.stopMotor();
+        }
+    }
 }

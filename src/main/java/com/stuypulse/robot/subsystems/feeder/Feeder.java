@@ -10,74 +10,74 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Feeder extends FullSubsystem {
-  private final FeederIO io;
-  private final FeederIOInputsAutoLogged inputs;
-  private final FeederIOOutputs outputs;
+    private final FeederIO io;
+    private final FeederIOInputsAutoLogged inputs;
+    private final FeederIOOutputs outputs;
 
-  @AutoLogOutput(key = "Feeder/State")
-  private FeederState state;
+    @AutoLogOutput(key = "Feeder/State")
+    private FeederState state;
 
-  public Feeder(FeederIO io) {
-    this.io = io;
-    inputs = new FeederIOInputsAutoLogged();
-    outputs = new FeederIOOutputs();
+    public Feeder(FeederIO io) {
+        this.io = io;
+        inputs = new FeederIOInputsAutoLogged();
+        outputs = new FeederIOOutputs();
 
-    setState(FeederState.STOP);
-  }
-
-  public enum FeederState {
-    FORWARD,
-    REVERSE,
-    STOP
-  }
-
-  private void setState(FeederState state) {
-    this.state = state;
-  }
-
-  @Override
-  public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("Feeder", inputs);
-
-    if (!GlobalSettings.EnabledSubsystems.FEEDER.get()) {
-      stopMotor();
-
-      return;
+        setState(FeederState.STOP);
     }
 
-    switch (state) {
-      case FORWARD -> runDutyCycle(FeederSettings.FORWARD_DUTY_CYCLE);
-
-      case REVERSE -> runDutyCycle(FeederSettings.REVERSE_DUTY_CYCLE);
-
-      case STOP -> stopMotor();
+    public enum FeederState {
+        FORWARD,
+        REVERSE,
+        STOP
     }
-  }
 
-  @Override
-  public void periodicAfterScheduler() {
-    io.applyOutputs(outputs);
-  }
+    private void setState(FeederState state) {
+        this.state = state;
+    }
 
-  private void runDutyCycle(double dutyCycle) {
-    outputs.feederMode = FeederIOOutputMode.DUTY_CYCLE;
-    outputs.targetDutyCycle = dutyCycle;
-  }
+    @Override
+    public void periodic() {
+        io.updateInputs(inputs);
+        Logger.processInputs("Feeder", inputs);
 
-  private void stopMotor() {
-    outputs.feederMode = FeederIOOutputMode.STOP;
-  }
+        if (!GlobalSettings.EnabledSubsystems.FEEDER.get()) {
+            stopMotor();
 
-  public Command runForward() {
-    return runOnce(() -> setState(FeederState.FORWARD)).withName("Feeder Forward");
-  }
+            return;
+        }
 
-  public Command runReverse() {
-    return runOnce(() -> setState(FeederState.REVERSE)).withName("Feeder Reverse");
-  }
+        switch (state) {
+            case FORWARD -> runDutyCycle(FeederSettings.FORWARD_DUTY_CYCLE);
 
-  public Command stop() {
-    return runOnce(() -> setState(FeederState.STOP)).withName("Feeder Stop");
-  }
+            case REVERSE -> runDutyCycle(FeederSettings.REVERSE_DUTY_CYCLE);
+
+            case STOP -> stopMotor();
+        }
+    }
+
+    @Override
+    public void periodicAfterScheduler() {
+        io.applyOutputs(outputs);
+    }
+
+    private void runDutyCycle(double dutyCycle) {
+        outputs.feederMode = FeederIOOutputMode.DUTY_CYCLE;
+        outputs.targetDutyCycle = dutyCycle;
+    }
+
+    private void stopMotor() {
+        outputs.feederMode = FeederIOOutputMode.STOP;
+    }
+
+    public Command runForward() {
+        return runOnce(() -> setState(FeederState.FORWARD)).withName("Feeder Forward");
+    }
+
+    public Command runReverse() {
+        return runOnce(() -> setState(FeederState.REVERSE)).withName("Feeder Reverse");
+    }
+
+    public Command stop() {
+        return runOnce(() -> setState(FeederState.STOP)).withName("Feeder Stop");
+    }
 }

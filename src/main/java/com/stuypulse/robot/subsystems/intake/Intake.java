@@ -12,129 +12,129 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends FullSubsystem {
-  private final IntakeIO io;
-  private final IntakeIOInputsAutoLogged inputs;
-  private final IntakeIOOutputs outputs;
+    private final IntakeIO io;
+    private final IntakeIOInputsAutoLogged inputs;
+    private final IntakeIOOutputs outputs;
 
-  @AutoLogOutput(key = "Intake/Pivot/State")
-  private PivotState pivotState;
+    @AutoLogOutput(key = "Intake/Pivot/State")
+    private PivotState pivotState;
 
-  @AutoLogOutput(key = "Intake/Rollers/State")
-  private RollerState rollerState;
+    @AutoLogOutput(key = "Intake/Rollers/State")
+    private RollerState rollerState;
 
-  public Intake(IntakeIO io) {
-    this.io = io;
-    inputs = new IntakeIOInputsAutoLogged();
-    outputs = new IntakeIOOutputs();
+    public Intake(IntakeIO io) {
+        this.io = io;
+        inputs = new IntakeIOInputsAutoLogged();
+        outputs = new IntakeIOOutputs();
 
-    setPivotState(PivotState.STOW);
-    setRollerState(RollerState.STOP);
-  }
-
-  public enum PivotState {
-    DEPLOY,
-    STOW
-  }
-
-  public enum RollerState {
-    INTAKE,
-    OUTTAKE,
-    STOP
-  }
-
-  private void setPivotState(PivotState state) {
-    this.pivotState = state;
-  }
-
-  private void setRollerState(RollerState state) {
-    this.rollerState = state;
-  }
-
-  @Override
-  public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("Intake", inputs);
-
-    if (!GlobalSettings.EnabledSubsystems.INTAKE.get()) {
-      stopPivotMotor();
-      stopRollerMotors();
-
-      return;
+        setPivotState(PivotState.STOW);
+        setRollerState(RollerState.STOP);
     }
 
-    switch (pivotState) {
-      case DEPLOY -> runPivotPosition(IntakeSettings.PIVOT_DEPLOY_ANGLE);
-
-      case STOW -> runPivotPosition(IntakeSettings.PIVOT_STOW_ANGLE);
+    public enum PivotState {
+        DEPLOY,
+        STOW
     }
 
-    if (!canRunRollers()) {
-      stopRollerMotors();
-
-      return;
+    public enum RollerState {
+        INTAKE,
+        OUTTAKE,
+        STOP
     }
 
-    switch (rollerState) {
-      case INTAKE -> runRollersDutyCycle(IntakeSettings.INTAKE_DUTY_CYCLE);
-
-      case OUTTAKE -> runRollersDutyCycle(IntakeSettings.OUTTAKE_DUTY_CYCLE);
-
-      case STOP -> stopRollerMotors();
+    private void setPivotState(PivotState state) {
+        this.pivotState = state;
     }
-  }
 
-  @Override
-  public void periodicAfterScheduler() {
-    io.applyOutputs(outputs);
-  }
+    private void setRollerState(RollerState state) {
+        this.rollerState = state;
+    }
 
-  private boolean canRunRollers() {
-    return inputs.pivotInputs.position.lte(IntakeSettings.ROLLER_START_THRESHOLD)
-        && pivotState == PivotState.DEPLOY;
-  }
+    @Override
+    public void periodic() {
+        io.updateInputs(inputs);
+        Logger.processInputs("Intake", inputs);
 
-  private void runPivotPosition(Angle position) {
-    outputs.pivotMode = PivotIOOutputMode.POSITION;
-    outputs.pivotTargetPosition = position;
-  }
+        if (!GlobalSettings.EnabledSubsystems.INTAKE.get()) {
+            stopPivotMotor();
+            stopRollerMotors();
 
-  private void runRollersDutyCycle(double dutyCycle) {
-    outputs.rollerMode = RollerIOOutputMode.DUTY_CYCLE;
-    outputs.rollerTargetDutyCycle = dutyCycle;
-  }
+            return;
+        }
 
-  private void stopPivotMotor() {
-    outputs.pivotMode = PivotIOOutputMode.STOP;
-  }
+        switch (pivotState) {
+            case DEPLOY -> runPivotPosition(IntakeSettings.PIVOT_DEPLOY_ANGLE);
 
-  private void stopRollerMotors() {
-    outputs.rollerMode = RollerIOOutputMode.STOP;
-  }
+            case STOW -> runPivotPosition(IntakeSettings.PIVOT_STOW_ANGLE);
+        }
 
-  public Command intake() {
-    return runOnce(
-            () -> {
-              setPivotState(PivotState.DEPLOY);
-              setRollerState(RollerState.INTAKE);
-            })
-        .withName("Intake Intake");
-  }
+        if (!canRunRollers()) {
+            stopRollerMotors();
 
-  public Command outtake() {
-    return runOnce(
-            () -> {
-              setPivotState(PivotState.DEPLOY);
-              setRollerState(RollerState.OUTTAKE);
-            })
-        .withName("Intake Outtake");
-  }
+            return;
+        }
 
-  public Command stow() {
-    return runOnce(
-            () -> {
-              setPivotState(PivotState.STOW);
-              setRollerState(RollerState.STOP);
-            })
-        .withName("Intake Stow");
-  }
+        switch (rollerState) {
+            case INTAKE -> runRollersDutyCycle(IntakeSettings.INTAKE_DUTY_CYCLE);
+
+            case OUTTAKE -> runRollersDutyCycle(IntakeSettings.OUTTAKE_DUTY_CYCLE);
+
+            case STOP -> stopRollerMotors();
+        }
+    }
+
+    @Override
+    public void periodicAfterScheduler() {
+        io.applyOutputs(outputs);
+    }
+
+    private boolean canRunRollers() {
+        return inputs.pivotInputs.position.lte(IntakeSettings.ROLLER_START_THRESHOLD)
+                && pivotState == PivotState.DEPLOY;
+    }
+
+    private void runPivotPosition(Angle position) {
+        outputs.pivotMode = PivotIOOutputMode.POSITION;
+        outputs.pivotTargetPosition = position;
+    }
+
+    private void runRollersDutyCycle(double dutyCycle) {
+        outputs.rollerMode = RollerIOOutputMode.DUTY_CYCLE;
+        outputs.rollerTargetDutyCycle = dutyCycle;
+    }
+
+    private void stopPivotMotor() {
+        outputs.pivotMode = PivotIOOutputMode.STOP;
+    }
+
+    private void stopRollerMotors() {
+        outputs.rollerMode = RollerIOOutputMode.STOP;
+    }
+
+    public Command intake() {
+        return runOnce(
+                        () -> {
+                            setPivotState(PivotState.DEPLOY);
+                            setRollerState(RollerState.INTAKE);
+                        })
+                .withName("Intake Intake");
+    }
+
+    public Command outtake() {
+        return runOnce(
+                        () -> {
+                            setPivotState(PivotState.DEPLOY);
+                            setRollerState(RollerState.OUTTAKE);
+                        })
+                .withName("Intake Outtake");
+    }
+
+    public Command stow() {
+        return runOnce(
+                        () -> {
+                            setPivotState(PivotState.STOW);
+                            setRollerState(RollerState.STOP);
+                        })
+                .withName("Intake Stow");
+    }
 }

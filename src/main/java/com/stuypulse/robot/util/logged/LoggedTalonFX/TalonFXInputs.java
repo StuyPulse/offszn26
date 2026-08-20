@@ -35,79 +35,79 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
  * @author Faizaan (https://github.com/Faizaan-J)
  */
 public class TalonFXInputs implements LoggableInputs, Cloneable {
-  public Current supplyCurrent = Amps.zero();
-  public Current statorCurrent = Amps.zero();
-  public Temperature temperature = Celsius.zero();
-  public Angle position = Degrees.zero();
-  public Voltage appliedVoltage = Volts.zero();
-  public AngularVelocity velocity = DegreesPerSecond.zero();
+    public Current supplyCurrent = Amps.zero();
+    public Current statorCurrent = Amps.zero();
+    public Temperature temperature = Celsius.zero();
+    public Angle position = Degrees.zero();
+    public Voltage appliedVoltage = Volts.zero();
+    public AngularVelocity velocity = DegreesPerSecond.zero();
 
-  private Map<String, Object> additionalSignalValues = new HashMap<>();
+    private Map<String, Object> additionalSignalValues = new HashMap<>();
 
-  /**
-   * Records additional StatusSignals to be logged.
-   *
-   * @param signals The signals to log.
-   */
-  void recordAdditionalSignal(String name, Object value) {
-    this.additionalSignalValues.put(name, value);
-  }
-
-  /**
-   * Returns the value of an additional logged StatusSignal, or null if signal is not logged.
-   *
-   * @param <T> The type of the signal value.
-   * @param name The name of the StatusSignal to retrieve.
-   * @param type The type of the signal value.
-   * @return The value of the signal, or null if not logged.
-   */
-  public <T> T getAdditionalSignal(String name, Class<T> type) {
-    Object value = additionalSignalValues.get(name);
-    if (value == null) {
-      return null;
+    /**
+     * Records additional StatusSignals to be logged.
+     *
+     * @param signals The signals to log.
+     */
+    void recordAdditionalSignal(String name, Object value) {
+        this.additionalSignalValues.put(name, value);
     }
 
-    return type.cast(value);
-  }
+    /**
+     * Returns the value of an additional logged StatusSignal, or null if signal is not logged.
+     *
+     * @param <T> The type of the signal value.
+     * @param name The name of the StatusSignal to retrieve.
+     * @param type The type of the signal value.
+     * @return The value of the signal, or null if not logged.
+     */
+    public <T> T getAdditionalSignal(String name, Class<T> type) {
+        Object value = additionalSignalValues.get(name);
+        if (value == null) {
+            return null;
+        }
 
-  @Override
-  public void toLog(LogTable table) {
-    table.put("SupplyCurrent", supplyCurrent);
-    table.put("StatorCurrent", statorCurrent);
-    table.put("Temperature", temperature);
-    table.put("Position", position);
-    table.put("AppliedVoltage", appliedVoltage);
-    table.put("Velocity", velocity);
-
-    for (Entry<String, Object> entry : additionalSignalValues.entrySet()) {
-      LogTableUtil.put(table, entry.getKey(), entry.getValue());
+        return type.cast(value);
     }
-  }
 
-  @Override
-  public void fromLog(LogTable table) {
-    supplyCurrent = table.get("SupplyCurrent", supplyCurrent);
-    statorCurrent = table.get("StatorCurrent", statorCurrent);
-    temperature = table.get("Temperature", temperature);
-    position = table.get("Position", position);
-    appliedVoltage = table.get("AppliedVoltage", appliedVoltage);
-    velocity = table.get("Velocity", velocity);
+    @Override
+    public void toLog(LogTable table) {
+        table.put("SupplyCurrent", supplyCurrent);
+        table.put("StatorCurrent", statorCurrent);
+        table.put("Temperature", temperature);
+        table.put("Position", position);
+        table.put("AppliedVoltage", appliedVoltage);
+        table.put("Velocity", velocity);
 
-    for (Entry<String, Object> entry : additionalSignalValues.entrySet()) {
-      additionalSignalValues.put(
-          entry.getKey(), LogTableUtil.get(table, entry.getKey(), entry.getValue()));
+        for (Entry<String, Object> entry : additionalSignalValues.entrySet()) {
+            LogTableUtil.put(table, entry.getKey(), entry.getValue());
+        }
     }
-  }
 
-  public TalonFXInputs clone() {
-    TalonFXInputs copy = new TalonFXInputs();
-    copy.supplyCurrent = this.supplyCurrent;
-    copy.statorCurrent = this.statorCurrent;
-    copy.temperature = this.temperature;
-    copy.position = this.position;
-    copy.appliedVoltage = this.appliedVoltage;
-    copy.velocity = this.velocity;
-    copy.additionalSignalValues = new HashMap<>(this.additionalSignalValues);
-    return copy;
-  }
+    @Override
+    public void fromLog(LogTable table) {
+        supplyCurrent = table.get("SupplyCurrent", supplyCurrent);
+        statorCurrent = table.get("StatorCurrent", statorCurrent);
+        temperature = table.get("Temperature", temperature);
+        position = table.get("Position", position);
+        appliedVoltage = table.get("AppliedVoltage", appliedVoltage);
+        velocity = table.get("Velocity", velocity);
+
+        for (Entry<String, Object> entry : additionalSignalValues.entrySet()) {
+            additionalSignalValues.put(
+                    entry.getKey(), LogTableUtil.get(table, entry.getKey(), entry.getValue()));
+        }
+    }
+
+    public TalonFXInputs clone() {
+        TalonFXInputs copy = new TalonFXInputs();
+        copy.supplyCurrent = this.supplyCurrent;
+        copy.statorCurrent = this.statorCurrent;
+        copy.temperature = this.temperature;
+        copy.position = this.position;
+        copy.appliedVoltage = this.appliedVoltage;
+        copy.velocity = this.velocity;
+        copy.additionalSignalValues = new HashMap<>(this.additionalSignalValues);
+        return copy;
+    }
 }

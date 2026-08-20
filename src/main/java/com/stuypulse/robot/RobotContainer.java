@@ -58,156 +58,164 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // Subsystems
-  private final Swerve swerve;
-  private final Hood hood;
-  private final Intake intake;
-  private final Feeder feeder;
-  private final Vision vision;
-  private final Shooter shooter;
-  private final Indexer indexer;
+    // Subsystems
+    private final Swerve swerve;
+    private final Hood hood;
+    private final Intake intake;
+    private final Feeder feeder;
+    private final Vision vision;
+    private final Shooter shooter;
+    private final Indexer indexer;
 
-  // Controller
-  private final CommandXboxController controller;
+    // Controller
+    private final CommandXboxController controller;
 
-  // Dashboard inputs
-  private final LoggedDashboardChooser<Command> autoChooser;
+    // Dashboard inputs
+    private final LoggedDashboardChooser<Command> autoChooser;
 
-  /** The container for the robot. Contains subsystems, IO devices, and commands. */
-  public RobotContainer() {
+    /** The container for the robot. Contains subsystems, IO devices, and commands. */
+    public RobotContainer() {
 
-    EnumMap<Cameras, VisionIO> cameraIOMap = new EnumMap<>(Cameras.class);
-    switch (GlobalSettings.CURRENT_MODE) {
-      case REAL -> {
-        swerve =
-            new Swerve(
-                new GyroIOReal(),
-                new ModuleIOReal(TunerConstants.FrontLeft),
-                new ModuleIOReal(TunerConstants.FrontRight),
-                new ModuleIOReal(TunerConstants.BackLeft),
-                new ModuleIOReal(TunerConstants.BackRight));
+        EnumMap<Cameras, VisionIO> cameraIOMap = new EnumMap<>(Cameras.class);
+        switch (GlobalSettings.CURRENT_MODE) {
+            case REAL -> {
+                swerve =
+                        new Swerve(
+                                new GyroIOReal(),
+                                new ModuleIOReal(TunerConstants.FrontLeft),
+                                new ModuleIOReal(TunerConstants.FrontRight),
+                                new ModuleIOReal(TunerConstants.BackLeft),
+                                new ModuleIOReal(TunerConstants.BackRight));
 
-        shooter = new Shooter(new ShooterIOReal(), swerve::getPose);
-        hood = new Hood(new HoodIOReal(), swerve::getPose);
-        intake = new Intake(new IntakeIOReal());
-        feeder = new Feeder(new FeederIOReal());
-        indexer = new Indexer(new IndexerIOReal());
+                shooter = new Shooter(new ShooterIOReal(), swerve::getPose);
+                hood = new Hood(new HoodIOReal(), swerve::getPose);
+                intake = new Intake(new IntakeIOReal());
+                feeder = new Feeder(new FeederIOReal());
+                indexer = new Indexer(new IndexerIOReal());
 
-        for (Cameras camera : Cameras.values()) {
-          if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
-            cameraIOMap.put(
-                camera,
-                new VisionIOLimelight(
-                    camera.getName(), camera.getRobotToCamera(), swerve::getRotation));
-          } else {
-            cameraIOMap.put(
-                camera, new VisionIOPhotonVision(camera.getName(), camera.getRobotToCamera()));
-          }
+                for (Cameras camera : Cameras.values()) {
+                    if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
+                        cameraIOMap.put(
+                                camera,
+                                new VisionIOLimelight(
+                                        camera.getName(),
+                                        camera.getRobotToCamera(),
+                                        swerve::getRotation));
+                    } else {
+                        cameraIOMap.put(
+                                camera,
+                                new VisionIOPhotonVision(
+                                        camera.getName(), camera.getRobotToCamera()));
+                    }
+                }
+            }
+
+            case SIM -> {
+                swerve =
+                        new Swerve(
+                                new GyroIO() {},
+                                new ModuleIOSim(TunerConstants.FrontLeft),
+                                new ModuleIOSim(TunerConstants.FrontRight),
+                                new ModuleIOSim(TunerConstants.BackLeft),
+                                new ModuleIOSim(TunerConstants.BackRight));
+
+                shooter = new Shooter(new ShooterIOSim(), swerve::getPose);
+                hood = new Hood(new HoodIOSim(), swerve::getPose);
+                intake = new Intake(new IntakeIOSim());
+                feeder = new Feeder(new FeederIOSim());
+                indexer = new Indexer(new IndexerIOSim());
+
+                for (Cameras camera : Cameras.values()) {
+                    cameraIOMap.put(
+                            camera,
+                            new VisionIOPhotonVisionSim(
+                                    camera.getName(), camera.getRobotToCamera(), swerve::getPose));
+                }
+            }
+
+                // For replay mode
+            default -> {
+                swerve =
+                        new Swerve(
+                                new GyroIO() {},
+                                new ModuleIO() {},
+                                new ModuleIO() {},
+                                new ModuleIO() {},
+                                new ModuleIO() {});
+
+                shooter = new Shooter(new ShooterIO() {}, swerve::getPose);
+                hood = new Hood(new HoodIO() {}, swerve::getPose);
+                intake = new Intake(new IntakeIO() {});
+                indexer = new Indexer(new IndexerIO() {});
+                feeder = new Feeder(new FeederIO() {});
+
+                for (Cameras camera : Cameras.values()) {
+                    cameraIOMap.put(camera, new VisionIO() {});
+                }
+            }
         }
-      }
+        this.vision = new Vision(swerve, cameraIOMap);
 
-      case SIM -> {
-        swerve =
-            new Swerve(
-                new GyroIO() {},
-                new ModuleIOSim(TunerConstants.FrontLeft),
-                new ModuleIOSim(TunerConstants.FrontRight),
-                new ModuleIOSim(TunerConstants.BackLeft),
-                new ModuleIOSim(TunerConstants.BackRight));
+        this.controller = new CommandXboxController(DriverConstants.Driver.DRIVER_INDEX);
 
-        shooter = new Shooter(new ShooterIOSim(), swerve::getPose);
-        hood = new Hood(new HoodIOSim(), swerve::getPose);
-        intake = new Intake(new IntakeIOSim());
-        feeder = new Feeder(new FeederIOSim());
-        indexer = new Indexer(new IndexerIOSim());
+        // Set up auto routines
+        autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-        for (Cameras camera : Cameras.values()) {
-          cameraIOMap.put(
-              camera,
-              new VisionIOPhotonVisionSim(
-                  camera.getName(), camera.getRobotToCamera(), swerve::getPose));
-        }
-      }
+        configureButtonBindings();
+        configureDefaultCommands();
+        configureAutons();
 
-        // For replay mode
-      default -> {
-        swerve =
-            new Swerve(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
-
-        shooter = new Shooter(new ShooterIO() {}, swerve::getPose);
-        hood = new Hood(new HoodIO() {}, swerve::getPose);
-        intake = new Intake(new IntakeIO() {});
-        indexer = new Indexer(new IndexerIO() {});
-        feeder = new Feeder(new FeederIO() {});
-
-        for (Cameras camera : Cameras.values()) {
-          cameraIOMap.put(camera, new VisionIO() {});
-        }
-      }
+        // COMMENT OUT THIS METHOD BEFORE RUNNING MATCHES
+        configureSysid();
     }
-    this.vision = new Vision(swerve, cameraIOMap);
 
-    this.controller = new CommandXboxController(DriverConstants.Driver.DRIVER_INDEX);
+    private void configureDefaultCommands() {
+        swerve.setDefaultCommand(DriveCommands.joystickDrive(swerve, controller));
+    }
 
-    // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    private void configureAutons() {}
 
-    configureButtonBindings();
-    configureDefaultCommands();
-    configureAutons();
+    private void configureSysid() {
+        autoChooser.addOption(
+                "Drive Wheel Radius Characterization",
+                DriveCommands.wheelRadiusCharacterization(swerve));
+        autoChooser.addOption(
+                "Drive Simple FF Characterization",
+                DriveCommands.feedforwardCharacterization(swerve));
+        autoChooser.addOption(
+                "Drive SysId (Quasistatic Forward)",
+                swerve.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+                "Drive SysId (Quasistatic Reverse)",
+                swerve.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        autoChooser.addOption(
+                "Drive SysId (Dynamic Forward)",
+                swerve.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+                "Drive SysId (Dynamic Reverse)",
+                swerve.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    }
 
-    // COMMENT OUT THIS METHOD BEFORE RUNNING MATCHES
-    configureSysid();
-  }
+    /**
+     * Use this method to define your button->command mappings. Buttons can be created by
+     * instantiating a {@link GenericHID} or one of its subclasses ({@link
+     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+     * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+     */
+    private void configureButtonBindings() {
+        controller.a().onTrue(DriveCommands.alignToHub(swerve));
+    }
 
-  private void configureDefaultCommands() {
-    swerve.setDefaultCommand(DriveCommands.joystickDrive(swerve, controller));
-  }
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
+    public Command getAutonomousCommand() {
+        return autoChooser.get();
+    }
 
-  private void configureAutons() {}
-
-  private void configureSysid() {
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(swerve));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(swerve));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        swerve.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        swerve.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", swerve.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", swerve.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-  }
-
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings() {
-    controller.a().onTrue(DriveCommands.alignToHub(swerve));
-  }
-
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    return autoChooser.get();
-  }
-
-  public void clearMemoized() {
-    InterpolationCalculator.clearMemoized();
-  }
+    public void clearMemoized() {
+        InterpolationCalculator.clearMemoized();
+    }
 }
