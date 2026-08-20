@@ -26,6 +26,7 @@ import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -44,6 +45,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.lib.BLine.FollowPath;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -109,6 +111,25 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
             new SwerveDrivePoseEstimator(
                     kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
+    // BLine path-following builder — shared, reusable, pose reset must be
+    // explicitly cleared (withPoseReset(pose -> {})) on every path after the first
+    // in a sequence, since this object is mutated, not recreated, per build().
+    private final FollowPath.Builder pathBuilder =
+            new FollowPath.Builder(
+                    this,
+                    this::getPose,
+                    this::getChassisSpeeds,
+                    this::runVelocity,
+                    new PIDController(4.0, 0.0, 0.0),
+                    new PIDController(3.0, 0.0, 0.0),
+                    new PIDController(0.5, 0.0, 0.0))
+            .withDefaultShouldFlip()
+            .withTRatioBasedTranslationHandoffs(true);
+
+    public FollowPath.Builder getPathBuilder() {
+        return pathBuilder;
+    }
+
     public Swerve(
             GyroIO gyroIO,
             ModuleIO flModuleIO,
@@ -148,6 +169,13 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
                 (targetPose) -> {
                     Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
                 });
+
+        FollowPath.setDoubleLoggingConsumer(
+                pair -> Logger.recordOutput("BLine/" + pair.getFirst(), pair.getSecond()));
+        FollowPath.setBooleanLoggingConsumer(
+                pair -> Logger.recordOutput("BLine/" + pair.getFirst(), pair.getSecond()));
+        FollowPath.setPoseLoggingConsumer(
+                pair -> Logger.recordOutput("BLine/" + pair.getFirst(), pair.getSecond()));
 
         // Configure SysId
         sysId =
