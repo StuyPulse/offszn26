@@ -29,6 +29,7 @@ public interface ShooterConstants {
         AngularVelocity TOLERANCE = RPM.of(100);
 
         Current IS_SHOOTING_CURRENT = Amps.of(30);
+        Time IS_SHOOTING_DEBOUNCE = Seconds.of(2);
     }
 
     public interface ShooterIds { // placeholders

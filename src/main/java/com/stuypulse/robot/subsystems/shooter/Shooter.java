@@ -1,6 +1,7 @@
 package com.stuypulse.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Seconds;
 
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.subsystems.shooter.ShooterConstants.ShooterSettings;
@@ -45,7 +46,9 @@ public class Shooter extends FullSubsystem {
 
         this.poseSupplier = poseSupplier;
 
-        isShootingDebouncer = new Debouncer(2, DebounceType.kFalling);
+        isShootingDebouncer =
+                new Debouncer(
+                        ShooterSettings.IS_SHOOTING_DEBOUNCE.in(Seconds), DebounceType.kFalling);
 
         setState(ShooterState.SHOOT);
     }
