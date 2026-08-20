@@ -36,17 +36,33 @@ public interface VisionConstants {
     double BUZZ_DEBOUNCE = 0.25;
   }
 
-  /**
-   * !!!! Note that the index of the Camera enum and the index of the camera data array must
-   * match!!!!
-   */
-  enum Camera {
-  // Add names here for each camera, in the order they are defined in the CamerasList.CAMERAS array
-  }
-
   record CameraData(String name, Transform3d robotToCamera, double stdDevFactor) {}
 
-  public interface CamerasList {
-    final CameraData[] CAMERAS = {};
+  public enum Cameras {
+    // placeholders
+    FRONT("Front", new Transform3d(), 1.0),
+    BACK("Back", new Transform3d(), 1.0);
+
+    private final CameraData data;
+
+    private Cameras(String name, Transform3d robotToCamera, double stdDevFactor) {
+      this.data = new CameraData(name, robotToCamera, stdDevFactor);
+    }
+
+    public String getName() {
+      return data.name();
+    }
+
+    public Transform3d getRobotToCamera() {
+      return data.robotToCamera();
+    }
+
+    public double getStdDevFactor() {
+      return data.stdDevFactor();
+    }
+
+    public CameraData getData() {
+      return data;
+    }
   }
 }

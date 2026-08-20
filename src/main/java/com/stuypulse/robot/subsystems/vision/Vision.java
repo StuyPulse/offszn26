@@ -16,7 +16,6 @@ package com.stuypulse.robot.subsystems.vision;
 import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.subsystems.vision.VisionConstants.*;
-import com.stuypulse.robot.subsystems.vision.VisionConstants.Camera;
 import com.stuypulse.robot.subsystems.vision.VisionIO.MegaTagMode;
 import com.stuypulse.robot.subsystems.vision.VisionIO.PoseObservationType;
 import com.stuypulse.robot.subsystems.vision.VisionIO.VisionIOOutputs;
@@ -33,44 +32,45 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
+import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends FullSubsystem {
   private final VisionConsumer consumer;
-  private final VisionIO[] io;
-  private final VisionIOInputsAutoLogged[] inputs;
-  private final VisionIOOutputs[] outputs;
-  private final Alert[] disconnectedAlerts;
+  private final EnumMap<Cameras, VisionIO> io;
+  private final EnumMap<Cameras, VisionIOInputsAutoLogged> inputs;
+  private final EnumMap<Cameras, VisionIOOutputs> outputs;
+  private final EnumMap<Cameras, Alert> disconnectedAlerts;
   private int maxTagCount;
 
   private final Debouncer hasDataDebouncer;
   private boolean hasData;
 
-  public Vision(VisionConsumer consumer, VisionIO... io) {
+  public Vision(VisionConsumer consumer, EnumMap<Cameras, VisionIO> io) {
     this.consumer = consumer;
-    this.io = io;
+
+    // this.io = io;
+    this.io = new EnumMap<>(io);
 
     // Initialize inputs
-    this.inputs = new VisionIOInputsAutoLogged[io.length];
-    this.outputs = new VisionIOOutputs[io.length];
-    for (int i = 0; i < inputs.length; i++) {
-      inputs[i] = new VisionIOInputsAutoLogged();
-      outputs[i] = new VisionIOOutputs();
-    }
+    this.inputs = new EnumMap<>(Cameras.class);
+    this.outputs = new EnumMap<>(Cameras.class);
 
-    // Initialize disconnected alerts
-    this.disconnectedAlerts = new Alert[io.length];
-    for (int i = 0; i < inputs.length; i++) {
-      disconnectedAlerts[i] =
-          new Alert(
-              "Vision camera " + CamerasList.CAMERAS[i].name() + " is disconnected.",
-              AlertType.kWarning);
+    // initialize disconnected alerts
+    this.disconnectedAlerts = new EnumMap<>(Cameras.class);
+
+    for (Cameras camera : Cameras.values()) {
+      inputs.put(camera, new VisionIOInputsAutoLogged());
+      outputs.put(camera, new VisionIOOutputs());
+      disconnectedAlerts.put(
+          camera,
+          new Alert("Vision camera " + camera.getName() + " is disconnected.", AlertType.kWarning));
     }
 
     maxTagCount = 0;
-
     hasDataDebouncer =
         new Debouncer(VisionConstants.VisionSettings.BUZZ_DEBOUNCE, DebounceType.kBoth);
   }
@@ -78,18 +78,18 @@ public class Vision extends FullSubsystem {
   /**
    * Returns the X angle to the best target, which can be used for simple servoing with vision.
    *
-   * @param cameraIndex The index of the camera to use.
+   * @param camera The camera to get the target from
    */
-  public Rotation2d getTargetX(int cameraIndex) {
-    return inputs[cameraIndex].latestTargetObservation.tx();
+  public Rotation2d getTargetX(Cameras camera) {
+    return inputs.get(camera).latestTargetObservation.tx();
   }
 
   public int getMaxTagCount() {
     return maxTagCount;
   }
 
-  public boolean isCameraDead(Camera camera) {
-    return !inputs[camera.ordinal()].connected;
+  public boolean isCameraDead(Cameras camera) {
+    return !inputs.get(camera).connected;
   }
 
   public boolean hasData() {
@@ -101,9 +101,11 @@ public class Vision extends FullSubsystem {
     maxTagCount = 0;
     hasData = false;
 
-    for (int i = 0; i < io.length; i++) {
-      io[i].updateInputs(inputs[i]);
-      Logger.processInputs("Vision/" + CamerasList.CAMERAS[i].name(), inputs[i]);
+    for (Entry<Cameras, VisionIO> entry : io.entrySet()) {
+      VisionIO currentIO = entry.getValue();
+      VisionIOInputsAutoLogged currentInputs = inputs.get(entry.getKey());
+      currentIO.updateInputs(currentInputs);
+      Logger.processInputs("Vision/" + entry.getKey().getName(), currentInputs);
     }
 
     if (!GlobalSettings.EnabledSubsystems.VISION.get()) {
@@ -117,9 +119,12 @@ public class Vision extends FullSubsystem {
     List<Pose3d> allRobotPosesRejected = new LinkedList<>();
 
     // Loop over cameras
-    for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
+    for (Entry<Cameras, VisionIO> entry : io.entrySet()) {
+      CameraData currentCameraData = entry.getKey().getData();
+      VisionIOInputsAutoLogged currentInputs = inputs.get(entry.getKey());
+
       // Update disconnected alert
-      disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
+      disconnectedAlerts.get(entry.getKey()).set(!currentInputs.connected);
 
       // Initialize logging values
       List<Pose3d> tagPoses = new LinkedList<>();
@@ -128,7 +133,7 @@ public class Vision extends FullSubsystem {
       List<Pose3d> robotPosesRejected = new LinkedList<>();
 
       // Add tag poses
-      for (int tagId : inputs[cameraIndex].tagIds) {
+      for (int tagId : currentInputs.tagIds) {
         var tagPose = Field.APRIL_TAG_LAYOUT.getTagPose(tagId);
         if (tagPose.isPresent()) {
           tagPoses.add(tagPose.get());
@@ -136,7 +141,7 @@ public class Vision extends FullSubsystem {
       }
 
       // Loop over pose observations
-      for (var observation : inputs[cameraIndex].poseObservations) {
+      for (var observation : currentInputs.poseObservations) {
         maxTagCount = Math.max(maxTagCount, observation.tagCount());
         // Check whether to reject pose
         boolean rejectPose =
@@ -145,7 +150,8 @@ public class Vision extends FullSubsystem {
                     && observation.ambiguity()
                         > VisionSettings.MAX_AMBIGUITY) // Cannot be high ambiguity
                 || Math.abs(observation.pose().getZ())
-                    > VisionSettings.MAX_Z_ERROR // Must have realistic Z coordinate
+                    > VisionSettings.MAX_Z_ERROR // Must have realistic Z
+                // coordinate
 
                 // Must be within the field boundaries
                 || observation.pose().getX() < 0.0
@@ -177,8 +183,8 @@ public class Vision extends FullSubsystem {
           linearStdDev *= VisionSettings.LINEAR_STD_DEV_MEGATAG_2_FACTOR;
           angularStdDev *= VisionSettings.ANGULAR_STD_DEV_MEGATAG_2_FACTOR;
         }
-        linearStdDev *= CamerasList.CAMERAS[cameraIndex].stdDevFactor();
-        angularStdDev *= CamerasList.CAMERAS[cameraIndex].stdDevFactor();
+        linearStdDev *= currentCameraData.stdDevFactor();
+        angularStdDev *= currentCameraData.stdDevFactor();
 
         // Send vision observation
         consumer.accept(
@@ -189,16 +195,16 @@ public class Vision extends FullSubsystem {
 
       // Log camera datadata
       Logger.recordOutput(
-          "Vision/Camera" + CamerasList.CAMERAS[cameraIndex].name() + "/TagPoses",
+          "Vision/Camera" + currentCameraData.name() + "/TagPoses",
           tagPoses.toArray(new Pose3d[tagPoses.size()]));
       Logger.recordOutput(
-          "Vision/Camera" + CamerasList.CAMERAS[cameraIndex].name() + "/RobotPoses",
+          "Vision/Camera" + currentCameraData.name() + "/RobotPoses",
           robotPoses.toArray(new Pose3d[robotPoses.size()]));
       Logger.recordOutput(
-          "Vision/Camera" + CamerasList.CAMERAS[cameraIndex].name() + "/RobotPosesAccepted",
+          "Vision/Camera" + currentCameraData.name() + "/RobotPosesAccepted",
           robotPosesAccepted.toArray(new Pose3d[robotPosesAccepted.size()]));
       Logger.recordOutput(
-          "Vision/Camera" + CamerasList.CAMERAS[cameraIndex].name() + "/RobotPosesRejected",
+          "Vision/Camera" + currentCameraData.name() + "/RobotPosesRejected",
           robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
       allTagPoses.addAll(tagPoses);
       allRobotPoses.addAll(robotPoses);
@@ -221,13 +227,15 @@ public class Vision extends FullSubsystem {
 
   @Override
   public void periodicAfterScheduler() {
-    for (int i = 0; i < io.length; i++) {
-      Logger.recordOutput(
-          "Vision/" + CamerasList.CAMERAS[i].name() + "/MegaTagMode", outputs[i].megaTagMode);
-      Logger.recordOutput(
-          "Vision/" + CamerasList.CAMERAS[i].name() + "/Pipeline", outputs[i].pipeline);
+    for (Entry<Cameras, VisionIO> entry : io.entrySet()) {
+      VisionIO currentIO = entry.getValue();
+      VisionIOOutputs currentOutputs = outputs.get(entry.getKey());
 
-      io[i].applyOutputs(outputs[i]);
+      Logger.recordOutput(
+          "Vision/" + entry.getKey().getName() + "/MegaTagMode", currentOutputs.megaTagMode);
+      Logger.recordOutput(
+          "Vision/" + entry.getKey().getName() + "/Pipeline", currentOutputs.pipeline);
+      currentIO.applyOutputs(currentOutputs);
     }
   }
 
@@ -242,7 +250,7 @@ public class Vision extends FullSubsystem {
   public Command setMegaTagMode(MegaTagMode mode) {
     return runOnce(
             () -> {
-              for (VisionIOOutputs output : outputs) {
+              for (VisionIOOutputs output : outputs.values()) {
                 output.megaTagMode = mode;
               }
             })
@@ -253,7 +261,7 @@ public class Vision extends FullSubsystem {
   public Command setPipeline(int pipeline) {
     return runOnce(
             () -> {
-              for (VisionIOOutputs output : outputs) {
+              for (VisionIOOutputs output : outputs.values()) {
                 output.pipeline = pipeline;
               }
             })
@@ -264,7 +272,7 @@ public class Vision extends FullSubsystem {
   public Command setAprilTagWhitelist(int[] whitelist) {
     return runOnce(
             () -> {
-              for (VisionIOOutputs output : outputs) {
+              for (VisionIOOutputs output : outputs.values()) {
                 output.aprilTagIDWhitelist = whitelist;
               }
             })
@@ -275,7 +283,7 @@ public class Vision extends FullSubsystem {
   public Command setIMUMode(int imuMode) {
     return runOnce(
             () -> {
-              for (VisionIOOutputs output : outputs) {
+              for (VisionIOOutputs output : outputs.values()) {
                 output.imuMode = imuMode;
               }
             })

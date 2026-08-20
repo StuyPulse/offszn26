@@ -9,6 +9,26 @@ import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.constants.DriverConstants;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.constants.GlobalSettings.VisionMode;
+import com.stuypulse.robot.subsystems.feeder.Feeder;
+import com.stuypulse.robot.subsystems.feeder.FeederIO;
+import com.stuypulse.robot.subsystems.feeder.FeederIOReal;
+import com.stuypulse.robot.subsystems.feeder.FeederIOSim;
+import com.stuypulse.robot.subsystems.hood.Hood;
+import com.stuypulse.robot.subsystems.hood.HoodIO;
+import com.stuypulse.robot.subsystems.hood.HoodIOReal;
+import com.stuypulse.robot.subsystems.hood.HoodIOSim;
+import com.stuypulse.robot.subsystems.indexer.Indexer;
+import com.stuypulse.robot.subsystems.indexer.IndexerIO;
+import com.stuypulse.robot.subsystems.indexer.IndexerIOReal;
+import com.stuypulse.robot.subsystems.indexer.IndexerIOSim;
+import com.stuypulse.robot.subsystems.intake.Intake;
+import com.stuypulse.robot.subsystems.intake.IntakeIO;
+import com.stuypulse.robot.subsystems.intake.IntakeIOReal;
+import com.stuypulse.robot.subsystems.intake.IntakeIOSim;
+import com.stuypulse.robot.subsystems.shooter.Shooter;
+import com.stuypulse.robot.subsystems.shooter.ShooterIO;
+import com.stuypulse.robot.subsystems.shooter.ShooterIOReal;
+import com.stuypulse.robot.subsystems.shooter.ShooterIOSim;
 import com.stuypulse.robot.subsystems.swerve.GyroIO;
 import com.stuypulse.robot.subsystems.swerve.GyroIOReal;
 import com.stuypulse.robot.subsystems.swerve.ModuleIO;
@@ -17,7 +37,7 @@ import com.stuypulse.robot.subsystems.swerve.ModuleIOSim;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
 import com.stuypulse.robot.subsystems.swerve.TunerConstants;
 import com.stuypulse.robot.subsystems.vision.Vision;
-import com.stuypulse.robot.subsystems.vision.VisionConstants.CamerasList;
+import com.stuypulse.robot.subsystems.vision.VisionConstants.Cameras;
 import com.stuypulse.robot.subsystems.vision.VisionIO;
 import com.stuypulse.robot.subsystems.vision.VisionIOLimelight;
 import com.stuypulse.robot.subsystems.vision.VisionIOPhotonVision;
@@ -28,7 +48,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import java.util.Arrays;
+import java.util.EnumMap;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -40,7 +60,12 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Swerve swerve;
+  private final Hood hood;
+  private final Intake intake;
+  private final Feeder feeder;
   private final Vision vision;
+  private final Shooter shooter;
+  private final Indexer indexer;
 
   // Controller
   private final CommandXboxController controller;
@@ -51,6 +76,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
 
+    EnumMap<Cameras, VisionIO> cameraIOMap = new EnumMap<>(Cameras.class);
     switch (GlobalSettings.CURRENT_MODE) {
       case REAL -> {
         swerve =
@@ -61,25 +87,22 @@ public class RobotContainer {
                 new ModuleIOReal(TunerConstants.BackLeft),
                 new ModuleIOReal(TunerConstants.BackRight));
 
-        if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
-          vision =
-              new Vision(
-                  swerve,
-                  Arrays.stream(CamerasList.CAMERAS)
-                      .map(
-                          (camera) ->
-                              new VisionIOLimelight(
-                                  camera.name(), camera.robotToCamera(), swerve::getRotation))
-                      .toArray(VisionIO[]::new));
-        } else {
-          vision =
-              new Vision(
-                  swerve,
-                  Arrays.stream(CamerasList.CAMERAS)
-                      .map(
-                          (camera) ->
-                              new VisionIOPhotonVision(camera.name(), camera.robotToCamera()))
-                      .toArray(VisionIO[]::new));
+        shooter = new Shooter(new ShooterIOReal(), swerve::getPose);
+        hood = new Hood(new HoodIOReal(), swerve::getPose);
+        intake = new Intake(new IntakeIOReal());
+        feeder = new Feeder(new FeederIOReal());
+        indexer = new Indexer(new IndexerIOReal());
+
+        for (Cameras camera : Cameras.values()) {
+          if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
+            cameraIOMap.put(
+                camera,
+                new VisionIOLimelight(
+                    camera.getName(), camera.getRobotToCamera(), swerve::getRotation));
+          } else {
+            cameraIOMap.put(
+                camera, new VisionIOPhotonVision(camera.getName(), camera.getRobotToCamera()));
+          }
         }
       }
 
@@ -92,15 +115,18 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
 
-        vision =
-            new Vision(
-                swerve,
-                Arrays.stream(CamerasList.CAMERAS)
-                    .map(
-                        (camera) ->
-                            new VisionIOPhotonVisionSim(
-                                camera.name(), camera.robotToCamera(), swerve::getPose))
-                    .toArray(VisionIO[]::new));
+        shooter = new Shooter(new ShooterIOSim(), swerve::getPose);
+        hood = new Hood(new HoodIOSim(), swerve::getPose);
+        intake = new Intake(new IntakeIOSim());
+        feeder = new Feeder(new FeederIOSim());
+        indexer = new Indexer(new IndexerIOSim());
+
+        for (Cameras camera : Cameras.values()) {
+          cameraIOMap.put(
+              camera,
+              new VisionIOPhotonVisionSim(
+                  camera.getName(), camera.getRobotToCamera(), swerve::getPose));
+        }
       }
 
         // For replay mode
@@ -113,14 +139,18 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        vision =
-            new Vision(
-                swerve,
-                Arrays.stream(CamerasList.CAMERAS)
-                    .map((camera) -> new VisionIO() {})
-                    .toArray(VisionIO[]::new));
+        shooter = new Shooter(new ShooterIO() {}, swerve::getPose);
+        hood = new Hood(new HoodIO() {}, swerve::getPose);
+        intake = new Intake(new IntakeIO() {});
+        indexer = new Indexer(new IndexerIO() {});
+        feeder = new Feeder(new FeederIO() {});
+
+        for (Cameras camera : Cameras.values()) {
+          cameraIOMap.put(camera, new VisionIO() {});
+        }
       }
     }
+    this.vision = new Vision(swerve, cameraIOMap);
 
     this.controller = new CommandXboxController(DriverConstants.Driver.DRIVER_INDEX);
 
