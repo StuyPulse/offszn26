@@ -111,8 +111,6 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
             new SwerveDrivePoseEstimator(
                     kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
     
-    private Optional<Pose2d> pose = Optional.empty();
-
     public Swerve(
             GyroIO gyroIO,
             ModuleIO flModuleIO,
@@ -359,11 +357,7 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
     /** Returns the current odometry pose. */
     @AutoLogOutput(key = "Odometry/Robot")
     public Pose2d getPose() {
-        if (pose.isEmpty()) {
-            pose = Optional.of(poseEstimator.getEstimatedPosition());
-        }
-
-        return pose.get();
+        return poseEstimator.getEstimatedPosition();
     }
 
     /** Returns the current odometry rotation. */
@@ -416,9 +410,5 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
             new Translation2d(
                     TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
         };
-    }
-
-    public void clearMemoized() {
-        pose = Optional.empty();
     }
 }
