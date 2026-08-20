@@ -137,4 +137,13 @@ public class Intake extends FullSubsystem {
                         })
                 .withName("Intake Stow");
     }
+
+    public Command stopRollers() {
+        return runOnce(
+                        () -> {
+                            setPivotState(PivotState.DEPLOY);
+                            setRollerState(RollerState.STOP);
+                        })
+                .withName("Intake Stop Rollers");
+    }
 }

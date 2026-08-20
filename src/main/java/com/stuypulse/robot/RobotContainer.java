@@ -46,6 +46,7 @@ import com.stuypulse.robot.util.InterpolationCalculator;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.EnumMap;
@@ -203,7 +204,62 @@ public class RobotContainer {
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        controller.a().onTrue(DriveCommands.alignToHub(swerve));
+        // TODO: Get button mappings from driver
+
+        controller.x().whileTrue(DriveCommands.xMode(swerve));
+
+        controller.leftTrigger().onTrue(intake.intake());
+
+        controller.y().onTrue(intake.stow());
+        
+        controller.rightTrigger().onTrue(intake.stopRollers());
+
+        controller.leftBumper().onTrue(intake.outtake());
+        controller.leftBumper().onFalse(intake.intake());
+
+        controller.a().whileTrue(
+            Commands.sequence(
+                shooter.shoot().alongWith(hood.shoot()),
+                DriveCommands.alignToHub(swerve),
+                Commands.waitUntil(() -> shooter.atTolerance() && hood.atTolerance()),
+                Commands.parallel(
+                    feeder.runForward(),
+                    indexer.runForward(),
+                    intake.stow(),
+                    DriveCommands.xMode(swerve)
+                ).until(() -> !swerve.isAlignedToHub() || !shooter.isShooting()),
+                DriveCommands.buzzController(controller).withTimeout(0.5)
+            )
+        );
+        controller.a().onFalse(
+            Commands.parallel(
+                feeder.stop(),
+                indexer.stop(),
+                intake.intake()
+            )
+        );
+
+        controller.b().whileTrue(
+            Commands.sequence(
+                shooter.ferry().alongWith(hood.ferry()),
+                DriveCommands.alignToFerryZone(swerve),
+                Commands.waitUntil(() -> shooter.atTolerance() && hood.atTolerance()),
+                Commands.parallel(
+                    feeder.runForward(),
+                    indexer.runForward(),
+                    intake.stow(),
+                    DriveCommands.xMode(swerve)
+                ).until(() -> !swerve.isAlignedToFerryZone() || !shooter.isShooting()),
+                DriveCommands.buzzController(controller).withTimeout(0.5)
+            )
+        );
+        controller.b().onFalse(
+            Commands.parallel(
+                feeder.stop(),
+                indexer.stop(),
+                intake.intake()
+            )
+        );
     }
 
     /**
