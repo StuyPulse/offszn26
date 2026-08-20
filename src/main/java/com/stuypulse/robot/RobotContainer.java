@@ -95,7 +95,10 @@ public class RobotContainer {
 
         for (Cameras camera : Cameras.values()) {
           if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
-            cameraIOMap.put(camera, new VisionIOLimelight(camera.getName(), swerve::getRotation));
+            cameraIOMap.put(
+                camera,
+                new VisionIOLimelight(
+                    camera.getName(), camera.getRobotToCamera(), swerve::getRotation));
           } else {
             cameraIOMap.put(
                 camera, new VisionIOPhotonVision(camera.getName(), camera.getRobotToCamera()));
