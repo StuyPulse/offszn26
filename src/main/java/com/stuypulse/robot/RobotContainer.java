@@ -13,6 +13,14 @@ import com.stuypulse.robot.subsystems.intake.Intake;
 import com.stuypulse.robot.subsystems.intake.IntakeIO;
 import com.stuypulse.robot.subsystems.intake.IntakeIOReal;
 import com.stuypulse.robot.subsystems.intake.IntakeIOSim;
+import com.stuypulse.robot.subsystems.feeder.Feeder;
+import com.stuypulse.robot.subsystems.feeder.FeederIO;
+import com.stuypulse.robot.subsystems.feeder.FeederIOReal;
+import com.stuypulse.robot.subsystems.feeder.FeederIOSim;
+import com.stuypulse.robot.subsystems.indexer.Indexer;
+import com.stuypulse.robot.subsystems.indexer.IndexerIO;
+import com.stuypulse.robot.subsystems.indexer.IndexerIOReal;
+import com.stuypulse.robot.subsystems.indexer.IndexerIOSim;
 import com.stuypulse.robot.subsystems.swerve.GyroIO;
 import com.stuypulse.robot.subsystems.swerve.GyroIOReal;
 import com.stuypulse.robot.subsystems.swerve.ModuleIO;
@@ -45,7 +53,9 @@ public class RobotContainer {
   // Subsystems
   private final Swerve swerve;
   private final Intake intake;
+  private final Feeder feeder;
   private final Vision vision;
+  private final Indexer indexer;
 
   // Controller
   private final CommandXboxController controller;
@@ -68,6 +78,8 @@ public class RobotContainer {
                 new ModuleIOReal(TunerConstants.BackRight));
 
         intake = new Intake(new IntakeIOReal());
+        feeder = new Feeder(new FeederIOReal());
+        indexer = new Indexer(new IndexerIOReal());
 
         for (Cameras camera : Cameras.values()) {
           if (GlobalSettings.VISION_MODE == VisionMode.LIMELIGHT_VISION) {
@@ -89,6 +101,8 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackRight));
 
         intake = new Intake(new IntakeIOSim());
+        feeder = new Feeder(new FeederIOSim());
+        indexer = new Indexer(new IndexerIOSim());
 
         for (Cameras camera : Cameras.values()) {
           cameraIOMap.put(
@@ -109,6 +123,8 @@ public class RobotContainer {
                 new ModuleIO() {});
 
         intake = new Intake(new IntakeIO() {});
+        indexer = new Indexer(new IndexerIO() {});
+        feeder = new Feeder(new FeederIO() {});
 
         for (Cameras camera : Cameras.values()) {
           cameraIOMap.put(camera, new VisionIO() {});
