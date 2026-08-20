@@ -1,6 +1,7 @@
 package com.stuypulse.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Seconds;
 
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.subsystems.shooter.ShooterConstants.ShooterSettings;
@@ -8,6 +9,8 @@ import com.stuypulse.robot.subsystems.shooter.ShooterIO.ShooterIOOutputMode;
 import com.stuypulse.robot.subsystems.shooter.ShooterIO.ShooterIOOutputs;
 import com.stuypulse.robot.util.FullSubsystem;
 import com.stuypulse.robot.util.InterpolationCalculator;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,6 +28,8 @@ public class Shooter extends FullSubsystem {
 
     private final Supplier<Pose2d> poseSupplier;
 
+    private final Debouncer isShootingDebouncer;
+
     private boolean atTolerance;
 
     public enum ShooterState {
@@ -40,6 +45,10 @@ public class Shooter extends FullSubsystem {
         this.outputs = new ShooterIOOutputs();
 
         this.poseSupplier = poseSupplier;
+
+        isShootingDebouncer =
+                new Debouncer(
+                        ShooterSettings.IS_SHOOTING_DEBOUNCE.in(Seconds), DebounceType.kFalling);
 
         setState(ShooterState.SHOOT);
     }
@@ -83,6 +92,11 @@ public class Shooter extends FullSubsystem {
 
     public boolean atTolerance() {
         return atTolerance;
+    }
+
+    public boolean isShooting() {
+        return isShootingDebouncer.calculate(
+                inputs.topLeftMotorInputs.statorCurrent.gt(ShooterSettings.IS_SHOOTING_CURRENT));
     }
 
     public Command shoot() {
