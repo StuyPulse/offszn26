@@ -20,8 +20,7 @@ public class IntakeIOReal implements IntakeIO {
   public IntakeIOReal() {
     this.pivotMotor = new LoggedTalonFX(IntakeDeviceIds.PIVOT, GlobalSettings.RIO);
     this.rollerLeftMotor = new LoggedTalonFX(IntakeDeviceIds.ROLLER_LEADER, GlobalSettings.RIO);
-    this.rollerRightMotor =
-        new LoggedTalonFX(IntakeDeviceIds.ROLLER_FOLLOWER, GlobalSettings.RIO);
+    this.rollerRightMotor = new LoggedTalonFX(IntakeDeviceIds.ROLLER_FOLLOWER, GlobalSettings.RIO);
 
     IntakeMotorConfigs.PIVOT_CONFIG.configure(pivotMotor);
     IntakeMotorConfigs.ROLLER_CONFIG.configure(rollerLeftMotor);
