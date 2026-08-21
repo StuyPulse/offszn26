@@ -115,7 +115,7 @@ public class Shooter extends FullSubsystem {
         return runOnce(() -> setState(ShooterState.KB)).withName("Shooter KB");
     }
 
-    public Command Tower() {
+    public Command tower() {
         return runOnce(() -> setState(ShooterState.TOWER)).withName("Shooter Tower");
     }
 
