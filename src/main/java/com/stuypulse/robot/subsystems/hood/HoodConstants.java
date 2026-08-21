@@ -21,7 +21,7 @@ public interface HoodConstants {
 
         Angle TOLERANCE = Degrees.of(3);
 
-        // TODO: GET ACTUAL ANLGE FOR KB AND TOWER
+        // TODO: GET ACTUAL ANGLE FOR KB AND TOWER
         Angle KB_ANGLE = Degrees.of(694);
 
         Angle TOWER_ANGLE = Degrees.of(516);
