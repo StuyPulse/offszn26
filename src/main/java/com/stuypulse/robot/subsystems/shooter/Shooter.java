@@ -35,7 +35,9 @@ public class Shooter extends FullSubsystem {
     public enum ShooterState {
         STOP,
         SHOOT,
-        FERRY
+        FERRY,
+        KB,
+        TOWER
     }
 
     public Shooter(ShooterIO io, Supplier<Pose2d> poseSupplier) {
@@ -82,6 +84,8 @@ public class Shooter extends FullSubsystem {
                     InterpolationCalculator.getInterpolatedShotRPM(poseSupplier.get()));
             case FERRY -> runVelocity(
                     InterpolationCalculator.getInterpolatedFerryRPM(poseSupplier.get()));
+            case KB -> runVelocity(ShooterConstants.ShooterSettings.KB_VELOCITY);
+            case TOWER -> runVelocity(ShooterConstants.ShooterSettings.TOWER_VELOCITY);
         }
     }
 
@@ -105,6 +109,14 @@ public class Shooter extends FullSubsystem {
 
     public Command ferry() {
         return runOnce(() -> setState(ShooterState.FERRY)).withName("Shooter Ferry");
+    }
+
+    public Command kb() {
+        return runOnce(() -> setState(ShooterState.KB)).withName("Shooter KB");
+    }
+
+    public Command tower() {
+        return runOnce(() -> setState(ShooterState.TOWER)).withName("Shooter Tower");
     }
 
     public Command stop() {
