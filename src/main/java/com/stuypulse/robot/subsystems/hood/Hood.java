@@ -112,8 +112,8 @@ public class Hood extends FullSubsystem {
         return runOnce(() -> setState(HoodState.KB)).withName("Hood KB");
     }
 
-    public Command Tower() {
-        return runOnce(() -> setState(HoodState.TOWER)).withName("Hood tower");
+    public Command tower() {
+        return runOnce(() -> setState(HoodState.TOWER)).withName("Hood Tower");
     }
 
     public Command stow() {
