@@ -214,8 +214,8 @@ public class RobotContainer {
 
         controller.rightTrigger().onTrue(intake.stopRollers());
 
-        controller.leftBumper().onTrue(intake.outtake());
-        controller.leftBumper().onFalse(intake.intake());
+        controller.leftBumper().onTrue(intake.outtake().alongWith(indexer.runReverse()));
+        controller.leftBumper().onFalse(intake.intake().alongWith(indexer.stop()));
 
         controller
                 .a()
