@@ -62,24 +62,24 @@ public final class TalonFXConfig {
 
     public TalonFXConfig withPIDConstants(double kP, double kI, double kD, int slot) {
         switch (slot) {
-            case 0:
+            case 0 -> {
                 slot0Configs.kP = kP;
                 slot0Configs.kI = kI;
                 slot0Configs.kD = kD;
                 configuration.withSlot0(slot0Configs);
-                break;
-            case 1:
+            }
+            case 1 -> {
                 slot1Configs.kP = kP;
                 slot1Configs.kI = kI;
                 slot1Configs.kD = kD;
                 configuration.withSlot1(slot1Configs);
-                break;
-            case 2:
+            }
+            case 2 -> {
                 slot2Configs.kP = kP;
                 slot2Configs.kI = kI;
                 slot2Configs.kD = kD;
                 configuration.withSlot2(slot2Configs);
-                break;
+            }
         }
         return this;
     }
@@ -90,27 +90,27 @@ public final class TalonFXConfig {
 
     public TalonFXConfig withFFConstants(double kS, double kV, double kA, double kG, int slot) {
         switch (slot) {
-            case 0:
+            case 0 -> {
                 slot0Configs.kS = kS;
                 slot0Configs.kV = kV;
                 slot0Configs.kA = kA;
                 slot0Configs.kG = kG;
                 configuration.withSlot0(slot0Configs);
-                break;
-            case 1:
+            }
+            case 1 -> {
                 slot1Configs.kS = kS;
                 slot1Configs.kV = kV;
                 slot1Configs.kA = kA;
                 slot1Configs.kG = kG;
                 configuration.withSlot1(slot1Configs);
-                break;
-            case 2:
+            }
+            case 2 -> {
                 slot2Configs.kS = kS;
                 slot2Configs.kV = kV;
                 slot2Configs.kA = kA;
                 slot2Configs.kG = kG;
                 configuration.withSlot2(slot2Configs);
-                break;
+            }
         }
         return this;
     }
@@ -118,18 +118,18 @@ public final class TalonFXConfig {
     public TalonFXConfig withStaticFeedforwardSign(
             StaticFeedforwardSignValue staticFeedforwardSign, int slot) {
         switch (slot) {
-            case 0:
+            case 0 -> {
                 slot0Configs.StaticFeedforwardSign = staticFeedforwardSign;
                 configuration.withSlot0(slot0Configs);
-                break;
-            case 1:
+            }
+            case 1 -> {
                 slot1Configs.StaticFeedforwardSign = staticFeedforwardSign;
                 configuration.withSlot1(slot1Configs);
-                break;
-            case 2:
+            }
+            case 2 -> {
                 slot2Configs.StaticFeedforwardSign = staticFeedforwardSign;
                 configuration.withSlot2(slot2Configs);
-                break;
+            }
         }
 
         return this;
@@ -153,24 +153,18 @@ public final class TalonFXConfig {
         configuration.withClosedLoopGeneral(closedLoopGeneralConfigs);
 
         switch (slot) {
-            case 0:
-                {
-                    slot0Configs.GainSchedBehavior = value;
-                    configuration.withSlot0(slot0Configs);
-                }
-                break;
-            case 1:
-                {
-                    slot1Configs.GainSchedBehavior = value;
-                    configuration.withSlot1(slot1Configs);
-                }
-                break;
-            case 2:
-                {
-                    slot2Configs.GainSchedBehavior = value;
-                    configuration.withSlot2(slot2Configs);
-                }
-                break;
+            case 0 -> {
+                slot0Configs.GainSchedBehavior = value;
+                configuration.withSlot0(slot0Configs);
+            }
+            case 1 -> {
+                slot1Configs.GainSchedBehavior = value;
+                configuration.withSlot1(slot1Configs);
+            }
+            case 2 -> {
+                slot2Configs.GainSchedBehavior = value;
+                configuration.withSlot2(slot2Configs);
+            }
         }
 
         return this;
