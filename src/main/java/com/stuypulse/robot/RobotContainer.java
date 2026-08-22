@@ -211,55 +211,83 @@ public class RobotContainer {
         controller.leftTrigger().onTrue(intake.intake());
 
         controller.y().onTrue(intake.stow());
-        
+
         controller.rightTrigger().onTrue(intake.stopRollers());
 
         controller.leftBumper().onTrue(intake.outtake());
         controller.leftBumper().onFalse(intake.intake());
 
-        controller.a().whileTrue(
-            Commands.sequence(
-                shooter.shoot().alongWith(hood.shoot()),
-                DriveCommands.alignToHub(swerve),
-                Commands.waitUntil(() -> shooter.atTolerance() && hood.atTolerance()),
-                Commands.parallel(
-                    feeder.runForward(),
-                    indexer.runForward(),
-                    intake.stow(),
-                    DriveCommands.xMode(swerve)
-                ).until(() -> !swerve.isAlignedToHub() || !shooter.isShooting()),
-                DriveCommands.buzzController(controller).withTimeout(0.5)
-            )
-        );
-        controller.a().onFalse(
-            Commands.parallel(
-                feeder.stop(),
-                indexer.stop(),
-                intake.intake()
-            )
-        );
+        controller
+                .a()
+                .whileTrue(
+                        Commands.sequence(
+                                shooter.shoot().alongWith(hood.shoot()),
+                                DriveCommands.alignToHub(swerve),
+                                Commands.waitUntil(
+                                        () -> shooter.atTolerance() && hood.atTolerance()),
+                                Commands.parallel(
+                                                feeder.runForward(),
+                                                indexer.runForward(),
+                                                intake.stow(),
+                                                DriveCommands.xMode(swerve))
+                                        .until(this::shouldStopShooting),
+                                DriveCommands.buzzController(controller).withTimeout(0.5)));
+        controller.a().onFalse(Commands.parallel(feeder.stop(), indexer.stop(), intake.intake()));
 
-        controller.b().whileTrue(
-            Commands.sequence(
-                shooter.ferry().alongWith(hood.ferry()),
-                DriveCommands.alignToFerryZone(swerve),
-                Commands.waitUntil(() -> shooter.atTolerance() && hood.atTolerance()),
-                Commands.parallel(
-                    feeder.runForward(),
-                    indexer.runForward(),
-                    intake.stow(),
-                    DriveCommands.xMode(swerve)
-                ).until(() -> !swerve.isAlignedToFerryZone() || !shooter.isShooting()),
-                DriveCommands.buzzController(controller).withTimeout(0.5)
-            )
-        );
-        controller.b().onFalse(
-            Commands.parallel(
-                feeder.stop(),
-                indexer.stop(),
-                intake.intake()
-            )
-        );
+        controller
+                .b()
+                .whileTrue(
+                        Commands.sequence(
+                                shooter.ferry().alongWith(hood.ferry()),
+                                DriveCommands.alignToFerryZone(swerve),
+                                Commands.waitUntil(
+                                        () -> shooter.atTolerance() && hood.atTolerance()),
+                                Commands.parallel(
+                                                feeder.runForward(),
+                                                indexer.runForward(),
+                                                intake.stow(),
+                                                DriveCommands.xMode(swerve))
+                                        .until(this::shouldStopFerrying),
+                                DriveCommands.buzzController(controller).withTimeout(0.5)));
+        controller.b().onFalse(Commands.parallel(feeder.stop(), indexer.stop(), intake.intake()));
+
+        // KB Shot, up against the hub
+        controller
+                .rightBumper()
+                .whileTrue(
+                        Commands.sequence(
+                                shooter.kb().alongWith(hood.kb()),
+                                Commands.waitUntil(
+                                        () -> shooter.atTolerance() && hood.atTolerance()),
+                                Commands.parallel(
+                                        feeder.runForward(),
+                                        indexer.runForward(),
+                                        intake.stow(),
+                                        DriveCommands.xMode(swerve))));
+        controller
+                .rightBumper()
+                .onFalse(
+                        Commands.parallel(
+                                feeder.stop(), indexer.stop(), intake.intake(), shooter.shoot()));
+
+        // Tower shot, up against the tower
+        controller
+                .povLeft()
+                .whileTrue(
+                        Commands.sequence(
+                                shooter.tower().alongWith(hood.tower()),
+                                Commands.waitUntil(
+                                        () -> shooter.atTolerance() && hood.atTolerance()),
+                                Commands.parallel(
+                                        feeder.runForward(),
+                                        indexer.runForward(),
+                                        intake.stow(),
+                                        DriveCommands.xMode(swerve))));
+        controller
+                .povLeft()
+                .onFalse(
+                        Commands.parallel(
+                                feeder.stop(), indexer.stop(), intake.intake(), shooter.shoot()));
     }
 
     /**
@@ -273,5 +301,19 @@ public class RobotContainer {
 
     public void clearMemoized() {
         InterpolationCalculator.clearMemoized();
+    }
+
+    private boolean shouldStopShooting() {
+        return !swerve.isAlignedToHub()
+                || !shooter.isShooting()
+                || !shooter.atTolerance()
+                || !hood.atTolerance();
+    }
+
+    private boolean shouldStopFerrying() {
+        return !swerve.isAlignedToFerryZone()
+                || !shooter.isShooting()
+                || !shooter.atTolerance()
+                || !hood.atTolerance();
     }
 }
