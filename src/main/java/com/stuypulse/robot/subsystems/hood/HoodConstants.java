@@ -1,12 +1,16 @@
 package com.stuypulse.robot.subsystems.hood;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.stuypulse.robot.util.config.TalonFXConfig;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 
 public interface HoodConstants {
 
@@ -25,6 +29,10 @@ public interface HoodConstants {
         Angle KB_ANGLE = Degrees.of(694);
 
         Angle TOWER_ANGLE = Degrees.of(516);
+
+        Current STALL_CURRENT = Amps.of(30);
+
+        Voltage HOMING_VOLTAGE = Volts.of(2);
     }
 
     public interface HoodGains {

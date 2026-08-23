@@ -1,5 +1,6 @@
 package com.stuypulse.robot.subsystems.hood;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 
 import com.stuypulse.robot.constants.GlobalSettings;
@@ -10,6 +11,7 @@ import com.stuypulse.robot.util.FullSubsystem;
 import com.stuypulse.robot.util.InterpolationCalculator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -24,6 +26,7 @@ public class Hood extends FullSubsystem {
     private final Supplier<Pose2d> poseSupplier;
 
     private boolean atTolerance;
+    private boolean hasHomed;
 
     @AutoLogOutput(key = "Hood/State")
     private HoodState state;
@@ -36,11 +39,13 @@ public class Hood extends FullSubsystem {
         this.poseSupplier = poseSupplier;
 
         atTolerance = false;
+        hasHomed = false;
 
         setState(HoodState.STOW);
     }
 
     public enum HoodState {
+        HOME,
         SHOOT,
         FERRY,
         STOW,
@@ -63,7 +68,21 @@ public class Hood extends FullSubsystem {
             return;
         }
 
+        if (!hasHomed) {
+            setState(HoodState.HOME);
+        }
+
         switch (state) {
+            case HOME -> {
+                if (isStalling()) {
+                    io.seedPosition(HoodSettings.STOW_ANGLE);
+                    setState(HoodState.STOW);
+                    hasHomed = true;
+                } else {
+                    runVoltage(HoodSettings.HOMING_VOLTAGE);
+                }
+            }
+
             case SHOOT -> runPosition(
                     InterpolationCalculator.getInterpolatedShotHoodPosition(poseSupplier.get()));
 
@@ -87,6 +106,10 @@ public class Hood extends FullSubsystem {
         return atTolerance;
     }
 
+    private boolean isStalling() {
+        return inputs.hoodInputs.statorCurrent.abs(Amps) > HoodSettings.STALL_CURRENT.in(Amps);
+    }
+
     private void runPosition(Angle position) {
         outputs.hoodMode = HoodIOOutputMode.POSITION;
         outputs.hoodTargetPosition = position;
@@ -94,6 +117,11 @@ public class Hood extends FullSubsystem {
         atTolerance =
                 inputs.hoodInputs.position.minus(position).abs(Degrees)
                         <= HoodSettings.TOLERANCE.in(Degrees);
+    }
+
+    private void runVoltage(Voltage voltage) {
+        outputs.hoodMode = HoodIOOutputMode.VOLTAGE;
+        outputs.hoodTargetVoltage = voltage;
     }
 
     private void stopMotor() {
