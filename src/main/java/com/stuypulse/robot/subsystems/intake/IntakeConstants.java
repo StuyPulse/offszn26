@@ -12,6 +12,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 public interface IntakeConstants {
@@ -19,9 +20,6 @@ public interface IntakeConstants {
         // TODO: All placeholders, need to get real numbers
 
         // Pivot
-        int PIVOT_REGULAR_GAIN_SLOT = 0;
-        int PIVOT_DIGEST_GAIN_SLOT = 1;
-
         Angle PIVOT_STOW_ANGLE = Degrees.of(71.0);
         Angle PIVOT_DEPLOY_ANGLE = Degrees.of(-10.0);
 
@@ -31,8 +29,9 @@ public interface IntakeConstants {
         Angle PIVOT_MIN_ANGLE = Degrees.of(-10.0);
 
         Angle ROLLER_START_THRESHOLD = Degrees.of(10.0);
-        Angle PIVOT_PUSHDOWN_THRESHOLD = Degrees.of(15.0);
-        Current PIVOT_PUSHDOWN_CURRENT = Amps.of(-80.0);
+
+        Voltage PIVOT_HOMING_VOLTAGE = Volts.of(2);
+        Current PIVOT_STALL_CURRENT = Amps.of(30);
 
         // Rollers
         double INTAKE_DUTY_CYCLE = 1;

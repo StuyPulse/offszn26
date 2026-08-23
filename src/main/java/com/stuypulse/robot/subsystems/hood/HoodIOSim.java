@@ -1,12 +1,14 @@
 package com.stuypulse.robot.subsystems.hood;
 
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.subsystems.hood.HoodConstants.*;
 import com.stuypulse.robot.util.simulation.TalonFXSimulation.SystemSim;
 import com.stuypulse.robot.util.simulation.TalonFXSimulation.TalonFXSimulation;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class HoodIOSim implements HoodIO {
@@ -16,6 +18,7 @@ public class HoodIOSim implements HoodIO {
     private final TalonFXSimulation hoodMotor;
 
     private final PositionVoltage positionController;
+    private final VoltageOut voltageController;
 
     public HoodIOSim() {
         hoodSystem =
@@ -30,6 +33,7 @@ public class HoodIOSim implements HoodIO {
         hoodMotor.configure(HoodMotorConfigs.HOOD_CONFIG);
 
         positionController = new PositionVoltage(0).withEnableFOC(true);
+        voltageController = new VoltageOut(0).withEnableFOC(true);
     }
 
     @Override
@@ -46,7 +50,15 @@ public class HoodIOSim implements HoodIO {
             case POSITION -> hoodMotor.setControl(
                     positionController.withPosition(outputs.hoodTargetPosition));
 
+            case VOLTAGE -> hoodMotor.setControl(
+                    voltageController.withOutput(outputs.hoodTargetVoltage));
+
             case STOP -> hoodMotor.stopMotor();
         }
+    }
+
+    @Override
+    public void seedPosition(Angle position) {
+        hoodMotor.setPosition(position);
     }
 }

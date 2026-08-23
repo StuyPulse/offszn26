@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.*;
 
 import com.stuypulse.robot.util.logged.LoggedTalonFX.TalonFXInputs;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
 
@@ -21,6 +22,7 @@ public interface IntakeIO {
 
     public static enum PivotIOOutputMode {
         POSITION,
+        VOLTAGE,
         STOP
     }
 
@@ -36,6 +38,9 @@ public interface IntakeIO {
         @AutoLogOutput(key = "Intake/Pivot/Target Position")
         public Angle pivotTargetPosition = Degrees.zero();
 
+        @AutoLogOutput(key = "Intake/Pivot/Target Voltage")
+        public Voltage pivotTargetVoltage = Volts.zero();
+
         @AutoLogOutput(key = "Intake/Rollers/Output Mode")
         public RollerIOOutputMode rollerMode = RollerIOOutputMode.DUTY_CYCLE;
 
@@ -44,4 +49,6 @@ public interface IntakeIO {
     }
 
     public default void applyOutputs(IntakeIOOutputs outputs) {}
+
+    public default void seedPivotPosition(Angle position) {}
 }

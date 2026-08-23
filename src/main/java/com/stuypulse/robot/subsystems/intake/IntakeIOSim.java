@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.subsystems.intake.IntakeConstants.*;
@@ -12,6 +13,7 @@ import com.stuypulse.robot.util.simulation.TalonFXSimulation.SystemSim;
 import com.stuypulse.robot.util.simulation.TalonFXSimulation.TalonFXSimulation;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
@@ -26,6 +28,7 @@ public class IntakeIOSim implements IntakeIO {
     private final DutyCycleOut rollerLeaderController;
     private final Follower rollerFollowerController;
     private final PositionVoltage pivotPositionController;
+    private final VoltageOut pivotVoltageController;
 
     public IntakeIOSim() {
         this.pivotSim =
@@ -70,6 +73,7 @@ public class IntakeIOSim implements IntakeIO {
         this.rollerFollowerController =
                 new Follower(rollerLeaderMotor.getDeviceID(), MotorAlignmentValue.Opposed);
         this.pivotPositionController = new PositionVoltage(0).withEnableFOC(true);
+        this.pivotVoltageController = new VoltageOut(0).withEnableFOC(true);
 
         rollerFollowerMotor.setControl(rollerFollowerController);
     }
@@ -93,6 +97,8 @@ public class IntakeIOSim implements IntakeIO {
         switch (outputs.pivotMode) {
             case POSITION -> pivotMotor.setControl(
                     pivotPositionController.withPosition(outputs.pivotTargetPosition));
+            case VOLTAGE -> pivotMotor.setControl(
+                    pivotVoltageController.withOutput(outputs.pivotTargetVoltage));
             case STOP -> pivotMotor.stopMotor();
         }
 
@@ -105,5 +111,10 @@ public class IntakeIOSim implements IntakeIO {
                 rollerFollowerMotor.setControl(rollerFollowerController);
             }
         }
+    }
+
+    @Override
+    public void seedPivotPosition(Angle position) {
+        pivotMotor.setPosition(position);
     }
 }
