@@ -3,10 +3,12 @@ package com.stuypulse.robot.subsystems.intake;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.subsystems.intake.IntakeConstants.*;
 import com.stuypulse.robot.util.logged.LoggedTalonFX.LoggedTalonFX;
+import edu.wpi.first.units.measure.Angle;
 
 public class IntakeIOReal implements IntakeIO {
     private final LoggedTalonFX pivotMotor;
@@ -16,6 +18,7 @@ public class IntakeIOReal implements IntakeIO {
     private final DutyCycleOut rollerLeaderController;
     private final Follower rollerFollowerController;
     private final PositionVoltage pivotPositionController;
+    private final VoltageOut pivotVoltageController;
 
     public IntakeIOReal() {
         this.pivotMotor = new LoggedTalonFX(IntakeDeviceIds.PIVOT, GlobalSettings.RIO);
@@ -31,6 +34,7 @@ public class IntakeIOReal implements IntakeIO {
         this.rollerFollowerController =
                 new Follower(rollerLeftMotor.getDeviceID(), MotorAlignmentValue.Opposed);
         this.pivotPositionController = new PositionVoltage(0).withEnableFOC(true);
+        this.pivotVoltageController = new VoltageOut(0).withEnableFOC(true);
 
         rollerRightMotor.setControl(rollerFollowerController);
     }
@@ -47,6 +51,8 @@ public class IntakeIOReal implements IntakeIO {
         switch (outputs.pivotMode) {
             case POSITION -> pivotMotor.setControl(
                     pivotPositionController.withPosition(outputs.pivotTargetPosition));
+            case VOLTAGE -> pivotMotor.setControl(
+                    pivotVoltageController.withOutput(outputs.pivotTargetVoltage));
             case STOP -> pivotMotor.stopMotor();
         }
 
@@ -59,5 +65,10 @@ public class IntakeIOReal implements IntakeIO {
                 rollerRightMotor.setControl(rollerFollowerController);
             }
         }
+    }
+
+    @Override
+    public void seedPivotPosition(Angle position) {
+        pivotMotor.setPosition(position);
     }
 }
