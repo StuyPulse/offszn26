@@ -13,6 +13,7 @@ public interface GlobalSettings {
 
     // Add subsystems as they're added.
     public interface EnabledSubsystems {
+        LoggedNetworkBoolean SWERVE = new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Swerve", true);
         LoggedNetworkBoolean SHOOTER =
                 new LoggedNetworkBoolean("/Tuning/Enabled Subsystems/Shooter", true);
         LoggedNetworkBoolean HOOD =
