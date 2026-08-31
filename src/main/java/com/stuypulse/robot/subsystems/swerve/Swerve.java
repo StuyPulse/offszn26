@@ -173,14 +173,12 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
         odometryLock.unlock();
 
         // Stop moving when disabled
-        if (DriverStation.isDisabled()) {
+        if (DriverStation.isDisabled() || !GlobalSettings.EnabledSubsystems.SWERVE.get()) {
             for (var module : modules) {
                 module.stop();
             }
-        }
 
-        // Log empty setpoint states when disabled
-        if (DriverStation.isDisabled()) {
+            // Log empty setpoint states when disabled
             Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
             Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
         }
