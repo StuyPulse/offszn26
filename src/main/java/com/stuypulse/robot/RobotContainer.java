@@ -214,8 +214,10 @@ public class RobotContainer {
 
         controller.rightTrigger().onTrue(intake.stopRollers());
 
-        controller.leftBumper().onTrue(intake.outtake().alongWith(indexer.runReverse()));
-        controller.leftBumper().onFalse(intake.intake().alongWith(indexer.stop()));
+        controller
+                .leftBumper()
+                .onTrue(intake.outtake().alongWith(indexer.runReverse()))
+                .onFalse(intake.intake().alongWith(indexer.stop()));
 
         controller
                 .a()
@@ -230,9 +232,7 @@ public class RobotContainer {
                                                 intake.stow(),
                                                 DriveCommands.xMode(swerve))
                                         .until(this::shouldStopShooting),
-                                DriveCommands.buzzController(controller).withTimeout(0.5)));
-        controller
-                .a()
+                                DriveCommands.buzzController(controller).withTimeout(0.5)))
                 .onFalse(
                         Commands.parallel(
                                 feeder.stop(), indexer.stop(), intake.intake(), hood.stow()));
@@ -250,9 +250,7 @@ public class RobotContainer {
                                                 intake.stow(),
                                                 DriveCommands.xMode(swerve))
                                         .until(this::shouldStopFerrying),
-                                DriveCommands.buzzController(controller).withTimeout(0.5)));
-        controller
-                .b()
+                                DriveCommands.buzzController(controller).withTimeout(0.5)))
                 .onFalse(
                         Commands.parallel(
                                 feeder.stop(), indexer.stop(), intake.intake(), hood.stow()));
@@ -268,9 +266,7 @@ public class RobotContainer {
                                         feeder.runForward(),
                                         indexer.runForward(),
                                         intake.stow(),
-                                        DriveCommands.xMode(swerve))));
-        controller
-                .rightBumper()
+                                        DriveCommands.xMode(swerve))))
                 .onFalse(
                         Commands.parallel(
                                 feeder.stop(),
@@ -290,9 +286,7 @@ public class RobotContainer {
                                         feeder.runForward(),
                                         indexer.runForward(),
                                         intake.stow(),
-                                        DriveCommands.xMode(swerve))));
-        controller
-                .povLeft()
+                                        DriveCommands.xMode(swerve))))
                 .onFalse(
                         Commands.parallel(
                                 feeder.stop(),
