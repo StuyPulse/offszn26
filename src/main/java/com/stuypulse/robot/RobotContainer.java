@@ -6,6 +6,7 @@ package com.stuypulse.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
+import com.stuypulse.robot.commands.auto.AutonFactory;
 import com.stuypulse.robot.constants.DriverConstants;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.constants.GlobalSettings.VisionMode;
@@ -43,6 +44,7 @@ import com.stuypulse.robot.subsystems.vision.VisionIOLimelight;
 import com.stuypulse.robot.subsystems.vision.VisionIOPhotonVision;
 import com.stuypulse.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import com.stuypulse.robot.util.InterpolationCalculator;
+import com.stuypulse.robot.util.PathUtil.AutonConfig;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -72,6 +74,9 @@ public class RobotContainer {
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
+
+    // Auton Factory
+    private final AutonFactory autonFactory;
 
     /** The container for the robot. Contains subsystems, IO devices, and commands. */
     public RobotContainer() {
@@ -159,6 +164,7 @@ public class RobotContainer {
         this.controller = new CommandXboxController(DriverConstants.Driver.DRIVER_INDEX);
 
         // Set up auto routines
+        autonFactory = new AutonFactory(feeder, hood, indexer, intake, shooter, swerve, vision);
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
         configureButtonBindings();
@@ -173,7 +179,13 @@ public class RobotContainer {
         swerve.setDefaultCommand(DriveCommands.joystickDrive(swerve, controller));
     }
 
-    private void configureAutons() {}
+    private void configureAutons() {
+        autoChooser.addDefaultOption("Do Nothing", autonFactory.doNothingAuton());
+
+        AutonConfig exampleAuto =
+                new AutonConfig("Example", autonFactory::exampleAuton, "Example Path");
+        exampleAuto.register(autoChooser);
+    }
 
     private void configureSysid() {
         autoChooser.addOption(

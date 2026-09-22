@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -28,20 +27,12 @@ public class PathUtil {
         private final String name;
         private final Function<PathPlannerPath[], Command> auton;
         private final String[] paths;
-        private final Optional<Double> waitTimeOne;
-        private final Optional<Double> waitTimeTwo;
 
         public AutonConfig(
-                String name,
-                Function<PathPlannerPath[], Command> auton,
-                double waitTimeOne,
-                double waitTimeTwo,
-                String... paths) {
+                String name, Function<PathPlannerPath[], Command> auton, String... paths) {
             this.name = name;
             this.auton = auton;
             this.paths = paths;
-            this.waitTimeOne = Optional.of(waitTimeOne);
-            this.waitTimeTwo = Optional.of(waitTimeTwo);
 
             for (String path : paths) {
                 try {
@@ -56,11 +47,6 @@ public class PathUtil {
                             false);
                 }
             }
-        }
-
-        public AutonConfig(
-                String name, Function<PathPlannerPath[], Command> auton, String... paths) {
-            this(name, auton, 0.0, 0.0, paths);
         }
 
         private Command buildCommand() {
