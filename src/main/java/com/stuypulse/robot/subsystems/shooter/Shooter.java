@@ -27,6 +27,7 @@ public class Shooter extends FullSubsystem {
     private ShooterState state;
 
     private final Supplier<Pose2d> poseSupplier;
+    private final Supplier<Current> feederCurrentSupplier;
 
     private final Debouncer isShootingDebouncer;
 
@@ -40,13 +41,15 @@ public class Shooter extends FullSubsystem {
         TOWER
     }
 
-    public Shooter(ShooterIO io, Supplier<Pose2d> poseSupplier) {
+    public Shooter(
+            ShooterIO io, Supplier<Pose2d> poseSupplier, Supplier<Current> feederCurrentSupplier) {
         this.state = ShooterState.STOP;
         this.io = io;
         this.inputs = new ShooterIOInputsAutoLogged();
         this.outputs = new ShooterIOOutputs();
 
         this.poseSupplier = poseSupplier;
+        this.feederCurrentSupplier = feederCurrentSupplier;
 
         isShootingDebouncer =
                 new Debouncer(
@@ -58,6 +61,9 @@ public class Shooter extends FullSubsystem {
     private void runVelocity(AngularVelocity targetVelocity) {
         outputs.targetVelocity = targetVelocity;
         outputs.mode = ShooterIOOutputMode.VELOCITY_TORQUE_CURRENT_FOC;
+        outputs.feedforward =
+                InterpolationCalculator.getInterpolatedFeederCurrentFeedforward(
+                        feederCurrentSupplier.get());
 
         atTolerance =
                 inputs.topLeftMotorInputs.velocity.minus(targetVelocity).abs(RPM)

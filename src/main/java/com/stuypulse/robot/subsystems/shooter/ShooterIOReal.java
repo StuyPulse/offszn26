@@ -64,7 +64,9 @@ public final class ShooterIOReal implements ShooterIO {
             bottomLeftMotor.setControl(shooterFollowerLeft);
             bottomRightMotor.setControl(shooterFollowerRight);
         } else if (outputs.mode == ShooterIOOutputMode.VELOCITY_TORQUE_CURRENT_FOC) {
-            shooterVelocityControl.withVelocity(outputs.targetVelocity);
+            shooterVelocityControl
+                    .withVelocity(outputs.targetVelocity)
+                    .withFeedForward(outputs.feedforward);
             topLeftMotor.setControl(shooterVelocityControl);
             topRightMotor.setControl(shooterVelocityControl);
         }

@@ -5,6 +5,7 @@ import com.stuypulse.robot.subsystems.feeder.FeederConstants.FeederSettings;
 import com.stuypulse.robot.subsystems.feeder.FeederIO.FeederIOOutputMode;
 import com.stuypulse.robot.subsystems.feeder.FeederIO.FeederIOOutputs;
 import com.stuypulse.robot.util.FullSubsystem;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -58,6 +59,10 @@ public class Feeder extends FullSubsystem {
     @Override
     public void periodicAfterScheduler() {
         io.applyOutputs(outputs);
+    }
+
+    public Current getCurrent() {
+        return inputs.feederLeaderInputs.statorCurrent;
     }
 
     private void runDutyCycle(double dutyCycle) {

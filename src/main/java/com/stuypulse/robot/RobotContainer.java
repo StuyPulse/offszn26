@@ -86,11 +86,10 @@ public class RobotContainer {
                                 new ModuleIOReal(TunerConstants.FrontRight),
                                 new ModuleIOReal(TunerConstants.BackLeft),
                                 new ModuleIOReal(TunerConstants.BackRight));
-
-                shooter = new Shooter(new ShooterIOReal(), swerve::getPose);
+                feeder = new Feeder(new FeederIOReal());
+                shooter = new Shooter(new ShooterIOReal(), swerve::getPose, feeder::getCurrent);
                 hood = new Hood(new HoodIOReal(), swerve::getPose);
                 intake = new Intake(new IntakeIOReal());
-                feeder = new Feeder(new FeederIOReal());
                 indexer = new Indexer(new IndexerIOReal());
 
                 for (Cameras camera : Cameras.values()) {
@@ -118,11 +117,10 @@ public class RobotContainer {
                                 new ModuleIOSim(TunerConstants.FrontRight),
                                 new ModuleIOSim(TunerConstants.BackLeft),
                                 new ModuleIOSim(TunerConstants.BackRight));
-
-                shooter = new Shooter(new ShooterIOSim(), swerve::getPose);
+                feeder = new Feeder(new FeederIOSim());
+                shooter = new Shooter(new ShooterIOSim(), swerve::getPose, feeder::getCurrent);
                 hood = new Hood(new HoodIOSim(), swerve::getPose);
                 intake = new Intake(new IntakeIOSim());
-                feeder = new Feeder(new FeederIOSim());
                 indexer = new Indexer(new IndexerIOSim());
 
                 for (Cameras camera : Cameras.values()) {
@@ -143,11 +141,11 @@ public class RobotContainer {
                                 new ModuleIO() {},
                                 new ModuleIO() {});
 
-                shooter = new Shooter(new ShooterIO() {}, swerve::getPose);
+                feeder = new Feeder(new FeederIO() {});
+                shooter = new Shooter(new ShooterIO() {}, swerve::getPose, feeder::getCurrent);
                 hood = new Hood(new HoodIO() {}, swerve::getPose);
                 intake = new Intake(new IntakeIO() {});
                 indexer = new Indexer(new IndexerIO() {});
-                feeder = new Feeder(new FeederIO() {});
 
                 for (Cameras camera : Cameras.values()) {
                     cameraIOMap.put(camera, new VisionIO() {});

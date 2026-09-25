@@ -28,6 +28,9 @@ public interface ShooterIO {
 
         @AutoLogOutput(key = "Shooter/Output Mode")
         public ShooterIOOutputMode mode = ShooterIOOutputMode.VELOCITY_TORQUE_CURRENT_FOC;
+
+        @AutoLogOutput(key = "Shooter/Feedforward")
+        public double feedforward = 0.0;
     }
 
     default void updateInputs(ShooterIOInputs inputs) {}

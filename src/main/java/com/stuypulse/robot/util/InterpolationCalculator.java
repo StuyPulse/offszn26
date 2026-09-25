@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import java.util.Optional;
 
 public class InterpolationCalculator {
@@ -17,13 +18,18 @@ public class InterpolationCalculator {
     private static final InterpolatingDoubleTreeMap hoodPositionInterpolation;
     private static final InterpolatingDoubleTreeMap shooterFerryRPMInterpolation;
 
+    private static final InterpolatingDoubleTreeMap feederCurrentFeedforwardInterpolation;
+
     private static Optional<InterpolatedShotInfo> cachedInterpolatedShotInfo;
     private static Optional<AngularVelocity> cachedInterpolatedFerryRPM;
+    private static Optional<Double> cachedFeederCurrentFeedforward;
 
     static {
         shooterRPMInterpolation = new InterpolatingDoubleTreeMap();
         hoodPositionInterpolation = new InterpolatingDoubleTreeMap();
         shooterFerryRPMInterpolation = new InterpolatingDoubleTreeMap();
+
+        feederCurrentFeedforwardInterpolation = new InterpolatingDoubleTreeMap();
 
         for (double[] pair : InterpolationConstants.DISTANCE_RPM_INTERPOLATION_VALUES) {
             shooterRPMInterpolation.put(pair[0], pair[1]);
@@ -36,6 +42,11 @@ public class InterpolationCalculator {
         for (double[] pair : InterpolationConstants.FERRY_DISTANCE_RPM_INTERPOLATION) {
             shooterFerryRPMInterpolation.put(pair[0], pair[1]);
         }
+
+        for (double[] pair :
+                InterpolationConstants.FEEDER_CURRENT_SHOOTER_FEEDFORWARD_INTERPOLATION) {
+            feederCurrentFeedforwardInterpolation.put(pair[0], pair[1]);
+        }
     }
 
     private InterpolationCalculator() {}
@@ -43,6 +54,7 @@ public class InterpolationCalculator {
     public static void clearMemoized() {
         cachedInterpolatedShotInfo = Optional.empty();
         cachedInterpolatedFerryRPM = Optional.empty();
+        cachedFeederCurrentFeedforward = Optional.empty();
     }
 
     public static AngularVelocity getInterpolatedShotRPM(Pose2d currentPose) {
@@ -67,6 +79,15 @@ public class InterpolationCalculator {
         }
 
         return cachedInterpolatedFerryRPM.get();
+    }
+
+    public static double getInterpolatedFeederCurrentFeedforward(Current feederCurrent) {
+        if (cachedFeederCurrentFeedforward.isEmpty()) {
+            cachedFeederCurrentFeedforward =
+                    Optional.of(feederCurrentFeedforwardInterpolation.get(feederCurrent.in(Amps)));
+        }
+
+        return cachedFeederCurrentFeedforward.get();
     }
 
     public record InterpolatedShotInfo(Angle hoodAngle, AngularVelocity shooterVelocity) {}

@@ -6,4 +6,6 @@ public interface InterpolationConstants {
     double[][] DISTANCE_RPM_INTERPOLATION_VALUES = {};
 
     double[][] FERRY_DISTANCE_RPM_INTERPOLATION = {};
+
+    double[][] FEEDER_CURRENT_SHOOTER_FEEDFORWARD_INTERPOLATION = {};
 }
