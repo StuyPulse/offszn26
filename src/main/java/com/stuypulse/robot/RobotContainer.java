@@ -4,7 +4,6 @@
 /**************************************************************/
 package com.stuypulse.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
 import com.stuypulse.robot.commands.auto.AutonFactory;
 import com.stuypulse.robot.constants.DriverConstants;
@@ -47,6 +46,7 @@ import com.stuypulse.robot.util.InterpolationCalculator;
 import com.stuypulse.robot.util.PathUtil.AutonConfig;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -165,7 +165,8 @@ public class RobotContainer {
 
         // Set up auto routines
         autonFactory = new AutonFactory(feeder, hood, indexer, intake, shooter, swerve, vision);
-        autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+        autoChooser =
+                new LoggedDashboardChooser<Command>("Auto Choices", new SendableChooser<Command>());
 
         configureButtonBindings();
         configureDefaultCommands();
@@ -182,9 +183,9 @@ public class RobotContainer {
     private void configureAutons() {
         autoChooser.addDefaultOption("Do Nothing", autonFactory.doNothingAuton());
 
-        AutonConfig exampleAuto =
+        AutonConfig exampleAuton =
                 new AutonConfig("Example", autonFactory::exampleAuton, "Example Path");
-        exampleAuto.register(autoChooser);
+        exampleAuton.register(autoChooser);
     }
 
     private void configureSysid() {
