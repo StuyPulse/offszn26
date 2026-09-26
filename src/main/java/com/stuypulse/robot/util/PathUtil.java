@@ -6,6 +6,7 @@
 package com.stuypulse.robot.util;
 
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.stuypulse.robot.commands.auto.Auton;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,11 +26,10 @@ public class PathUtil {
     public static class AutonConfig {
 
         private final String name;
-        private final Function<PathPlannerPath[], Command> auton;
+        private final Function<PathPlannerPath[], Auton> auton;
         private final String[] paths;
 
-        public AutonConfig(
-                String name, Function<PathPlannerPath[], Command> auton, String... paths) {
+        public AutonConfig(String name, Function<PathPlannerPath[], Auton> auton, String... paths) {
             this.name = name;
             this.auton = auton;
             this.paths = paths;
@@ -49,15 +49,15 @@ public class PathUtil {
             }
         }
 
-        private Command buildCommand() {
-            Command autonCommand = auton.apply(loadPaths(paths));
+        private Auton buildCommand() {
+            Auton autonCommand = auton.apply(loadPaths(paths));
             // if (waitTimeOne.isPresent() && waitTimeOne.get() > 0.0) {
             //     return Commands.sequence(new WaitCommand(waitTimeOne.get()), autonCommand);
             // }
             return autonCommand;
         }
 
-        public AutonConfig register(LoggedDashboardChooser<Command> chooser) {
+        public AutonConfig register(LoggedDashboardChooser<Auton> chooser) {
             chooser.addOption(name, buildCommand());
             return this;
         }

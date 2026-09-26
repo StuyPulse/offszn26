@@ -8,8 +8,6 @@ import com.stuypulse.robot.subsystems.intake.Intake;
 import com.stuypulse.robot.subsystems.shooter.Shooter;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
 import com.stuypulse.robot.subsystems.vision.Vision;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 
 public class AutonFactory {
     // Define all auton commands here
@@ -39,13 +37,13 @@ public class AutonFactory {
         this.vision = vision;
     }
 
-    public Command doNothingAuton() {
-        return Commands.sequence(
-                // Does nothing
+    public Auton doNothingAuton() {
+        return new Auton(
+                // Does nothing, wowie
                 );
     }
 
-    public Command exampleAuton(PathPlannerPath... paths) {
-        return Commands.sequence(swerve.followPath(paths[0]));
+    public Auton exampleAuton(PathPlannerPath... paths) {
+        return new Auton(paths, swerve.followPath(paths[0]));
     }
 }
