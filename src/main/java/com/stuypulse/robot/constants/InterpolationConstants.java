@@ -1,9 +1,11 @@
 package com.stuypulse.robot.constants;
 
 public interface InterpolationConstants {
-    double[][] DISTANCE_ANGLE_INTERPOLATION_VALUES = {};
+    // TODO: Placeholders
 
-    double[][] DISTANCE_RPM_INTERPOLATION_VALUES = {};
+    double[][] DISTANCE_ANGLE_INTERPOLATION_VALUES = {{516, 694}};
 
-    double[][] FERRY_DISTANCE_RPM_INTERPOLATION = {};
+    double[][] DISTANCE_RPM_INTERPOLATION_VALUES = {{516, 694}};
+
+    double[][] FERRY_DISTANCE_RPM_INTERPOLATION = {{516, 694}};
 }

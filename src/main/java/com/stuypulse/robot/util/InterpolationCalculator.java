@@ -25,6 +25,9 @@ public class InterpolationCalculator {
         hoodPositionInterpolation = new InterpolatingDoubleTreeMap();
         shooterFerryRPMInterpolation = new InterpolatingDoubleTreeMap();
 
+        cachedInterpolatedShotInfo = Optional.empty();
+        cachedInterpolatedFerryRPM = Optional.empty();
+
         for (double[] pair : InterpolationConstants.DISTANCE_RPM_INTERPOLATION_VALUES) {
             shooterRPMInterpolation.put(pair[0], pair[1]);
         }
