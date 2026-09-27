@@ -118,7 +118,9 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void autonomousInit() {
-        Auton.closeAllFieldObjects();
+        if (autonomousCommand != null) {
+            autonomousCommand.clearFieldObjects();
+        }
 
         // schedule the autonomous command (example)
         autonomousCommand = robotContainer.getAutonomousCommand();
@@ -140,6 +142,7 @@ public class Robot extends LoggedRobot {
         // continue until interrupted by another command, remove
         // this line or comment it out.
         if (autonomousCommand != null) {
+            autonomousCommand.clearFieldObjects();
             autonomousCommand.cancel();
         }
     }

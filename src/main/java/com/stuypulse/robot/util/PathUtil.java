@@ -9,7 +9,6 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.stuypulse.robot.commands.auto.Auton;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj2.command.Command;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -51,9 +50,6 @@ public class PathUtil {
 
         private Auton buildCommand() {
             Auton autonCommand = auton.apply(loadPaths(paths));
-            // if (waitTimeOne.isPresent() && waitTimeOne.get() > 0.0) {
-            //     return Commands.sequence(new WaitCommand(waitTimeOne.get()), autonCommand);
-            // }
             return autonCommand;
         }
 
@@ -62,7 +58,7 @@ public class PathUtil {
             return this;
         }
 
-        public AutonConfig registerDefault(SendableChooser<Command> chooser) {
+        public AutonConfig registerDefault(SendableChooser<Auton> chooser) {
             chooser.setDefaultOption(name, auton.apply(loadPaths(paths)));
             return this;
         }

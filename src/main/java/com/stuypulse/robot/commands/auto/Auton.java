@@ -10,13 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Auton extends SequentialCommandGroup {
-    private static final List<Auton> loggedAutons = new ArrayList<Auton>();
-
     private final List<PathPlannerPath> subPaths = new ArrayList<PathPlannerPath>();
 
     public Auton(PathPlannerPath[] paths, Command... commands) {
-        loggedAutons.add(this);
-
         for (PathPlannerPath path : paths) {
             subPaths.add(path);
         }
@@ -57,20 +53,7 @@ public class Auton extends SequentialCommandGroup {
 
     public void clearFieldObjects() {
         for (int i = 0; i < subPaths.size(); i++) {
-            Field.FIELD_2D.getObject("path: " + subPaths.get(i).name).setPoses(new ArrayList<>());
-        }
-    }
-
-    private void closeFieldObjects() {
-        for (int i = 0; i < subPaths.size(); i++) {
-            Field.FIELD_2D.getObject("path: " + subPaths.get(i).name).setPoses(new ArrayList<>());
-            Field.FIELD_2D.getObject("path: " + subPaths.get(i).name).close();
-        }
-    }
-
-    public static void closeAllFieldObjects() {
-        for (Auton auton : loggedAutons) {
-            auton.closeFieldObjects();
+            Field.FIELD_2D.getObject("path: " + subPaths.get(i).name).setPoses();
         }
     }
 }
