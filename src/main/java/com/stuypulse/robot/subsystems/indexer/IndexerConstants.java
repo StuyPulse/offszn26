@@ -12,7 +12,7 @@ public interface IndexerConstants {
         double FORWARD_DUTY_CYCLE = 1;
         double REVERSE_DUTY_CYCLE = -1;
 
-        double GEAR_RATIO = 0;
+        double GEAR_RATIO = 1;
     }
 
     public interface IndexerDeviceIds {
