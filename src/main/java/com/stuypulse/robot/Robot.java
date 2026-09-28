@@ -106,7 +106,7 @@ public class Robot extends LoggedRobot {
             autonomousCommand = robotContainer.getAutonomousCommand();
 
             if (autonomousCommand != null) {
-                autonomousCommand.logPaths();
+                autonomousCommand.displayPaths();
             }
         } else {
             autonomousCommand = robotContainer.getAutonomousCommand();

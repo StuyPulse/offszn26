@@ -52,7 +52,7 @@ public class Auton extends SequentialCommandGroup {
     public Auton() {}
 
     /** Sets path poses as field objects which display as trajectories on elastic */
-    public void logPaths() {
+    public void displayPaths() {
 
         for (int i = 0; i < subPaths.size(); i++) {
             if (DriverStation.getAlliance().isEmpty()) {
