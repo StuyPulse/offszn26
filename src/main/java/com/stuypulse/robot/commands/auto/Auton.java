@@ -52,21 +52,17 @@ public class Auton extends SequentialCommandGroup {
     public Auton() {}
 
     /** Sets path poses as field objects which display as trajectories on elastic */
-    public void displayPaths() {
-
+    public void displayPaths() {+
         for (int i = 0; i < subPaths.size(); i++) {
-            if (DriverStation.getAlliance().isEmpty()) {
-                Field.FIELD_2D
-                        .getObject("path: " + subPaths.get(i).name)
-                        .setPoses(
-                                Field.transformToOppositeAlliance(subPaths.get(i).getPathPoses()));
-                continue;
-            }
-
             if (DriverStation.getAlliance().get() == Alliance.Blue) {
                 Field.FIELD_2D
                         .getObject("path: " + subPaths.get(i).name)
                         .setPoses(subPaths.get(i).getPathPoses());
+            } else if (DriverStation.getAlliance().isEmpty()) {
+                Field.FIELD_2D
+                        .getObject("path: " + subPaths.get(i).name)
+                        .setPoses(
+                                Field.transformToOppositeAlliance(subPaths.get(i).getPathPoses()));
             } else {
                 Field.FIELD_2D
                         .getObject("path: " + subPaths.get(i).name)
