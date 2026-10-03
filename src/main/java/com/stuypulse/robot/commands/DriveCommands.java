@@ -72,7 +72,7 @@ public class DriveCommands {
     }
 
     public static Command xMode(Swerve swerve) {
-        return Commands.run(() -> swerve.stopWithX(), swerve).withName("Swerve X Mode");
+        return Commands.run(swerve::stopWithX, swerve).withName("Swerve X Mode");
     }
 
     /**
@@ -164,7 +164,7 @@ public class DriveCommands {
                                                             .plus(new Rotation2d(Math.PI))
                                                     : swerve.getRotation()));
                         },
-                        () -> angleController.close(),
+                        angleController::close,
                         swerve)
                 .until(
                         () ->

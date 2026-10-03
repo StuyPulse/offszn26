@@ -50,6 +50,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.EnumMap;
@@ -220,7 +221,96 @@ public class RobotContainer {
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        controller.a().onTrue(DriveCommands.alignToHub(swerve));
+        // TODO: Get button mappings from driver
+
+        controller.x().whileTrue(DriveCommands.xMode(swerve));
+
+        controller.leftTrigger().onTrue(intake.intake());
+
+        controller.y().onTrue(intake.stow());
+
+        controller.rightTrigger().onTrue(intake.stopRollers());
+
+        controller
+                .leftBumper()
+                .onTrue(intake.outtake().alongWith(indexer.runReverse()))
+                .onFalse(intake.intake().alongWith(indexer.stop()));
+
+        controller
+                .a()
+                .whileTrue(
+                        Commands.sequence(
+                                shooter.shoot().alongWith(hood.shoot()),
+                                DriveCommands.alignToHub(swerve),
+                                Commands.waitUntil(this::atShootingTolerance),
+                                Commands.parallel(
+                                                feeder.runForward(),
+                                                indexer.runForward(),
+                                                intake.stow(),
+                                                DriveCommands.xMode(swerve))
+                                        .until(this::shouldStopShooting),
+                                DriveCommands.buzzController(controller).withTimeout(0.5)))
+                .onFalse(
+                        Commands.parallel(
+                                feeder.stop(), indexer.stop(), intake.intake(), hood.stow()));
+
+        controller
+                .b()
+                .whileTrue(
+                        Commands.sequence(
+                                shooter.ferry().alongWith(hood.ferry()),
+                                DriveCommands.alignToFerryZone(swerve),
+                                Commands.waitUntil(this::atShootingTolerance),
+                                Commands.parallel(
+                                                feeder.runForward(),
+                                                indexer.runForward(),
+                                                intake.stow(),
+                                                DriveCommands.xMode(swerve))
+                                        .until(this::shouldStopFerrying),
+                                DriveCommands.buzzController(controller).withTimeout(0.5)))
+                .onFalse(
+                        Commands.parallel(
+                                feeder.stop(), indexer.stop(), intake.intake(), hood.stow()));
+
+        // KB Shot, up against the hub
+        controller
+                .rightBumper()
+                .whileTrue(
+                        Commands.sequence(
+                                shooter.kb().alongWith(hood.kb()),
+                                Commands.waitUntil(this::atShootingTolerance),
+                                Commands.parallel(
+                                        feeder.runForward(),
+                                        indexer.runForward(),
+                                        intake.stow(),
+                                        DriveCommands.xMode(swerve))))
+                .onFalse(
+                        Commands.parallel(
+                                feeder.stop(),
+                                indexer.stop(),
+                                intake.intake(),
+                                shooter.shoot(),
+                                hood.stow()));
+
+        // Tower shot, up against the tower
+        controller
+                .povLeft()
+                .whileTrue(
+                        Commands.sequence(
+                                shooter.tower().alongWith(hood.tower()),
+                                Commands.waitUntil(this::atShootingTolerance),
+                                Commands.parallel(
+                                        feeder.runForward(),
+                                        indexer.runForward(),
+                                        intake.stow(),
+                                        DriveCommands.xMode(swerve))))
+                .onFalse(
+                        Commands.parallel(
+                                feeder.stop(),
+                                indexer.stop(),
+                                intake.intake(),
+                                shooter.shoot(),
+                                hood.stow()));
     }
 
     /**
@@ -234,5 +324,17 @@ public class RobotContainer {
 
     public void clearMemoized() {
         InterpolationCalculator.clearMemoized();
+    }
+
+    private boolean atShootingTolerance() {
+        return shooter.atTolerance() && hood.atTolerance();
+    }
+
+    private boolean shouldStopShooting() {
+        return !swerve.isAlignedToHub() || !shooter.isShooting() || !atShootingTolerance();
+    }
+
+    private boolean shouldStopFerrying() {
+        return !swerve.isAlignedToFerryZone() || !shooter.isShooting() || !atShootingTolerance();
     }
 }
