@@ -6,9 +6,9 @@
 package com.stuypulse.robot.util;
 
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.stuypulse.robot.commands.auto.Auton;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj2.command.Command;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -26,22 +25,13 @@ public class PathUtil {
     public static class AutonConfig {
 
         private final String name;
-        private final Function<PathPlannerPath[], Command> auton;
+        private final Function<PathPlannerPath[], Auton> auton;
         private final String[] paths;
-        private final Optional<Double> waitTimeOne;
-        private final Optional<Double> waitTimeTwo;
 
-        public AutonConfig(
-                String name,
-                Function<PathPlannerPath[], Command> auton,
-                double waitTimeOne,
-                double waitTimeTwo,
-                String... paths) {
+        public AutonConfig(String name, Function<PathPlannerPath[], Auton> auton, String... paths) {
             this.name = name;
             this.auton = auton;
             this.paths = paths;
-            this.waitTimeOne = Optional.of(waitTimeOne);
-            this.waitTimeTwo = Optional.of(waitTimeTwo);
 
             for (String path : paths) {
                 try {
@@ -58,25 +48,17 @@ public class PathUtil {
             }
         }
 
-        public AutonConfig(
-                String name, Function<PathPlannerPath[], Command> auton, String... paths) {
-            this(name, auton, 0.0, 0.0, paths);
-        }
-
-        private Command buildCommand() {
-            Command autonCommand = auton.apply(loadPaths(paths));
-            // if (waitTimeOne.isPresent() && waitTimeOne.get() > 0.0) {
-            //     return Commands.sequence(new WaitCommand(waitTimeOne.get()), autonCommand);
-            // }
+        private Auton buildCommand() {
+            Auton autonCommand = auton.apply(loadPaths(paths));
             return autonCommand;
         }
 
-        public AutonConfig register(LoggedDashboardChooser<Command> chooser) {
+        public AutonConfig register(LoggedDashboardChooser<Auton> chooser) {
             chooser.addOption(name, buildCommand());
             return this;
         }
 
-        public AutonConfig registerDefault(SendableChooser<Command> chooser) {
+        public AutonConfig registerDefault(SendableChooser<Auton> chooser) {
             chooser.setDefaultOption(name, auton.apply(loadPaths(paths)));
             return this;
         }

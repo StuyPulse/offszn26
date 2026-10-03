@@ -4,9 +4,11 @@
 /**************************************************************/
 package com.stuypulse.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.stuypulse.robot.commands.DriveCommands;
+import com.stuypulse.robot.commands.auto.Auton;
+import com.stuypulse.robot.commands.auto.AutonFactory;
 import com.stuypulse.robot.constants.DriverConstants;
+import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.constants.GlobalSettings.VisionMode;
 import com.stuypulse.robot.subsystems.feeder.Feeder;
@@ -43,9 +45,11 @@ import com.stuypulse.robot.subsystems.vision.VisionIOLimelight;
 import com.stuypulse.robot.subsystems.vision.VisionIOPhotonVision;
 import com.stuypulse.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import com.stuypulse.robot.util.InterpolationCalculator;
+import com.stuypulse.robot.util.PathUtil.AutonConfig;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.EnumMap;
@@ -71,7 +75,10 @@ public class RobotContainer {
     private final CommandXboxController controller;
 
     // Dashboard inputs
-    private final LoggedDashboardChooser<Command> autoChooser;
+    private final LoggedDashboardChooser<Auton> autoChooser;
+
+    // Auton Factory
+    private final AutonFactory autonFactory;
 
     /** The container for the robot. Contains subsystems, IO devices, and commands. */
     public RobotContainer() {
@@ -159,7 +166,9 @@ public class RobotContainer {
         this.controller = new CommandXboxController(DriverConstants.Driver.DRIVER_INDEX);
 
         // Set up auto routines
-        autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+        autonFactory = new AutonFactory(feeder, hood, indexer, intake, shooter, swerve, vision);
+        autoChooser =
+                new LoggedDashboardChooser<Auton>("Auto Choices", new SendableChooser<Auton>());
 
         configureButtonBindings();
         configureDefaultCommands();
@@ -167,13 +176,21 @@ public class RobotContainer {
 
         // COMMENT OUT THIS METHOD BEFORE RUNNING MATCHES
         configureSysid();
+
+        SmartDashboard.putData("Field", Field.FIELD_2D);
     }
 
     private void configureDefaultCommands() {
         swerve.setDefaultCommand(DriveCommands.joystickDrive(swerve, controller));
     }
 
-    private void configureAutons() {}
+    private void configureAutons() {
+        autoChooser.addDefaultOption("Do Nothing", autonFactory.doNothingAuton());
+
+        AutonConfig exampleAuton =
+                new AutonConfig("Example", autonFactory::exampleAuton, "Example Path");
+        exampleAuton.register(autoChooser);
+    }
 
     private void configureSysid() {
         autoChooser.addOption(
@@ -211,7 +228,7 @@ public class RobotContainer {
      *
      * @return the command to run in autonomous
      */
-    public Command getAutonomousCommand() {
+    public Auton getAutonomousCommand() {
         return autoChooser.get();
     }
 

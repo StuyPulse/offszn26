@@ -14,6 +14,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
+import com.stuypulse.robot.commands.auto.Auton;
 import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.constants.GlobalSettings.Mode;
@@ -273,17 +274,19 @@ public class Swerve extends FullSubsystem implements VisionConsumer {
     }
 
     /** Returns a command to run a quasistatic test in the specified direction. */
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return run(() -> runCharacterization(0.0))
-                .withTimeout(1.0)
-                .andThen(sysId.quasistatic(direction));
+    public Auton sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return new Auton(
+                run(() -> runCharacterization(0.0))
+                        .withTimeout(1.0)
+                        .andThen(sysId.quasistatic(direction)));
     }
 
     /** Returns a command to run a dynamic test in the specified direction. */
-    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return run(() -> runCharacterization(0.0))
-                .withTimeout(1.0)
-                .andThen(sysId.dynamic(direction));
+    public Auton sysIdDynamic(SysIdRoutine.Direction direction) {
+        return new Auton(
+                run(() -> runCharacterization(0.0))
+                        .withTimeout(1.0)
+                        .andThen(sysId.dynamic(direction)));
     }
 
     public boolean isAlignedToPose(Pose2d targetPose) {
