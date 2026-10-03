@@ -8,8 +8,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import java.util.List;
 
 public interface Field {
+    Field2d FIELD_2D = new Field2d();
+
     AprilTagFieldLayout APRIL_TAG_LAYOUT =
             AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
     Distance TRENCH_HOOD_TOLERANCE = Inches.of(20);
@@ -117,6 +121,10 @@ public interface Field {
         return new Pose2d(
                 rotated.getTranslation().plus(new Translation2d(LENGTH, WIDTH)),
                 rotated.getRotation());
+    }
+
+    public static List<Pose2d> transformToOppositeAlliance(List<Pose2d> poses) {
+        return poses.stream().map(Field::transformToOppositeAlliance).toList();
     }
 
     int[] ALL_TAGS = APRIL_TAG_LAYOUT.getTags().stream().mapToInt((tag) -> tag.ID).toArray();

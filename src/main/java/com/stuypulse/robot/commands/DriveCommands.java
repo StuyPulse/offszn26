@@ -15,6 +15,7 @@ package com.stuypulse.robot.commands;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.stuypulse.robot.commands.auto.Auton;
 import com.stuypulse.robot.constants.DriverConstants.*;
 import com.stuypulse.robot.constants.Field;
 import com.stuypulse.robot.subsystems.swerve.Swerve;
@@ -187,148 +188,171 @@ public class DriveCommands {
      * Measures the velocity feedforward constants for the swerve motors.
      *
      * <p>This command should only be used in voltage control mode.
+     *
+     * @return An auton command that can be added to the auton chooser.
      */
-    public static Command feedforwardCharacterization(Swerve swerve) {
+    public static Auton feedforwardCharacterization(Swerve swerve) {
         List<Double> velocitySamples = new LinkedList<>();
         List<Double> voltageSamples = new LinkedList<>();
         Timer timer = new Timer();
 
-        return Commands.sequence(
-                // Reset data
-                Commands.runOnce(
-                        () -> {
-                            velocitySamples.clear();
-                            voltageSamples.clear();
-                        }),
-
-                // Allow modules to orient
-                Commands.run(() -> swerve.runCharacterization(0.0), swerve)
-                        .withTimeout(FF_START_DELAY),
-
-                // Start timer
-                Commands.runOnce(timer::restart),
-
-                // Accelerate and gather data
-                Commands.run(
-                                () -> {
-                                    double voltage = timer.get() * FF_RAMP_RATE;
-                                    swerve.runCharacterization(voltage);
-                                    velocitySamples.add(swerve.getFFCharacterizationVelocity());
-                                    voltageSamples.add(voltage);
-                                },
-                                swerve)
-
-                        // When cancelled, calculate and print results
-                        .finallyDo(
-                                () -> {
-                                    int n = velocitySamples.size();
-                                    double sumX = 0.0;
-                                    double sumY = 0.0;
-                                    double sumXY = 0.0;
-                                    double sumX2 = 0.0;
-                                    for (int i = 0; i < n; i++) {
-                                        sumX += velocitySamples.get(i);
-                                        sumY += voltageSamples.get(i);
-                                        sumXY += velocitySamples.get(i) * voltageSamples.get(i);
-                                        sumX2 += velocitySamples.get(i) * velocitySamples.get(i);
-                                    }
-                                    double kS =
-                                            (sumY * sumX2 - sumX * sumXY)
-                                                    / (n * sumX2 - sumX * sumX);
-                                    double kV =
-                                            (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-
-                                    NumberFormat formatter = new DecimalFormat("#0.00000");
-                                    System.out.println(
-                                            "********** Drive FF Characterization Results **********");
-                                    System.out.println("\tkS: " + formatter.format(kS));
-                                    System.out.println("\tkV: " + formatter.format(kV));
-                                }));
-    }
-
-    /** Measures the robot's wheel radius by spinning in a circle. */
-    public static Command wheelRadiusCharacterization(Swerve swerve) {
-        SlewRateLimiter limiter = new SlewRateLimiter(WHEEL_RADIUS_RAMP_RATE);
-        WheelRadiusCharacterizationState state = new WheelRadiusCharacterizationState();
-
-        return Commands.parallel(
-                // Drive control sequence
+        return new Auton(
                 Commands.sequence(
-                        // Reset acceleration limiter
+                        // Reset data
                         Commands.runOnce(
                                 () -> {
-                                    limiter.reset(0.0);
+                                    velocitySamples.clear();
+                                    voltageSamples.clear();
                                 }),
 
-                        // Turn in place, accelerating up to full speed
-                        Commands.run(
-                                () -> {
-                                    double speed = limiter.calculate(WHEEL_RADIUS_MAX_VELOCITY);
-                                    swerve.runVelocity(new ChassisSpeeds(0.0, 0.0, speed));
-                                },
-                                swerve)),
+                        // Allow modules to orient
+                        Commands.run(() -> swerve.runCharacterization(0.0), swerve)
+                                .withTimeout(FF_START_DELAY),
 
-                // Measurement sequence
-                Commands.sequence(
-                        // Wait for modules to fully orient before starting measurement
-                        Commands.waitSeconds(1.0),
+                        // Start timer
+                        Commands.runOnce(timer::restart),
 
-                        // Record starting measurement
-                        Commands.runOnce(
-                                () -> {
-                                    state.positions =
-                                            swerve.getWheelRadiusCharacterizationPositions();
-                                    state.lastAngle = swerve.getRotation();
-                                    state.gyroDelta = 0.0;
-                                }),
-
-                        // Update gyro delta
+                        // Accelerate and gather data
                         Commands.run(
                                         () -> {
-                                            var rotation = swerve.getRotation();
-                                            state.gyroDelta +=
-                                                    Math.abs(
-                                                            rotation.minus(state.lastAngle)
-                                                                    .getRadians());
-                                            state.lastAngle = rotation;
-                                        })
+                                            double voltage = timer.get() * FF_RAMP_RATE;
+                                            swerve.runCharacterization(voltage);
+                                            velocitySamples.add(
+                                                    swerve.getFFCharacterizationVelocity());
+                                            voltageSamples.add(voltage);
+                                        },
+                                        swerve)
 
                                 // When cancelled, calculate and print results
                                 .finallyDo(
                                         () -> {
-                                            double[] positions =
+                                            int n = velocitySamples.size();
+                                            double sumX = 0.0;
+                                            double sumY = 0.0;
+                                            double sumXY = 0.0;
+                                            double sumX2 = 0.0;
+                                            for (int i = 0; i < n; i++) {
+                                                sumX += velocitySamples.get(i);
+                                                sumY += voltageSamples.get(i);
+                                                sumXY +=
+                                                        velocitySamples.get(i)
+                                                                * voltageSamples.get(i);
+                                                sumX2 +=
+                                                        velocitySamples.get(i)
+                                                                * velocitySamples.get(i);
+                                            }
+                                            double kS =
+                                                    (sumY * sumX2 - sumX * sumXY)
+                                                            / (n * sumX2 - sumX * sumX);
+                                            double kV =
+                                                    (n * sumXY - sumX * sumY)
+                                                            / (n * sumX2 - sumX * sumX);
+
+                                            NumberFormat formatter = new DecimalFormat("#0.00000");
+                                            System.out.println(
+                                                    "********** Drive FF Characterization Results **********");
+                                            System.out.println("\tkS: " + formatter.format(kS));
+                                            System.out.println("\tkV: " + formatter.format(kV));
+                                        })));
+    }
+
+    /**
+     * Measures the robot's wheel radius by spinning in a circle.
+     *
+     * @return An auton command that can be added to the auton chooser.
+     */
+    public static Auton wheelRadiusCharacterization(Swerve swerve) {
+        SlewRateLimiter limiter = new SlewRateLimiter(WHEEL_RADIUS_RAMP_RATE);
+        WheelRadiusCharacterizationState state = new WheelRadiusCharacterizationState();
+
+        return new Auton(
+                Commands.parallel(
+                        // Drive control sequence
+                        Commands.sequence(
+                                // Reset acceleration limiter
+                                Commands.runOnce(
+                                        () -> {
+                                            limiter.reset(0.0);
+                                        }),
+
+                                // Turn in place, accelerating up to full speed
+                                Commands.run(
+                                        () -> {
+                                            double speed =
+                                                    limiter.calculate(WHEEL_RADIUS_MAX_VELOCITY);
+                                            swerve.runVelocity(new ChassisSpeeds(0.0, 0.0, speed));
+                                        },
+                                        swerve)),
+
+                        // Measurement sequence
+                        Commands.sequence(
+                                // Wait for modules to fully orient before starting measurement
+                                Commands.waitSeconds(1.0),
+
+                                // Record starting measurement
+                                Commands.runOnce(
+                                        () -> {
+                                            state.positions =
                                                     swerve
                                                             .getWheelRadiusCharacterizationPositions();
-                                            double wheelDelta = 0.0;
-                                            for (int i = 0; i < 4; i++) {
-                                                wheelDelta +=
-                                                        Math.abs(positions[i] - state.positions[i])
-                                                                / 4.0;
-                                            }
-                                            double wheelRadius =
-                                                    (state.gyroDelta * Swerve.DRIVE_BASE_RADIUS)
-                                                            / wheelDelta;
+                                            state.lastAngle = swerve.getRotation();
+                                            state.gyroDelta = 0.0;
+                                        }),
 
-                                            NumberFormat formatter = new DecimalFormat("#0.000");
-                                            System.out.println(
-                                                    "********** Wheel Radius Characterization Results **********");
-                                            System.out.println(
-                                                    "\tWheel Delta: "
-                                                            + formatter.format(wheelDelta)
-                                                            + " radians");
-                                            System.out.println(
-                                                    "\tGyro Delta: "
-                                                            + formatter.format(state.gyroDelta)
-                                                            + " radians");
-                                            System.out.println(
-                                                    "\tWheel Radius: "
-                                                            + formatter.format(wheelRadius)
-                                                            + " meters, "
-                                                            + formatter.format(
-                                                                    Units.metersToInches(
-                                                                            wheelRadius))
-                                                            + " inches");
-                                        })));
+                                // Update gyro delta
+                                Commands.run(
+                                                () -> {
+                                                    var rotation = swerve.getRotation();
+                                                    state.gyroDelta +=
+                                                            Math.abs(
+                                                                    rotation.minus(state.lastAngle)
+                                                                            .getRadians());
+                                                    state.lastAngle = rotation;
+                                                })
+
+                                        // When cancelled, calculate and print results
+                                        .finallyDo(
+                                                () -> {
+                                                    double[] positions =
+                                                            swerve
+                                                                    .getWheelRadiusCharacterizationPositions();
+                                                    double wheelDelta = 0.0;
+                                                    for (int i = 0; i < 4; i++) {
+                                                        wheelDelta +=
+                                                                Math.abs(
+                                                                                positions[i]
+                                                                                        - state.positions[
+                                                                                                i])
+                                                                        / 4.0;
+                                                    }
+                                                    double wheelRadius =
+                                                            (state.gyroDelta
+                                                                            * Swerve
+                                                                                    .DRIVE_BASE_RADIUS)
+                                                                    / wheelDelta;
+
+                                                    NumberFormat formatter =
+                                                            new DecimalFormat("#0.000");
+                                                    System.out.println(
+                                                            "********** Wheel Radius Characterization Results **********");
+                                                    System.out.println(
+                                                            "\tWheel Delta: "
+                                                                    + formatter.format(wheelDelta)
+                                                                    + " radians");
+                                                    System.out.println(
+                                                            "\tGyro Delta: "
+                                                                    + formatter.format(
+                                                                            state.gyroDelta)
+                                                                    + " radians");
+                                                    System.out.println(
+                                                            "\tWheel Radius: "
+                                                                    + formatter.format(wheelRadius)
+                                                                    + " meters, "
+                                                                    + formatter.format(
+                                                                            Units.metersToInches(
+                                                                                    wheelRadius))
+                                                                    + " inches");
+                                                }))));
     }
 
     private static class WheelRadiusCharacterizationState {

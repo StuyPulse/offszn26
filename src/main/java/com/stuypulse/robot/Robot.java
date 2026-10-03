@@ -4,9 +4,9 @@
 /**************************************************************/
 package com.stuypulse.robot;
 
+import com.stuypulse.robot.commands.auto.Auton;
 import com.stuypulse.robot.constants.GlobalSettings;
 import com.stuypulse.robot.util.FullSubsystem;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -22,7 +22,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  * project.
  */
 public class Robot extends LoggedRobot {
-    private Command autonomousCommand;
+    private Auton autonomousCommand;
     private RobotContainer robotContainer;
 
     public Robot() {
@@ -99,16 +99,32 @@ public class Robot extends LoggedRobot {
 
     /** This function is called periodically when disabled. */
     @Override
-    public void disabledPeriodic() {}
+    public void disabledPeriodic() {
+        if (autonomousCommand != robotContainer.getAutonomousCommand()
+                && autonomousCommand != null) {
+            autonomousCommand.clearFieldObjects();
+            autonomousCommand = robotContainer.getAutonomousCommand();
+
+            if (autonomousCommand != null) {
+                autonomousCommand.displayPaths();
+            }
+        } else {
+            autonomousCommand = robotContainer.getAutonomousCommand();
+        }
+    }
 
     /**
      * This autonomous runs the autonomous command selected by your {@link RobotContainer} class.
      */
     @Override
     public void autonomousInit() {
-        autonomousCommand = robotContainer.getAutonomousCommand();
+        if (autonomousCommand != null) {
+            autonomousCommand.clearFieldObjects();
+        }
 
         // schedule the autonomous command (example)
+        autonomousCommand = robotContainer.getAutonomousCommand();
+
         if (autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(autonomousCommand);
         }
@@ -126,6 +142,7 @@ public class Robot extends LoggedRobot {
         // continue until interrupted by another command, remove
         // this line or comment it out.
         if (autonomousCommand != null) {
+            autonomousCommand.clearFieldObjects();
             autonomousCommand.cancel();
         }
     }
