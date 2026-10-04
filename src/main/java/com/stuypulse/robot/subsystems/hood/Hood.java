@@ -106,7 +106,8 @@ public class Hood extends FullSubsystem {
         return atTolerance;
     }
 
-    private boolean isStalling() {
+    @AutoLogOutput(key = "Hood/Is Stalling")
+    public boolean isStalling() {
         return inputs.hoodInputs.statorCurrent.abs(Amps) > HoodSettings.STALL_CURRENT.in(Amps);
     }
 

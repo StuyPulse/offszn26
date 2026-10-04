@@ -94,10 +94,12 @@ public class Shooter extends FullSubsystem {
         io.applyOutputs(outputs);
     }
 
+    @AutoLogOutput(key = "Shooter/At Tolerance")
     public boolean atTolerance() {
         return atTolerance;
     }
 
+    @AutoLogOutput(key = "Shooter/Is Shooting")
     public boolean isShooting() {
         return isShootingDebouncer.calculate(
                 inputs.topLeftMotorInputs.statorCurrent.gt(ShooterSettings.IS_SHOOTING_CURRENT));

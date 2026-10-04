@@ -110,12 +110,14 @@ public class Intake extends FullSubsystem {
         io.applyOutputs(outputs);
     }
 
-    private boolean pivotStalling() {
+    @AutoLogOutput(key = "Intake/Pivot/Is Stalling")
+    public boolean pivotStalling() {
         return inputs.pivotInputs.statorCurrent.abs(Amps)
                 > IntakeSettings.PIVOT_STALL_CURRENT.in(Amps);
     }
 
-    private boolean canRunRollers() {
+    @AutoLogOutput(key = "Intake/Rollers/Can Run")
+    public boolean canRunRollers() {
         return inputs.pivotInputs.position.lte(IntakeSettings.ROLLER_START_THRESHOLD)
                 && pivotState == PivotState.DEPLOY;
     }
