@@ -10,19 +10,19 @@ import org.littletonrobotics.junction.AutoLogOutput;
 
 public interface HoodIO {
     @AutoLog
-    public static class HoodIOInputs {
+    public class HoodIOInputs {
         public TalonFXInputs hoodInputs = new TalonFXInputs();
     }
 
     public default void updateInputs(HoodIOInputs inputs) {}
 
-    public static enum HoodIOOutputMode {
+    public enum HoodIOOutputMode {
         POSITION,
         VOLTAGE,
         STOP
     }
 
-    public static class HoodIOOutputs {
+    public class HoodIOOutputs {
         @AutoLogOutput(key = "Hood/Output Mode")
         public HoodIOOutputMode hoodMode = HoodIOOutputMode.POSITION;
 

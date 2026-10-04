@@ -6,19 +6,19 @@ import org.littletonrobotics.junction.AutoLogOutput;
 
 public interface FeederIO {
     @AutoLog
-    public static class FeederIOInputs {
+    public class FeederIOInputs {
         public TalonFXInputs feederLeaderInputs = new TalonFXInputs();
         public TalonFXInputs feederFollowerInputs = new TalonFXInputs();
     }
 
     public default void updateInputs(FeederIOInputs inputs) {}
 
-    public static enum FeederIOOutputMode {
+    public enum FeederIOOutputMode {
         DUTY_CYCLE,
         STOP
     }
 
-    public static class FeederIOOutputs {
+    public class FeederIOOutputs {
         @AutoLogOutput(key = "Feeder/Output Mode")
         public FeederIOOutputMode feederMode = FeederIOOutputMode.STOP;
 

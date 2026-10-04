@@ -10,7 +10,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 
 public interface IntakeIO {
     @AutoLog
-    public static class IntakeIOInputs {
+    public class IntakeIOInputs {
         public TalonFXInputs pivotInputs = new TalonFXInputs();
 
         public TalonFXInputs rollerLeftInputs = new TalonFXInputs();
@@ -20,18 +20,18 @@ public interface IntakeIO {
 
     public default void updateInputs(IntakeIOInputs inputs) {}
 
-    public static enum PivotIOOutputMode {
+    public enum PivotIOOutputMode {
         POSITION,
         VOLTAGE,
         STOP
     }
 
-    public static enum RollerIOOutputMode {
+    public enum RollerIOOutputMode {
         DUTY_CYCLE,
         STOP
     }
 
-    public static class IntakeIOOutputs {
+    public class IntakeIOOutputs {
         @AutoLogOutput(key = "Intake/Pivot/Output Mode")
         public PivotIOOutputMode pivotMode = PivotIOOutputMode.POSITION;
 

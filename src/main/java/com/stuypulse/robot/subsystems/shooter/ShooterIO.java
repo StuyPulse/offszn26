@@ -9,7 +9,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 
 public interface ShooterIO {
     @AutoLog
-    public static class ShooterIOInputs {
+    public class ShooterIOInputs {
         public TalonFXInputs topLeftMotorInputs = new TalonFXInputs();
         public TalonFXInputs bottomLeftMotorInputs = new TalonFXInputs();
 
@@ -22,7 +22,7 @@ public interface ShooterIO {
         VELOCITY_TORQUE_CURRENT_FOC
     }
 
-    public static class ShooterIOOutputs {
+    public class ShooterIOOutputs {
         @AutoLogOutput(key = "Shooter/TargetVelocity")
         public AngularVelocity targetVelocity = RPM.zero();
 
@@ -31,8 +31,6 @@ public interface ShooterIO {
     }
 
     default void updateInputs(ShooterIOInputs inputs) {}
-    ;
 
     default void applyOutputs(ShooterIOOutputs outputs) {}
-    ;
 }

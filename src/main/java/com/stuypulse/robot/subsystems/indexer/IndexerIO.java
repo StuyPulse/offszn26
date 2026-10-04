@@ -6,19 +6,19 @@ import org.littletonrobotics.junction.AutoLogOutput;
 
 public interface IndexerIO {
     @AutoLog
-    public static class IndexerIOInputs {
+    public class IndexerIOInputs {
         public TalonFXInputs indexerBackInputs = new TalonFXInputs();
         public TalonFXInputs indexerFrontInputs = new TalonFXInputs();
     }
 
     public default void updateInputs(IndexerIOInputs inputs) {}
 
-    public static enum IndexerIOOutputMode {
+    public enum IndexerIOOutputMode {
         DUTY_CYCLE,
         STOP
     }
 
-    public static class IndexerIOOutputs {
+    public class IndexerIOOutputs {
         @AutoLogOutput(key = "Indexer/Output Mode")
         public IndexerIOOutputMode indexerMode = IndexerIOOutputMode.STOP;
 
