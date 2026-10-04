@@ -42,7 +42,7 @@ public interface IntakeIO {
         public Voltage pivotTargetVoltage = Volts.zero();
 
         @AutoLogOutput(key = "Intake/Rollers/Output Mode")
-        public RollerIOOutputMode rollerMode = RollerIOOutputMode.DUTY_CYCLE;
+        public RollerIOOutputMode rollerMode = RollerIOOutputMode.STOP;
 
         @AutoLogOutput(key = "Intake/Rollers/Target Duty Cycle")
         public double rollerTargetDutyCycle = 0.0;

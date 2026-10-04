@@ -20,7 +20,7 @@ public interface IndexerIO {
 
     public static class IndexerIOOutputs {
         @AutoLogOutput(key = "Indexer/Output Mode")
-        public IndexerIOOutputMode indexerMode = IndexerIOOutputMode.DUTY_CYCLE;
+        public IndexerIOOutputMode indexerMode = IndexerIOOutputMode.STOP;
 
         @AutoLogOutput(key = "Indexer/Target Duty Cycle")
         public double targetDutyCycle = 0;

@@ -20,7 +20,7 @@ public interface FeederIO {
 
     public static class FeederIOOutputs {
         @AutoLogOutput(key = "Feeder/Output Mode")
-        public FeederIOOutputMode feederMode = FeederIOOutputMode.DUTY_CYCLE;
+        public FeederIOOutputMode feederMode = FeederIOOutputMode.STOP;
 
         @AutoLogOutput(key = "Feeder/Target Duty Cycle")
         public double targetDutyCycle = 0;
